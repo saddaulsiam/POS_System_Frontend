@@ -1,10 +1,17 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { loyaltyAPI } from "../../services";
 
-export function OfferBadge({ customer, cart, appliedOffer }: { customer: any; cart: any[]; appliedOffer: any }) {
-  const [reason, setReason] = React.useState<string>("");
-  React.useEffect(() => {
-    async function check() {
+type OfferBadgeProps = {
+  customer: any;
+  cart: any[];
+  appliedOffer: any;
+};
+
+export function OfferBadge({ customer, cart, appliedOffer }: OfferBadgeProps) {
+  const [reason, setReason] = useState<string>("");
+
+  useEffect(() => {
+    (async function check() {
       if (!customer) {
         return;
       }
@@ -19,21 +26,15 @@ export function OfferBadge({ customer, cart, appliedOffer }: { customer: any; ca
         const reasons: string[] = [];
         all.forEach((offer: any) => {
           if (!offer.isActive) {
-            reasons.push(`${offer.title}: Not active.`);
             return;
           }
           if (offer.requiredTier && offer.requiredTier !== customer.loyaltyTier) {
             return;
-            reasons.push(`${offer.title}: Requires ${offer.requiredTier} tier.`);
-          }
-          if (offer.minimumPurchase && total < offer.minimumPurchase) {
-            reasons.push(`${offer.title}: Minimum purchase ${offer.minimumPurchase}.`);
-            return;
           }
           const start = new Date(offer.startDate);
           const end = new Date(offer.endDate);
-          if (now < start || now > end) {
-            reasons.push(`${offer.title}: Not in offer date range.`);
+          if (now < start || (now > end && offer.minimumPurchase && total < offer.minimumPurchase)) {
+            reasons.push(`${offer.title}: Minimum purchase ${offer.minimumPurchase}.`);
             return;
           }
         });
@@ -41,10 +42,11 @@ export function OfferBadge({ customer, cart, appliedOffer }: { customer: any; ca
       } catch {
         setReason("Could not check special offers.");
       }
-    }
-    check();
+    })();
   }, [customer, cart]);
+
   if (!customer) return null;
+
   return (
     <div className="flex justify-center">
       {appliedOffer ? (
