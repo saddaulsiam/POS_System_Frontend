@@ -1,9 +1,30 @@
 {
+  "name": "pos-system",
+  "version": "1.0.0",
+  "description": "A desktop POS system built with Electron, React, and Node.js.",
+  "author": "saddaulsiam",
   "main": "main.js",
   "scripts": {
-    "electron": "electron ."
+    "electron": "electron .",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.yourcompany.possystem",
+    "files": [
+      "main.js",
+      "frontend/dist/**/*",
+      "backend/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
   },
   "devDependencies": {
-    "electron": "^39.0.0"
+    "electron": "^39.0.0",
+    "electron-builder": "^26.0.12"
   }
 }
