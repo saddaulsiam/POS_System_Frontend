@@ -21,7 +21,6 @@ export function OfferBadge({ customer, cart, appliedOffer }: OfferBadgeProps) {
           setReason("No special offers are currently configured.");
           return;
         }
-        const now = new Date();
         const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
         const reasons: string[] = [];
         all.forEach((offer: any) => {
@@ -31,9 +30,10 @@ export function OfferBadge({ customer, cart, appliedOffer }: OfferBadgeProps) {
           if (offer.requiredTier && offer.requiredTier !== customer.loyaltyTier) {
             return;
           }
+          const now = new Date();
           const start = new Date(offer.startDate);
           const end = new Date(offer.endDate);
-          if (now < start || (now > end && offer.minimumPurchase && total < offer.minimumPurchase)) {
+          if (offer.minimumPurchase && total < offer.minimumPurchase && end > now && start <= now) {
             reasons.push(`${offer.title}: Minimum purchase ${offer.minimumPurchase}.`);
             return;
           }
@@ -61,7 +61,7 @@ export function OfferBadge({ customer, cart, appliedOffer }: OfferBadgeProps) {
           </span>
         </div>
       ) : (
-        <>{reason !== "" && <div className=" px-2 py-1.5 text-gray-400 text-sm italic">{reason}</div>}</>
+        <>{reason !== "" && <div className=" px-2 py-1.5 text-gray-500 text-sm italic capitalize">{reason}</div>}</>
       )}
     </div>
   );
