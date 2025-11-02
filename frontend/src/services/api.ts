@@ -1,9 +1,18 @@
 import axios, { AxiosResponse } from "axios";
 import toast from "react-hot-toast";
 
-// Create axios instance
+// Detect if running in Electron
+const isElectron =
+  typeof window !== "undefined" &&
+  typeof window.process === "object" &&
+  !!(window.process.versions && window.process.versions.electron);
+// Use full backend URL in Electron/production, proxy in dev
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: isElectron
+    ? "http://localhost:5000/api"
+    : process.env.NODE_ENV === "production"
+      ? "http://localhost:5000/api"
+      : "/api",
   timeout: 10000,
 });
 
@@ -63,7 +72,12 @@ api.interceptors.response.use(
       console.log("🚪 401 Unauthorized - Clearing auth data");
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      window.location.href = "/login";
+      // Use hash-based redirect for Electron/production
+      if (window.location.protocol === "file:") {
+        window.location.hash = "#/login";
+      } else {
+        window.location.href = "/login";
+      }
       toast.error("Session expired. Please log in again.");
     } else if (error.response?.status >= 500) {
       toast.error("Server error. Please try again later.");
