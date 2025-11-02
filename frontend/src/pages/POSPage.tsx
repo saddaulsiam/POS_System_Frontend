@@ -19,7 +19,7 @@ import { usePOSCart } from "../hooks/usePOSCart";
 import { usePOSCustomer } from "../hooks/usePOSCustomer";
 import { usePOSHandlers } from "../hooks/usePOSHandlers";
 import { usePOSPayment } from "../hooks/usePOSPayment";
-import { categoriesAPI, productsAPI, receiptsAPI, salesAPI } from "../services";
+import { categoriesAPI, loyaltyAPI, productsAPI, receiptsAPI, salesAPI } from "../services";
 import { Category, Product } from "../types";
 import { formatCurrency } from "../utils/currencyUtils";
 import { calculateChange, calculateSubtotal, calculateTax, calculateTotal } from "../utils/posUtils";
@@ -152,15 +152,104 @@ const POSPage: React.FC = () => {
     setShowRedeemPointsDialog,
   });
 
+  // Track offer discount and applied offer in state for UI
+  const [offerDiscount, setOfferDiscount] = useState(0);
+  const [appliedOffer, setAppliedOffer] = useState<any>(null);
+
+  // Fetch and update offers when customer or cart changes
+  React.useEffect(() => {
+    const updateOffers = async () => {
+      if (!customer) {
+        setOfferDiscount(0);
+        setAppliedOffer(null);
+        return;
+      }
+      try {
+        const total = calculateTotal(cart);
+        const offers = await loyaltyAPI.getAllOffers();
+        const now = new Date();
+        const eligible = (offers || []).filter((offer: any) => {
+          if (!offer.isActive) return false;
+          if (offer.requiredTier && offer.requiredTier !== customer.loyaltyTier) return false;
+          if (offer.minimumPurchase && total < offer.minimumPurchase) return false;
+          const start = new Date(offer.startDate);
+          const end = new Date(offer.endDate);
+          if (now < start || now > end) return false;
+          return true;
+        });
+        let _appliedOffer = null;
+        let _offerDiscount = 0;
+        if (eligible.length > 0) {
+          _appliedOffer = eligible.reduce((best: any, curr: any) => {
+            if (!best) return curr;
+            if ((curr.discountValue || 0) > (best.discountValue || 0)) return curr;
+            return best;
+          }, null);
+          if (_appliedOffer) {
+            if (_appliedOffer.offerType === "DISCOUNT_PERCENTAGE") {
+              _offerDiscount = (total * (_appliedOffer.discountValue || 0)) / 100;
+            } else if (_appliedOffer.offerType === "DISCOUNT_FIXED") {
+              _offerDiscount = _appliedOffer.discountValue || 0;
+            }
+          }
+        }
+        setOfferDiscount(_offerDiscount);
+        setAppliedOffer(_appliedOffer);
+      } catch (e) {
+        setOfferDiscount(0);
+        setAppliedOffer(null);
+      }
+    };
+    updateOffers();
+  }, [customer, cart]);
+
   const processPayment = async () => {
     if (isProcessingPayment) return;
-
     setIsProcessingPayment(true);
-
     try {
+      let _offerDiscount = 0;
+      let _appliedOffer = null;
       const total = calculateTotal(cart);
-      const finalTotal = total - loyaltyDiscount;
-
+      // 1. Fetch and filter active offers if customer exists
+      if (customer) {
+        try {
+          const offers = await loyaltyAPI.getAllOffers();
+          const now = new Date();
+          // Find best eligible offer
+          const eligible = (offers || []).filter((offer: any) => {
+            if (!offer.isActive) return false;
+            if (offer.requiredTier && offer.requiredTier !== customer.loyaltyTier) return false;
+            if (offer.minimumPurchase && total < offer.minimumPurchase) return false;
+            const start = new Date(offer.startDate);
+            const end = new Date(offer.endDate);
+            if (now < start || now > end) return false;
+            return true;
+          });
+          // Pick the best offer (highest discount)
+          if (eligible.length > 0) {
+            _appliedOffer = eligible.reduce((best: any, curr: any) => {
+              if (!best) return curr;
+              if ((curr.discountValue || 0) > (best.discountValue || 0)) return curr;
+              return best;
+            }, null);
+            if (_appliedOffer) {
+              if (_appliedOffer.offerType === "DISCOUNT_PERCENTAGE") {
+                _offerDiscount = (total * (_appliedOffer.discountValue || 0)) / 100;
+              } else if (_appliedOffer.offerType === "DISCOUNT_FIXED") {
+                _offerDiscount = _appliedOffer.discountValue || 0;
+              }
+            }
+          }
+        } catch (e: any) {
+          console.error("Failed to fetch/apply loyalty offers", e);
+        }
+      } else {
+        // No customer selected, so no offer can be applied.
+      }
+      setOfferDiscount(_offerDiscount);
+      setAppliedOffer(_appliedOffer);
+      // Loyalty points and offer discount are both applied if present
+      const finalTotal = total - loyaltyDiscount - _offerDiscount;
       // Validate cash payment
       if (paymentMethod === "CASH") {
         if (!cashReceived || cashReceived.trim() === "") {
@@ -168,14 +257,12 @@ const POSPage: React.FC = () => {
           setIsProcessingPayment(false);
           return;
         }
-
         const cashAmount = parseFloat(cashReceived);
         if (isNaN(cashAmount) || cashAmount < 0) {
           toast.error("Please enter a valid cash amount");
           setIsProcessingPayment(false);
           return;
         }
-
         if (cashAmount < finalTotal) {
           toast.error(
             `Insufficient cash. Need ${formatCurrency(finalTotal, settings)}, received ${formatCurrency(
@@ -187,7 +274,6 @@ const POSPage: React.FC = () => {
           return;
         }
       }
-
       // Build sale data - only include cashReceived for CASH payments
       const saleData: any = {
         customerId: customer?.id,
@@ -200,35 +286,31 @@ const POSPage: React.FC = () => {
         })),
         paymentMethod,
         loyaltyDiscount,
+        offerDiscount: _offerDiscount,
+        offerId: _appliedOffer?.id || null,
+        offerTitle: _appliedOffer?.title || null,
       };
-
       // Only include cashReceived for CASH payments
       if (paymentMethod === "CASH") {
         saleData.cashReceived = parseFloat(cashReceived);
       }
-
       const sale = await salesAPI.create(saleData);
-
       toast.success(`Sale completed! Receipt ID: ${sale.receiptId}`);
-
       // Auto-print receipt if enabled
       if (settings?.printReceiptAuto) {
         try {
           // Fetch HTML receipt with authentication
           const htmlContent = await receiptsAPI.getHTML(sale.id);
-
           // Open new window and write HTML content
           const printWindow = window.open("", "_blank", "width=800,height=600");
           if (printWindow) {
             printWindow.document.write(htmlContent);
             printWindow.document.close();
-
             // Trigger print dialog after content is loaded
             setTimeout(() => {
               printWindow.print();
             }, 500); // Small delay to ensure content is rendered
           }
-
           toast.success("Receipt ready to print", {
             duration: 2000,
             icon: "🖨️",
@@ -238,7 +320,6 @@ const POSPage: React.FC = () => {
           toast.error("Failed to open receipt for printing");
         }
       }
-
       // Auto-print receipt if enabled
       if (settings?.autoPrintThermal) {
         try {
@@ -261,7 +342,6 @@ const POSPage: React.FC = () => {
           toast.error("Failed to print thermal receipt");
         }
       }
-
       // Clear cart and reset form
       setCart([]);
       setCustomer(null);
@@ -270,15 +350,14 @@ const POSPage: React.FC = () => {
       setCashReceived("");
       setPaymentMethod("CASH");
       setLoyaltyDiscount(0);
-
+      setOfferDiscount(0);
+      setAppliedOffer(null);
       // Reload products to update stock quantities
       loadProducts(selectedCategory || undefined);
     } catch (error: any) {
       console.error("Error processing payment:", error);
-
       // Show meaningful error message
       let errorMessage = "Failed to process payment";
-
       if (error.response?.data?.errors && error.response.data.errors.length > 0) {
         // Backend validation errors
         const firstError = error.response.data.errors[0];
@@ -290,7 +369,6 @@ const POSPage: React.FC = () => {
         // Network or other errors
         errorMessage = error.message;
       }
-
       toast.error(errorMessage);
     } finally {
       setIsProcessingPayment(false);
@@ -301,11 +379,32 @@ const POSPage: React.FC = () => {
   const subtotal = calculateSubtotal(cart);
   const tax = calculateTax(cart);
   const total = calculateTotal(cart);
-  const finalTotal = total - loyaltyDiscount;
+  const finalTotal = total - loyaltyDiscount - offerDiscount;
   const changeAmount = calculateChange(parseFloat(cashReceived) || 0, finalTotal);
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
+      {/* Offer Badge or Message Above Cart */}
+
+      {customer && (
+        <div className="flex justify-center px-2 py-1">
+          {appliedOffer ? (
+            <div className="text-sm bg-blue-100 border border-blue-400 text-blue-800 px-2 py-1 rounded shadow-sm flex items-center gap-2">
+              <span className="font-medium">Special Offer Applied:</span>
+              <span className="font-semibold">{appliedOffer.title}</span>
+              <span className="text-xs bg-blue-200 text-blue-900 px-2 py-1 rounded">
+                {appliedOffer.offerType.replace("DISCOUNT_", "")}
+                {appliedOffer.discountValue
+                  ? `: ${appliedOffer.discountValue}${appliedOffer.offerType === "DISCOUNT_PERCENTAGE" ? "%" : ""}`
+                  : ""}
+              </span>
+            </div>
+          ) : (
+            <NoOfferReason customer={customer} cart={cart} />
+          )}
+        </div>
+      )}
+
       {/* Header */}
       <POSHeader storeName={settings?.storeName} user={user || undefined} onLogout={logout} />
 
@@ -369,6 +468,8 @@ const POSPage: React.FC = () => {
             tax={tax}
             total={total}
             loyaltyDiscount={loyaltyDiscount}
+            offerDiscount={offerDiscount}
+            // offerTitle={appliedOffer?.title || null}
             customer={customer}
           />
         </div>
@@ -389,6 +490,9 @@ const POSPage: React.FC = () => {
         onCashReceivedChange={setCashReceived}
         onConfirm={processPayment}
         loyaltyDiscount={loyaltyDiscount}
+        offerDiscount={offerDiscount}
+        customer={customer}
+        // offerTitle={appliedOffer?.title || null}
       />
 
       {/* Split Payment Modal */}
@@ -466,5 +570,50 @@ const POSPage: React.FC = () => {
     </div>
   );
 };
+
+// Helper component to show why no offer is available
+function NoOfferReason({ customer, cart }: { customer: any; cart: any[] }) {
+  // offers state removed (was unused)
+  const [reason, setReason] = React.useState<string>("");
+  React.useEffect(() => {
+    async function check() {
+      try {
+        const all = await loyaltyAPI.getAllOffers();
+        if (!all.length) {
+          setReason("No special offers are currently configured.");
+          return;
+        }
+        const now = new Date();
+        const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const reasons: string[] = [];
+        all.forEach((offer: any) => {
+          if (!offer.isActive) {
+            reasons.push(`${offer.title}: Not active.`);
+            return;
+          }
+          if (offer.requiredTier && offer.requiredTier !== customer.loyaltyTier) {
+            reasons.push(`${offer.title}: Requires ${offer.requiredTier} tier.`);
+            return;
+          }
+          if (offer.minimumPurchase && total < offer.minimumPurchase) {
+            reasons.push(`${offer.title}: Minimum purchase ${offer.minimumPurchase}.`);
+            return;
+          }
+          const start = new Date(offer.startDate);
+          const end = new Date(offer.endDate);
+          if (now < start || now > end) {
+            reasons.push(`${offer.title}: Not in offer date range.`);
+            return;
+          }
+        });
+        setReason(reasons.length > 0 ? reasons.join(" ") : "No special offer available for this cart.");
+      } catch {
+        setReason("Could not check special offers.");
+      }
+    }
+    check();
+  }, [customer, cart]);
+  return <div className="text-gray-400 text-sm italic">{reason}</div>;
+}
 
 export default POSPage;

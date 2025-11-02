@@ -2,6 +2,7 @@ import React from "react";
 import { useSettings } from "../../context/SettingsContext";
 import { formatCurrency } from "../../utils/currencyUtils";
 import { Input } from "../common";
+import { Customer } from "../../types";
 
 interface POSPaymentModalProps {
   isOpen: boolean;
@@ -17,6 +18,8 @@ interface POSPaymentModalProps {
   onCashReceivedChange: (value: string) => void;
   onConfirm: () => void;
   loyaltyDiscount?: number;
+  offerDiscount?: number;
+  customer: Customer | null;
 }
 
 export const POSPaymentModal: React.FC<POSPaymentModalProps> = ({
@@ -32,7 +35,9 @@ export const POSPaymentModal: React.FC<POSPaymentModalProps> = ({
   onPaymentMethodChange,
   onCashReceivedChange,
   onConfirm,
-  loyaltyDiscount, // <-- Add this line
+  loyaltyDiscount,
+  offerDiscount = 0,
+  customer,
 }) => {
   const { settings } = useSettings();
 
@@ -65,6 +70,14 @@ export const POSPaymentModal: React.FC<POSPaymentModalProps> = ({
               <div className="flex justify-between text-green-700">
                 <span>Loyalty Discount:</span>
                 <span>-{formatCurrency(loyaltyDiscount, settings)}</span>
+              </div>
+            )}
+            {/* Offer Discount row (if present) */}
+            {offerDiscount > 0 && (
+              <div className="flex justify-between text-blue-700">
+                {/* <span>Offer Discount{offerTitle ? ` (${offerTitle})` : ""}:</span> */}
+                <span>🏷️ Special Offer Discount ({customer?.loyaltyTier}):</span>
+                <span>-{formatCurrency(offerDiscount, settings)}</span>
               </div>
             )}
             <div className="flex justify-between font-medium text-lg border-t border-gray-200 pt-2 mt-2">

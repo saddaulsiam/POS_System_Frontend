@@ -1,5 +1,5 @@
 import React from "react";
-import { CartItem } from "../../types";
+import { CartItem, Customer } from "../../types";
 import { Button } from "../common";
 import { useSettings } from "../../context/SettingsContext";
 import { formatCurrency } from "../../utils/currencyUtils";
@@ -18,7 +18,8 @@ interface POSCartProps {
   tax: number;
   total: number;
   loyaltyDiscount?: number;
-  customer?: any; // Customer with loyalty points
+  offerDiscount?: number;
+  customer: Customer | null;
 }
 
 export const POSCart: React.FC<POSCartProps> = ({
@@ -35,6 +36,7 @@ export const POSCart: React.FC<POSCartProps> = ({
   tax,
   total,
   loyaltyDiscount = 0,
+  offerDiscount = 0,
   customer,
 }) => {
   const { settings } = useSettings();
@@ -148,9 +150,15 @@ export const POSCart: React.FC<POSCartProps> = ({
               <span>-{formatCurrency(loyaltyDiscount, settings)}</span>
             </div>
           )}
+          {offerDiscount > 0 && (
+            <div className="flex justify-between text-sm text-blue-600">
+              <span>🏷️ Special Offer Discount ({customer?.loyaltyTier}):</span>
+              <span>-{formatCurrency(offerDiscount, settings)}</span>
+            </div>
+          )}
           <div className="flex justify-between font-medium text-lg border-t pt-2">
             <span>Total:</span>
-            <span>{formatCurrency(total - loyaltyDiscount, settings)}</span>
+            <span>{formatCurrency(total - loyaltyDiscount - offerDiscount, settings)}</span>
           </div>
         </div>
 
