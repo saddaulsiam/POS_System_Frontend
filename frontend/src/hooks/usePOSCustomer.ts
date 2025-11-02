@@ -24,7 +24,7 @@ export function usePOSCustomer() {
       setCustomer(null);
       setCustomerNotFound(true);
       setShowCreateCustomerModal(true);
-      toast.error("Customer not found");
+      // toast.error("Customer not found");
     }
   };
 

@@ -151,6 +151,8 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
     try {
       const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
       const tax = cart.reduce((sum, item) => sum + ((item.product.taxRate || 0) * item.price * item.quantity) / 100, 0);
+      // Set expiresAt to 7 days from now
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
       const parkData = {
         customerId: args.customer?.id,
         items: cart.map((item) => ({
@@ -170,6 +172,7 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
         taxAmount: tax,
         discountAmount: 0,
         notes,
+        expiresAt,
       };
       // Debug: log parkData before sending to backend
       console.log("[DEBUG] parkData sent to backend:", parkData);
@@ -191,41 +194,63 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
   }, []);
 
   // Handler: Resume parked sale (matches ParkedSalesList prop signature)
-  const handleResumeParkedSale = useCallback((parkedSale: ParkedSale) => {
+  const handleResumeParkedSale = useCallback(async (parkedSale: ParkedSale) => {
     try {
       const parkedItems = parkedSale.items as any[];
-      const cartItems = parkedItems.map((item) => ({
-        product: {
-          id: item.productId,
-          name: item.productName || "Product",
-          sku: item.productSku || "",
-          barcode: item.productBarcode || "",
-          description: "",
-          categoryId: item.categoryId || 0,
-          supplierId: undefined,
-          costPrice: item.price,
-          purchasePrice: item.price,
-          sellingPrice: item.price,
-          stockQuantity: 999,
-          reorderLevel: 0,
-          lowStockThreshold: 0,
-          taxRate: item.taxRate || 0,
-          isActive: true,
-          isWeighted: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          isDeleted: false,
-        },
-        quantity: item.quantity,
-        price: item.price,
-        subtotal: item.quantity * item.price,
-      }));
+      const cartItems = [];
+      const outOfStockItems = [];
+      for (const item of parkedItems) {
+        let product = null;
+        let variant = null;
+        try {
+          product = await productsAPI.getById(item.productId);
+        } catch (e) {
+          outOfStockItems.push(item.productName || `Product #${item.productId}`);
+          continue;
+        }
+        if (item.productVariantId) {
+          try {
+            variant = await productVariantsAPI.getById(item.productVariantId);
+          } catch (e) {
+            outOfStockItems.push(`${product.name} (Variant #${item.productVariantId})`);
+            continue;
+          }
+          // Check variant stock
+          if (variant.stockQuantity >= item.quantity) {
+            cartItems.push({
+              product,
+              variant,
+              quantity: item.quantity,
+              price: item.price,
+              subtotal: item.quantity * item.price,
+            });
+          } else {
+            outOfStockItems.push(`${product.name} (${variant.name})`);
+          }
+        } else {
+          // No variant, check product stock
+          if (product.stockQuantity >= item.quantity) {
+            cartItems.push({
+              product,
+              quantity: item.quantity,
+              price: item.price,
+              subtotal: item.quantity * item.price,
+            });
+          } else {
+            outOfStockItems.push(product.name || `Product #${item.productId}`);
+          }
+        }
+      }
       args.setCart(cartItems);
       if (parkedSale.customer) {
         args.setCustomer(parkedSale.customer);
         args.setCustomerPhone(parkedSale.customer.phoneNumber || "");
       }
-      toast.success("Parked sale resumed");
+      if (outOfStockItems.length > 0) {
+        toast.error(`Some items could not be resumed due to insufficient stock: ${outOfStockItems.join(", ")}`);
+      } else {
+        toast.success("Parked sale resumed");
+      }
     } catch (error) {
       console.error("Error resuming parked sale:", error);
       toast.error("Failed to resume parked sale");
