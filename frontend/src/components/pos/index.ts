@@ -1,10 +1,12 @@
-export { QuickSaleButtons } from "./QuickSaleButtons";
-export { SplitPaymentDialog } from "./SplitPaymentDialog";
-export { ParkSaleDialog } from "./ParkSaleDialog";
+export { OfferBadge } from "./OfferBadge";
 export { ParkedSalesList } from "./ParkedSalesList";
+export { ParkSaleDialog } from "./ParkSaleDialog";
 export { POSBarcodeScanner } from "./POSBarcodeScanner";
 export { POSCart } from "./POSCart";
 export { POSCustomerSearch } from "./POSCustomerSearch";
+export { POSHeader } from "./POSHeader";
 export { POSPaymentModal } from "./POSPaymentModal";
 export { POSProductGrid } from "./POSProductGrid";
+export { QuickSaleButtons } from "./QuickSaleButtons";
+export { SplitPaymentDialog } from "./SplitPaymentDialog";
 export { VariantSelectorModal } from "./VariantSelectorModal";

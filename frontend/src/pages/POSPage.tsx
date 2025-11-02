@@ -1,30 +1,29 @@
-import React, { useState } from "react";
+import { FC, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { CustomerModal } from "../components/customers/CustomerModal";
 import { RedeemPointsDialog } from "../components/loyalty";
-import { POSBarcodeScanner } from "../components/pos/POSBarcodeScanner";
-import { POSCart } from "../components/pos/POSCart";
-import { POSCustomerSearch } from "../components/pos/POSCustomerSearch";
-import POSHeader from "../components/pos/POSHeader";
-import { POSPaymentModal } from "../components/pos/POSPaymentModal";
-import { POSProductGrid } from "../components/pos/POSProductGrid";
-import { ParkSaleDialog } from "../components/pos/ParkSaleDialog";
-import { ParkedSalesList } from "../components/pos/ParkedSalesList";
-import { QuickSaleButtons } from "../components/pos/QuickSaleButtons";
-import { SplitPaymentDialog } from "../components/pos/SplitPaymentDialog";
-import { VariantSelectorModal } from "../components/pos/VariantSelectorModal";
-import { useAuth } from "../context/AuthContext";
-import { useSettings } from "../context/SettingsContext";
-import { usePOSCart } from "../hooks/usePOSCart";
-import { usePOSCustomer } from "../hooks/usePOSCustomer";
-import { usePOSHandlers } from "../hooks/usePOSHandlers";
-import { usePOSPayment } from "../hooks/usePOSPayment";
+import {
+  OfferBadge,
+  POSBarcodeScanner,
+  POSCart,
+  POSCustomerSearch,
+  POSHeader,
+  POSPaymentModal,
+  POSProductGrid,
+  ParkSaleDialog,
+  ParkedSalesList,
+  QuickSaleButtons,
+  SplitPaymentDialog,
+  VariantSelectorModal,
+} from "../components/pos";
+import { useAuth, useSettings } from "../context";
+import { usePOSCart, usePOSCustomer, usePOSHandlers, usePOSPayment } from "../hooks";
 import { categoriesAPI, loyaltyAPI, productsAPI, receiptsAPI, salesAPI } from "../services";
 import { Category, Product } from "../types";
 import { formatCurrency } from "../utils/currencyUtils";
 import { calculateChange, calculateSubtotal, calculateTax, calculateTotal } from "../utils/posUtils";
 
-const POSPage: React.FC = () => {
+const POSPage: FC = () => {
   const { user, logout } = useAuth();
   const { settings } = useSettings();
 
@@ -83,7 +82,7 @@ const POSPage: React.FC = () => {
   };
 
   // Load categories and products on mount
-  React.useEffect(() => {
+  useEffect(() => {
     loadCategories();
     loadProducts();
   }, []);
@@ -157,7 +156,7 @@ const POSPage: React.FC = () => {
   const [appliedOffer, setAppliedOffer] = useState<any>(null);
 
   // Fetch and update offers when customer or cart changes
-  React.useEffect(() => {
+  useEffect(() => {
     const updateOffers = async () => {
       if (!customer) {
         setOfferDiscount(0);
@@ -385,25 +384,7 @@ const POSPage: React.FC = () => {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Offer Badge or Message Above Cart */}
-
-      {customer && (
-        <div className="flex justify-center px-2 py-1">
-          {appliedOffer ? (
-            <div className="text-sm bg-blue-100 border border-blue-400 text-blue-800 px-2 py-1 rounded shadow-sm flex items-center gap-2">
-              <span className="font-medium">Special Offer Applied:</span>
-              <span className="font-semibold">{appliedOffer.title}</span>
-              <span className="text-xs bg-blue-200 text-blue-900 px-2 py-1 rounded">
-                {appliedOffer.offerType.replace("DISCOUNT_", "")}
-                {appliedOffer.discountValue
-                  ? `: ${appliedOffer.discountValue}${appliedOffer.offerType === "DISCOUNT_PERCENTAGE" ? "%" : ""}`
-                  : ""}
-              </span>
-            </div>
-          ) : (
-            <NoOfferReason customer={customer} cart={cart} />
-          )}
-        </div>
-      )}
+      <OfferBadge customer={customer} cart={cart} appliedOffer={appliedOffer} />
 
       {/* Header */}
       <POSHeader storeName={settings?.storeName} user={user || undefined} onLogout={logout} />
@@ -570,50 +551,5 @@ const POSPage: React.FC = () => {
     </div>
   );
 };
-
-// Helper component to show why no offer is available
-function NoOfferReason({ customer, cart }: { customer: any; cart: any[] }) {
-  // offers state removed (was unused)
-  const [reason, setReason] = React.useState<string>("");
-  React.useEffect(() => {
-    async function check() {
-      try {
-        const all = await loyaltyAPI.getAllOffers();
-        if (!all.length) {
-          setReason("No special offers are currently configured.");
-          return;
-        }
-        const now = new Date();
-        const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-        const reasons: string[] = [];
-        all.forEach((offer: any) => {
-          if (!offer.isActive) {
-            reasons.push(`${offer.title}: Not active.`);
-            return;
-          }
-          if (offer.requiredTier && offer.requiredTier !== customer.loyaltyTier) {
-            reasons.push(`${offer.title}: Requires ${offer.requiredTier} tier.`);
-            return;
-          }
-          if (offer.minimumPurchase && total < offer.minimumPurchase) {
-            reasons.push(`${offer.title}: Minimum purchase ${offer.minimumPurchase}.`);
-            return;
-          }
-          const start = new Date(offer.startDate);
-          const end = new Date(offer.endDate);
-          if (now < start || now > end) {
-            reasons.push(`${offer.title}: Not in offer date range.`);
-            return;
-          }
-        });
-        setReason(reasons.length > 0 ? reasons.join(" ") : "No special offer available for this cart.");
-      } catch {
-        setReason("Could not check special offers.");
-      }
-    }
-    check();
-  }, [customer, cart]);
-  return <div className="text-gray-400 text-sm italic">{reason}</div>;
-}
 
 export default POSPage;

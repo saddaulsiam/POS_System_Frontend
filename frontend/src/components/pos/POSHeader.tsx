@@ -7,7 +7,7 @@ interface POSHeaderProps {
   onLogout: () => void;
 }
 
-const POSHeader: React.FC<POSHeaderProps> = ({ storeName, user, onLogout }) => (
+export const POSHeader: React.FC<POSHeaderProps> = ({ storeName, user, onLogout }) => (
   <header className="bg-white shadow-sm border-b border-gray-200">
     <div className="px-4 flex items-center justify-between h-16">
       {/* Left: Store Logo and Name */}
@@ -39,5 +39,3 @@ const POSHeader: React.FC<POSHeaderProps> = ({ storeName, user, onLogout }) => (
     </div>
   </header>
 );
-
-export default POSHeader;
