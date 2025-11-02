@@ -1,6 +1,12 @@
 import React from "react";
 
-type BadgeVariant = "success" | "warning" | "danger" | "info" | "default" | "primary";
+type BadgeVariant =
+  | "success"
+  | "warning"
+  | "danger"
+  | "info"
+  | "default"
+  | "primary";
 type BadgeSize = "sm" | "md" | "lg";
 
 interface BadgeProps {
@@ -53,7 +59,11 @@ export const Badge: React.FC<BadgeProps> = ({
 
   return (
     <span className={combinedClassName}>
-      {dot && <span className={`w-2 h-2 rounded-full mr-1.5 ${dotColorStyles[variant]}`} />}
+      {dot && (
+        <span
+          className={`mr-1.5 h-2 w-2 rounded-full ${dotColorStyles[variant]}`}
+        />
+      )}
       {children}
     </span>
   );

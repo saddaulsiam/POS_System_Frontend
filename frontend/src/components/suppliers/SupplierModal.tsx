@@ -17,7 +17,12 @@ interface SupplierModalProps {
   onSubmit: (data: SupplierFormData) => Promise<void>;
 }
 
-export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, editingSupplier, onClose, onSubmit }) => {
+export const SupplierModal: React.FC<SupplierModalProps> = ({
+  isOpen,
+  editingSupplier,
+  onClose,
+  onSubmit,
+}) => {
   const [formData, setFormData] = useState<SupplierFormData>({
     name: "",
     contactName: "",
@@ -47,7 +52,9 @@ export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, editingSup
     }
   }, [editingSupplier, isOpen]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -67,7 +74,12 @@ export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, editingSup
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={editingSupplier ? "Edit Supplier" : "Add New Supplier"} size="md">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={editingSupplier ? "Edit Supplier" : "Add New Supplier"}
+      size="md"
+    >
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label="Supplier Name"
@@ -97,7 +109,14 @@ export const SupplierModal: React.FC<SupplierModalProps> = ({ isOpen, editingSup
           fullWidth
         />
 
-        <Input label="Email" type="email" name="email" value={formData.email} onChange={handleInputChange} fullWidth />
+        <Input
+          label="Email"
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleInputChange}
+          fullWidth
+        />
 
         <TextArea
           label="Address"

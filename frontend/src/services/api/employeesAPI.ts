@@ -6,7 +6,15 @@ export const employeesAPI = {
     page?: number;
     limit?: number;
     search?: string;
-  }): Promise<{ data: Employee[]; pagination: { page: number; limit: number; total: number; totalPages: number } }> => {
+  }): Promise<{
+    data: Employee[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> => {
     const response = await api.get("/employees", { params });
     return response.data;
   },
@@ -31,7 +39,7 @@ export const employeesAPI = {
       pinCode?: string;
       role?: "ADMIN" | "MANAGER" | "CASHIER" | "STAFF";
       isActive?: boolean;
-    }
+    },
   ): Promise<Employee> => {
     const response = await api.put(`/employees/${id}`, data);
     return response.data;
@@ -49,7 +57,10 @@ export const employeesAPI = {
     return response.data;
   },
 
-  resetPin: async (id: number, newPin: string): Promise<{ message: string }> => {
+  resetPin: async (
+    id: number,
+    newPin: string,
+  ): Promise<{ message: string }> => {
     const response = await api.put(`/employees/${id}/reset-pin`, { newPin });
     return response.data;
   },

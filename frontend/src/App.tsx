@@ -53,7 +53,7 @@ const App: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -63,7 +63,9 @@ const App: React.FC = () => {
     return <LoginPage />;
   }
 
-  const isAdminPath = adminPaths.some((p) => location.pathname === p || location.pathname.startsWith(p + "/"));
+  const isAdminPath = adminPaths.some(
+    (p) => location.pathname === p || location.pathname.startsWith(p + "/"),
+  );
 
   return (
     <>
@@ -72,7 +74,9 @@ const App: React.FC = () => {
       <div className="flex">
         {isAdminPath && <Sidebar />}
 
-        <main className={`flex-1 ${isAdminPath ? "pt-16" : ""} min-h-screen bg-gray-50`}>
+        <main
+          className={`flex-1 ${isAdminPath ? "pt-16" : ""} min-h-screen bg-gray-50`}
+        >
           <Routes>
             {/* POS Interface - Main cashier interface */}
             <Route path="/" element={<POSPage />} />

@@ -11,7 +11,12 @@ export const parkedSalesAPI = {
   },
   create: async (data: {
     customerId?: number;
-    items: Array<{ productId: number; productVariantId?: number; quantity: number; price: number }>;
+    items: Array<{
+      productId: number;
+      productVariantId?: number;
+      quantity: number;
+      price: number;
+    }>;
     subtotal: number;
     taxAmount: number;
     discountAmount: number;

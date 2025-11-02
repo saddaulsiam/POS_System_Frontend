@@ -30,7 +30,12 @@ export interface PointsTransaction {
   sale?: Sale;
 }
 
-export type PointsTransactionType = "EARNED" | "REDEEMED" | "EXPIRED" | "ADJUSTED" | "BIRTHDAY_BONUS";
+export type PointsTransactionType =
+  | "EARNED"
+  | "REDEEMED"
+  | "EXPIRED"
+  | "ADJUSTED"
+  | "BIRTHDAY_BONUS";
 
 export interface LoyaltyReward {
   id: number;
@@ -45,7 +50,11 @@ export interface LoyaltyReward {
   customer?: Customer;
 }
 
-export type RewardType = "DISCOUNT" | "FREE_PRODUCT" | "STORE_CREDIT" | "SPECIAL_OFFER";
+export type RewardType =
+  | "DISCOUNT"
+  | "FREE_PRODUCT"
+  | "STORE_CREDIT"
+  | "SPECIAL_OFFER";
 
 export interface RedeemPointsRequest {
   customerId: number;

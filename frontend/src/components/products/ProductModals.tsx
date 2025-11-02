@@ -9,7 +9,9 @@ interface ProductModalsProps {
   showAddModal: boolean;
   setShowAddModal: (show: boolean) => void;
   form: any;
-  handleFormChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  handleFormChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => void;
   handleAddProduct: (e: React.FormEvent) => void;
   isSubmitting: boolean;
   categories: Category[];
@@ -91,10 +93,10 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
     <>
       {/* Add Product Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
             <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+              className="absolute right-2 top-2 text-xl text-gray-500 hover:text-gray-700"
               onClick={() => {
                 setShowAddModal(false);
                 setImageFile(null);
@@ -104,14 +106,21 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
             >
               &times;
             </button>
-            <h2 className="text-2xl font-bold mb-2 text-blue-700 text-center">Add New Product</h2>
-            <p className="mb-4 text-gray-500 text-sm text-center">
+            <h2 className="mb-2 text-center text-2xl font-bold text-blue-700">
+              Add New Product
+            </h2>
+            <p className="mb-4 text-center text-sm text-gray-500">
               Fill in the details below to add a new product to your inventory.
             </p>
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleAddProduct}>
+            <form
+              className="grid grid-cols-1 gap-4 md:grid-cols-2"
+              onSubmit={handleAddProduct}
+            >
               {/* Image Upload */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">Product Image</label>
+                <label className="mb-2 block text-sm font-medium">
+                  Product Image
+                </label>
                 <div className="flex items-center gap-4">
                   <input
                     type="file"
@@ -131,13 +140,17 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                         reader.readAsDataURL(file);
                       }
                     }}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
                   />
                   {imagePreview && (
-                    <img src={imagePreview} alt="Preview" className="h-20 w-20 object-cover rounded border" />
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="h-20 w-20 rounded border object-cover"
+                    />
                   )}
                 </div>
-                <span className="text-xs text-gray-400 mt-1 block">
+                <span className="mt-1 block text-xs text-gray-400">
                   Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB
                 </span>
               </div>
@@ -185,7 +198,10 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   options={[
                     { value: "", label: "Select category" },
-                    ...categories.map((cat) => ({ value: cat.id, label: cat.name })),
+                    ...categories.map((cat) => ({
+                      value: cat.id,
+                      label: cat.name,
+                    })),
                   ]}
                 />
               </div>
@@ -198,7 +214,10 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   options={[
                     { value: "", label: "Select supplier (optional)" },
-                    ...suppliers.map((supplier) => ({ value: supplier.id, label: supplier.name })),
+                    ...suppliers.map((supplier) => ({
+                      value: supplier.id,
+                      label: supplier.name,
+                    })),
                   ]}
                 />
               </div>
@@ -215,7 +234,9 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   placeholder="e.g. 10.00"
                 />
-                <span className="text-xs text-gray-400">The cost you pay to acquire this product.</span>
+                <span className="text-xs text-gray-400">
+                  The cost you pay to acquire this product.
+                </span>
               </div>
               <div>
                 <Input
@@ -230,7 +251,9 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   placeholder="e.g. 15.00"
                 />
-                <span className="text-xs text-gray-400">The price at which you sell this product.</span>
+                <span className="text-xs text-gray-400">
+                  The price at which you sell this product.
+                </span>
               </div>
               <div>
                 <Input
@@ -245,7 +268,9 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   placeholder="e.g. 100"
                 />
-                <span className="text-xs text-gray-400">Initial stock available for this product.</span>
+                <span className="text-xs text-gray-400">
+                  Initial stock available for this product.
+                </span>
               </div>
               <div>
                 <Input
@@ -259,7 +284,9 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   placeholder="e.g. 10"
                 />
-                <span className="text-xs text-gray-400">Get notified when stock falls below this number.</span>
+                <span className="text-xs text-gray-400">
+                  Get notified when stock falls below this number.
+                </span>
               </div>
               <div>
                 <Input
@@ -274,10 +301,12 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   placeholder="e.g. 5"
                 />
-                <span className="text-xs text-gray-400">Leave 0 if not applicable.</span>
+                <span className="text-xs text-gray-400">
+                  Leave 0 if not applicable.
+                </span>
               </div>
               <div className="flex space-x-10">
-                <div className="flex items-center mt-2">
+                <div className="mt-2 flex items-center">
                   <input
                     id="isWeighted"
                     name="isWeighted"
@@ -290,7 +319,7 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                     Weighted Product
                   </label>
                 </div>
-                <div className="flex items-center mt-2">
+                <div className="mt-2 flex items-center">
                   <input
                     id="isActive"
                     name="isActive"
@@ -304,8 +333,14 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   </label>
                 </div>
               </div>
-              <div className="md:col-span-2 mt-2">
-                <Button type="submit" variant="primary" fullWidth size="lg" disabled={isSubmitting}>
+              <div className="mt-2 md:col-span-2">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  fullWidth
+                  size="lg"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? "Adding..." : "Add Product"}
                 </Button>
               </div>
@@ -316,10 +351,10 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
 
       {/* Edit Product Modal */}
       {showEditModal && editProduct && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
             <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+              className="absolute right-2 top-2 text-xl text-gray-500 hover:text-gray-700"
               onClick={() => {
                 setShowEditModal(false);
                 setImageFile(null);
@@ -329,14 +364,22 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
             >
               &times;
             </button>
-            <h2 className="text-2xl font-bold mb-2 text-blue-700 text-center">Edit Product</h2>
-            <p className="mb-4 text-gray-500 text-sm text-center">
-              Update the details below and save to apply changes to this product.
+            <h2 className="mb-2 text-center text-2xl font-bold text-blue-700">
+              Edit Product
+            </h2>
+            <p className="mb-4 text-center text-sm text-gray-500">
+              Update the details below and save to apply changes to this
+              product.
             </p>
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleUpdateProduct}>
+            <form
+              className="grid grid-cols-1 gap-4 md:grid-cols-2"
+              onSubmit={handleUpdateProduct}
+            >
               {/* Image Upload */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">Product Image</label>
+                <label className="mb-2 block text-sm font-medium">
+                  Product Image
+                </label>
                 <div className="flex items-center gap-4">
                   <input
                     type="file"
@@ -356,13 +399,17 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                         reader.readAsDataURL(file);
                       }
                     }}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
                   />
                   {imagePreview && (
-                    <img src={imagePreview} alt="Preview" className="h-20 w-20 object-cover rounded border" />
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="h-20 w-20 rounded border object-cover"
+                    />
                   )}
                 </div>
-                <span className="text-xs text-gray-400 mt-1 block">
+                <span className="mt-1 block text-xs text-gray-400">
                   Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB
                 </span>
               </div>
@@ -410,7 +457,10 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   options={[
                     { value: "", label: "Select category" },
-                    ...categories.map((cat) => ({ value: cat.id, label: cat.name })),
+                    ...categories.map((cat) => ({
+                      value: cat.id,
+                      label: cat.name,
+                    })),
                   ]}
                 />
               </div>
@@ -423,7 +473,10 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   options={[
                     { value: "", label: "Select supplier (optional)" },
-                    ...suppliers.map((supplier) => ({ value: supplier.id, label: supplier.name })),
+                    ...suppliers.map((supplier) => ({
+                      value: supplier.id,
+                      label: supplier.name,
+                    })),
                   ]}
                 />
               </div>
@@ -440,7 +493,9 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   placeholder="e.g. 10.00"
                 />
-                <span className="text-xs text-gray-400">The cost you pay to acquire this product.</span>
+                <span className="text-xs text-gray-400">
+                  The cost you pay to acquire this product.
+                </span>
               </div>
               <div>
                 <Input
@@ -455,7 +510,9 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   placeholder="e.g. 15.00"
                 />
-                <span className="text-xs text-gray-400">The price at which you sell this product.</span>
+                <span className="text-xs text-gray-400">
+                  The price at which you sell this product.
+                </span>
               </div>
               <div>
                 <Input
@@ -470,7 +527,9 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   placeholder="e.g. 100"
                 />
-                <span className="text-xs text-gray-400">Current stock available for this product.</span>
+                <span className="text-xs text-gray-400">
+                  Current stock available for this product.
+                </span>
               </div>
               <div>
                 <Input
@@ -484,7 +543,9 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   placeholder="e.g. 10"
                 />
-                <span className="text-xs text-gray-400">Get notified when stock falls below this number.</span>
+                <span className="text-xs text-gray-400">
+                  Get notified when stock falls below this number.
+                </span>
               </div>
               <div>
                 <Input
@@ -499,10 +560,12 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   fullWidth
                   placeholder="e.g. 5"
                 />
-                <span className="text-xs text-gray-400">Leave 0 if not applicable.</span>
+                <span className="text-xs text-gray-400">
+                  Leave 0 if not applicable.
+                </span>
               </div>
               <div className="flex space-x-10">
-                <div className="flex items-center mt-2">
+                <div className="mt-2 flex items-center">
                   <input
                     id="isWeighted"
                     name="isWeighted"
@@ -515,7 +578,7 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                     Weighted Product
                   </label>
                 </div>
-                <div className="flex items-center mt-2">
+                <div className="mt-2 flex items-center">
                   <input
                     id="isActive"
                     name="isActive"
@@ -529,8 +592,14 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   </label>
                 </div>
               </div>
-              <div className="md:col-span-2 mt-2">
-                <Button type="submit" variant="primary" fullWidth size="lg" disabled={isSubmitting}>
+              <div className="mt-2 md:col-span-2">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  fullWidth
+                  size="lg"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? "Saving..." : "Save Changes"}
                 </Button>
               </div>
@@ -541,10 +610,10 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="relative w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">
             <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+              className="absolute right-2 top-2 text-xl text-gray-500 hover:text-gray-700"
               onClick={() => {
                 setShowDeleteConfirm(false);
                 setDeletingId(null);
@@ -553,8 +622,11 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
             >
               &times;
             </button>
-            <h3 className="text-lg font-semibold mb-4">Confirm Deletion</h3>
-            <p className="mb-6">Are you sure you want to delete this product? This action cannot be undone.</p>
+            <h3 className="mb-4 text-lg font-semibold">Confirm Deletion</h3>
+            <p className="mb-6">
+              Are you sure you want to delete this product? This action cannot
+              be undone.
+            </p>
             <div className="flex justify-end gap-2">
               <Button
                 variant="ghost"
@@ -575,10 +647,10 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
 
       {/* Print Barcode Modal */}
       {showPrintModal && printProduct && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
             <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+              className="absolute right-2 top-2 text-xl text-gray-500 hover:text-gray-700"
               onClick={() => {
                 setShowPrintModal(false);
                 setPrintProduct(null);
@@ -588,34 +660,40 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
             >
               &times;
             </button>
-            <h2 className="text-2xl font-bold mb-4 text-purple-700 text-center">Print Barcode Labels</h2>
-            <p className="mb-4 text-gray-600 text-sm text-center">
+            <h2 className="mb-4 text-center text-2xl font-bold text-purple-700">
+              Print Barcode Labels
+            </h2>
+            <p className="mb-4 text-center text-sm text-gray-600">
               Print barcode labels for: <strong>{printProduct.name}</strong>
             </p>
 
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">Number of Labels</label>
+              <label className="mb-2 block text-sm font-medium">
+                Number of Labels
+              </label>
               <input
                 type="number"
                 min="1"
                 max="500"
                 value={printCopies}
-                onChange={(e) => setPrintCopies(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
+                onChange={(e) =>
+                  setPrintCopies(Math.max(1, parseInt(e.target.value) || 1))
+                }
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-400 focus:ring-2 focus:ring-purple-400"
               />
             </div>
 
             <div className="mb-6">
-              <p className="text-xs text-gray-500 mb-2">Quick Select:</p>
+              <p className="mb-2 text-xs text-gray-500">Quick Select:</p>
               <div className="grid grid-cols-5 gap-2">
                 {[1, 5, 10, 20, 50].map((num) => (
                   <button
                     key={num}
                     onClick={() => setPrintCopies(num)}
-                    className={`px-3 py-2 rounded-lg border transition-all duration-150 ${
+                    className={`rounded-lg border px-3 py-2 transition-all duration-150 ${
                       printCopies === num
-                        ? "bg-purple-600 text-white border-purple-600"
-                        : "bg-white text-gray-700 border-gray-300 hover:bg-purple-50 hover:border-purple-300"
+                        ? "border-purple-600 bg-purple-600 text-white"
+                        : "border-gray-300 bg-white text-gray-700 hover:border-purple-300 hover:bg-purple-50"
                     }`}
                   >
                     {num}
@@ -624,10 +702,10 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
               </div>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+            <div className="mb-4 rounded border border-blue-200 bg-blue-50 p-3">
               <p className="text-xs text-blue-800">
-                <strong>Note:</strong> Labels will be arranged on A4 paper. 18 labels will fit per page (3 columns × 6
-                rows).
+                <strong>Note:</strong> Labels will be arranged on A4 paper. 18
+                labels will fit per page (3 columns × 6 rows).
               </p>
             </div>
 
@@ -638,7 +716,7 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                   setPrintProduct(null);
                   setPrintCopies(1);
                 }}
-                className="flex-1 bg-gray-100 text-gray-700 px-6 py-2 rounded-lg border border-gray-300 hover:bg-gray-200 transition-all duration-150 font-medium"
+                className="flex-1 rounded-lg border border-gray-300 bg-gray-100 px-6 py-2 font-medium text-gray-700 transition-all duration-150 hover:bg-gray-200"
               >
                 Cancel
               </button>
@@ -660,10 +738,10 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
 
       {/* Import Modal */}
       {showImportModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
             <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+              className="absolute right-2 top-2 text-xl text-gray-500 hover:text-gray-700"
               onClick={() => {
                 setShowImportModal(false);
                 setImportFile(null);
@@ -672,37 +750,49 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
             >
               &times;
             </button>
-            <h2 className="text-2xl font-bold mb-4 text-purple-700 text-center">Import Products</h2>
-            <p className="mb-4 text-gray-600 text-sm">
-              Upload a CSV file to import multiple products at once. Make sure your CSV follows the correct format.
+            <h2 className="mb-4 text-center text-2xl font-bold text-purple-700">
+              Import Products
+            </h2>
+            <p className="mb-4 text-sm text-gray-600">
+              Upload a CSV file to import multiple products at once. Make sure
+              your CSV follows the correct format.
             </p>
 
             <div className="mb-4">
               <button
-                className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-200 transition-all duration-150 font-medium mb-2"
+                className="mb-2 w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2 font-medium text-gray-700 transition-all duration-150 hover:bg-gray-200"
                 onClick={handleDownloadTemplate}
               >
                 📄 Download Template CSV
               </button>
               <p className="text-xs text-gray-500">
-                Download a template file to see the correct format for importing products.
+                Download a template file to see the correct format for importing
+                products.
               </p>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Select CSV File</label>
+              <label className="mb-2 block text-sm font-medium">
+                Select CSV File
+              </label>
               <input
                 type="file"
                 accept=".csv"
                 onChange={(e) => setImportFile(e.target.files?.[0] || null)}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                className="block w-full text-sm text-gray-500 file:mr-4 file:rounded file:border-0 file:bg-purple-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-purple-700 hover:file:bg-purple-100"
               />
-              {importFile && <p className="text-sm text-gray-600 mt-2">Selected: {importFile.name}</p>}
+              {importFile && (
+                <p className="mt-2 text-sm text-gray-600">
+                  Selected: {importFile.name}
+                </p>
+              )}
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
-              <p className="text-xs text-blue-800 font-semibold mb-1">Important Notes:</p>
-              <ul className="text-xs text-blue-700 list-disc list-inside space-y-1">
+            <div className="mb-4 rounded border border-blue-200 bg-blue-50 p-3">
+              <p className="mb-1 text-xs font-semibold text-blue-800">
+                Important Notes:
+              </p>
+              <ul className="list-inside list-disc space-y-1 text-xs text-blue-700">
                 <li>SKUs must be unique</li>
                 <li>Category IDs must exist in your database</li>
                 <li>Supplier IDs are optional but must exist if provided</li>

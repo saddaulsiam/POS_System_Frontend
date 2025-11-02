@@ -17,9 +17,16 @@ interface SplitPaymentDialogProps {
   onConfirm: (splits: PaymentSplit[]) => void;
 }
 
-export const SplitPaymentDialog: React.FC<SplitPaymentDialogProps> = ({ isOpen, onClose, totalAmount, onConfirm }) => {
+export const SplitPaymentDialog: React.FC<SplitPaymentDialogProps> = ({
+  isOpen,
+  onClose,
+  totalAmount,
+  onConfirm,
+}) => {
   const { settings } = useSettings();
-  const [splits, setSplits] = useState<PaymentSplit[]>([{ method: "CASH", amount: 0 }]);
+  const [splits, setSplits] = useState<PaymentSplit[]>([
+    { method: "CASH", amount: 0 },
+  ]);
 
   useEffect(() => {
     if (isOpen) {
@@ -28,7 +35,12 @@ export const SplitPaymentDialog: React.FC<SplitPaymentDialogProps> = ({ isOpen, 
     }
   }, [isOpen, totalAmount]);
 
-  const paymentMethods: PaymentMethod[] = ["CASH", "CARD", "MOBILE_PAYMENT", "STORE_CREDIT"];
+  const paymentMethods: PaymentMethod[] = [
+    "CASH",
+    "CARD",
+    "MOBILE_PAYMENT",
+    "STORE_CREDIT",
+  ];
 
   const methodLabels: Record<PaymentMethod, string> = {
     CASH: "Cash",
@@ -88,12 +100,16 @@ export const SplitPaymentDialog: React.FC<SplitPaymentDialogProps> = ({ isOpen, 
     const totalSplit = getTotalSplitAmount();
 
     if (totalSplit < totalAmount) {
-      toast.error(`Insufficient payment: ${formatCurrency(totalAmount - totalSplit, settings)} remaining`);
+      toast.error(
+        `Insufficient payment: ${formatCurrency(totalAmount - totalSplit, settings)} remaining`,
+      );
       return;
     }
 
     if (totalSplit > totalAmount) {
-      toast.error(`Overpayment: ${formatCurrency(totalSplit - totalAmount, settings)} excess`);
+      toast.error(
+        `Overpayment: ${formatCurrency(totalSplit - totalAmount, settings)} excess`,
+      );
       return;
     }
 
@@ -120,26 +136,37 @@ export const SplitPaymentDialog: React.FC<SplitPaymentDialogProps> = ({ isOpen, 
   const isBalanced = Math.abs(remaining) < 0.01;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl relative max-h-[90vh] overflow-y-auto">
-        <button className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
+        <button
+          className="absolute right-4 top-4 text-xl text-gray-500 hover:text-gray-700"
+          onClick={onClose}
+        >
           ×
         </button>
 
-        <h2 className="text-2xl font-bold mb-2 text-gray-800">Split Payment</h2>
-        <p className="text-sm text-gray-600 mb-6">Split the total amount across multiple payment methods</p>
+        <h2 className="mb-2 text-2xl font-bold text-gray-800">Split Payment</h2>
+        <p className="mb-6 text-sm text-gray-600">
+          Split the total amount across multiple payment methods
+        </p>
 
         {/* Total Amount Display */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-700">Total Amount:</span>
-            <span className="text-2xl font-bold text-blue-600">{formatCurrency(totalAmount, settings)}</span>
+            <span className="text-2xl font-bold text-blue-600">
+              {formatCurrency(totalAmount, settings)}
+            </span>
           </div>
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-blue-200">
+          <div className="mt-2 flex items-center justify-between border-t border-blue-200 pt-2">
             <span className="text-sm text-gray-700">Remaining:</span>
             <span
               className={`text-lg font-semibold ${
-                isBalanced ? "text-green-600" : remaining > 0 ? "text-orange-600" : "text-red-600"
+                isBalanced
+                  ? "text-green-600"
+                  : remaining > 0
+                    ? "text-orange-600"
+                    : "text-red-600"
               }`}
             >
               {formatCurrency(Math.abs(remaining), settings)}
@@ -150,14 +177,27 @@ export const SplitPaymentDialog: React.FC<SplitPaymentDialogProps> = ({ isOpen, 
         </div>
 
         {/* Payment Splits */}
-        <div className="space-y-4 mb-6">
+        <div className="mb-6 space-y-4">
           {splits.map((split, index) => (
-            <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-gray-800">Payment {index + 1}</h3>
+            <div
+              key={index}
+              className="rounded-lg border border-gray-200 bg-gray-50 p-4"
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="font-semibold text-gray-800">
+                  Payment {index + 1}
+                </h3>
                 {splits.length > 1 && (
-                  <button onClick={() => handleRemoveSplit(index)} className="text-red-600 hover:text-red-800 text-sm">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <button
+                    onClick={() => handleRemoveSplit(index)}
+                    className="text-sm text-red-600 hover:text-red-800"
+                  >
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -172,11 +212,15 @@ export const SplitPaymentDialog: React.FC<SplitPaymentDialogProps> = ({ isOpen, 
               <div className="grid grid-cols-2 gap-4">
                 {/* Payment Method */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Payment Method
+                  </label>
                   <select
                     value={split.method}
-                    onChange={(e) => handleMethodChange(index, e.target.value as PaymentMethod)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) =>
+                      handleMethodChange(index, e.target.value as PaymentMethod)
+                    }
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {paymentMethods.map((method) => (
                       <option key={method} value={method}>
@@ -188,17 +232,23 @@ export const SplitPaymentDialog: React.FC<SplitPaymentDialogProps> = ({ isOpen, 
 
                 {/* Amount */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Amount
+                  </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2 text-gray-500">$</span>
+                    <span className="absolute left-3 top-2 text-gray-500">
+                      $
+                    </span>
                     <input
                       type="number"
                       value={split.amount || ""}
-                      onChange={(e) => handleAmountChange(index, e.target.value)}
+                      onChange={(e) =>
+                        handleAmountChange(index, e.target.value)
+                      }
                       step="0.01"
                       min="0"
                       placeholder="0.00"
-                      className="w-full border border-gray-300 rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full rounded-lg border border-gray-300 py-2 pl-8 pr-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
@@ -211,10 +261,20 @@ export const SplitPaymentDialog: React.FC<SplitPaymentDialogProps> = ({ isOpen, 
         {splits.length < 4 && (
           <button
             onClick={handleAddSplit}
-            className="w-full border-2 border-dashed border-gray-300 rounded-lg py-3 text-gray-600 hover:border-blue-500 hover:text-blue-600 transition-colors mb-6"
+            className="mb-6 w-full rounded-lg border-2 border-dashed border-gray-300 py-3 text-gray-600 transition-colors hover:border-blue-500 hover:text-blue-600"
           >
-            <svg className="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg
+              className="mr-2 inline-block h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
             </svg>
             Add Another Payment Method
           </button>
@@ -225,7 +285,11 @@ export const SplitPaymentDialog: React.FC<SplitPaymentDialogProps> = ({ isOpen, 
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleConfirm} disabled={!isBalanced}>
+          <Button
+            variant="primary"
+            onClick={handleConfirm}
+            disabled={!isBalanced}
+          >
             Confirm Split Payment
           </Button>
         </div>

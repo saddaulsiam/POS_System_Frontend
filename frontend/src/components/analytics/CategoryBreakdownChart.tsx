@@ -9,7 +9,16 @@ interface CategoryBreakdownChartProps {
   colors?: string[];
 }
 
-const DEFAULT_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899", "#14B8A6", "#F97316"];
+const DEFAULT_COLORS = [
+  "#3B82F6",
+  "#10B981",
+  "#F59E0B",
+  "#EF4444",
+  "#8B5CF6",
+  "#EC4899",
+  "#14B8A6",
+  "#F97316",
+];
 
 export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
   categories,
@@ -17,8 +26,8 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
   formatCurrency,
   colors = DEFAULT_COLORS,
 }) => (
-  <div className="bg-white rounded-lg shadow-sm p-6">
-    <h2 className="text-xl font-bold text-gray-800 mb-4">Sales by Category</h2>
+  <div className="rounded-lg bg-white p-6 shadow-sm">
+    <h2 className="mb-4 text-xl font-bold text-gray-800">Sales by Category</h2>
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
         <Pie
@@ -28,13 +37,17 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
           cx="50%"
           cy="50%"
           outerRadius={100}
-          label={(entry: any) => `${entry.name}: ${entry.percentage.toFixed(1)}%`}
+          label={(entry: any) =>
+            `${entry.name}: ${entry.percentage.toFixed(1)}%`
+          }
         >
           {categories.map((_, index) => (
             <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
           ))}
         </Pie>
-        <Tooltip formatter={(value: number) => formatCurrency(value, settings)} />
+        <Tooltip
+          formatter={(value: number) => formatCurrency(value, settings)}
+        />
       </PieChart>
     </ResponsiveContainer>
   </div>

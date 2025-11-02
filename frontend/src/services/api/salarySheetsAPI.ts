@@ -21,7 +21,12 @@ export interface SalarySheet {
 }
 
 export const salarySheetsAPI = {
-  create: async (data: Omit<SalarySheet, "id" | "employee" | "paid" | "paidAt" | "createdAt">) => {
+  create: async (
+    data: Omit<
+      SalarySheet,
+      "id" | "employee" | "paid" | "paidAt" | "createdAt"
+    >,
+  ) => {
     const response = await api.post("/salary-sheets", data);
     return response.data;
   },
@@ -33,7 +38,12 @@ export const salarySheetsAPI = {
     const response = await api.post(`/salary-sheets/${id}/pay`);
     return response.data;
   },
-  update: async (id: number, data: Partial<Omit<SalarySheet, "id" | "employee" | "paid" | "paidAt" | "createdAt">>) => {
+  update: async (
+    id: number,
+    data: Partial<
+      Omit<SalarySheet, "id" | "employee" | "paid" | "paidAt" | "createdAt">
+    >,
+  ) => {
     const response = await api.put(`/salary-sheets/${id}`, data);
     return response.data;
   },

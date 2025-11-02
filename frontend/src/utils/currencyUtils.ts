@@ -23,7 +23,11 @@ interface CurrencySettings {
  * formatCurrency(1234.56, { currencyCode: "BDT" }) // "৳1,234.56"
  * formatCurrency(1234.56, { currencySymbol: "€", currencyPosition: "after" }) // "1,234.56€"
  */
-export const formatCurrency = (amount: number, settings?: CurrencySettings | null, decimals?: number): string => {
+export const formatCurrency = (
+  amount: number,
+  settings?: CurrencySettings | null,
+  decimals?: number,
+): string => {
   // If currencyCode is provided, use the currency configuration system
   if (settings?.currencyCode) {
     const config = getCurrencyConfig(settings.currencyCode);
@@ -68,7 +72,7 @@ export const formatCurrency = (amount: number, settings?: CurrencySettings | nul
 export const formatCurrencyWithSign = (
   amount: number,
   settings?: CurrencySettings | null,
-  showPositiveSign: boolean = false
+  showPositiveSign: boolean = false,
 ): string => {
   const absAmount = Math.abs(amount);
   let formattedAmount = formatCurrency(absAmount, settings);

@@ -74,7 +74,9 @@ export const POSBarcodeScanner: React.FC<POSBarcodeScannerProps> = ({
       switch (e.key) {
         case "ArrowDown":
           e.preventDefault();
-          setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
+          setSelectedIndex((prev) =>
+            prev < suggestions.length - 1 ? prev + 1 : prev,
+          );
           return;
         case "ArrowUp":
           e.preventDefault();
@@ -94,7 +96,10 @@ export const POSBarcodeScanner: React.FC<POSBarcodeScannerProps> = ({
       }
     }
     // If Enter is pressed and no suggestion is selected, allow form submit
-    if (e.key === "Enter" && (selectedIndex === -1 || !showSuggestions || suggestions.length === 0)) {
+    if (
+      e.key === "Enter" &&
+      (selectedIndex === -1 || !showSuggestions || suggestions.length === 0)
+    ) {
       // Let the form's onSubmit handle it
       return;
     }
@@ -116,9 +121,9 @@ export const POSBarcodeScanner: React.FC<POSBarcodeScannerProps> = ({
   };
 
   return (
-    <div className="p-4 bg-white border-b border-gray-200">
+    <div className="border-b border-gray-200 bg-white p-4">
       <form onSubmit={onSubmit} className="flex space-x-2">
-        <div className="flex-1 relative">
+        <div className="relative flex-1">
           <input
             ref={inputRef}
             type="text"
@@ -127,7 +132,7 @@ export const POSBarcodeScanner: React.FC<POSBarcodeScannerProps> = ({
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder="Scan barcode or search product..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
             autoComplete="off"
           />
 
@@ -135,43 +140,55 @@ export const POSBarcodeScanner: React.FC<POSBarcodeScannerProps> = ({
           {showSuggestions && suggestions.length > 0 && (
             <div
               ref={suggestionsRef}
-              className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-y-auto"
+              className="absolute z-50 mt-1 max-h-80 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg"
             >
               {suggestions.map((product, index) => (
                 <div
                   key={product.id}
                   onClick={() => handleSelectSuggestion(product)}
-                  className={`px-3 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-blue-50 transition-colors ${
+                  className={`cursor-pointer border-b border-gray-100 px-3 py-3 transition-colors last:border-b-0 hover:bg-blue-50 ${
                     index === selectedIndex ? "bg-blue-50" : ""
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     {/* Product Image */}
-                    <div className="w-14 h-14 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
+                    <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
                       {product.image ? (
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="w-full h-full object-cover"
+                          className="h-full w-full object-cover"
                           onError={(e) => {
                             e.currentTarget.src =
                               "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f3f4f6'/%3E%3Ctext x='50' y='50' font-size='40' text-anchor='middle' dy='.3em' fill='%239ca3af'%3E📦%3C/text%3E%3C/svg%3E";
                           }}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-2xl text-gray-400">📦</div>
+                        <div className="flex h-full w-full items-center justify-center text-2xl text-gray-400">
+                          📦
+                        </div>
                       )}
                     </div>
 
                     {/* Product Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{product.name}</p>
-                      <div className="flex items-center space-x-3 mt-1">
-                        <span className="text-xs text-gray-500">SKU: {product.sku}</span>
-                        {product.barcode && <span className="text-xs text-gray-500">Barcode: {product.barcode}</span>}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-gray-900">
+                        {product.name}
+                      </p>
+                      <div className="mt-1 flex items-center space-x-3">
+                        <span className="text-xs text-gray-500">
+                          SKU: {product.sku}
+                        </span>
+                        {product.barcode && (
+                          <span className="text-xs text-gray-500">
+                            Barcode: {product.barcode}
+                          </span>
+                        )}
                         <span
-                          className={`text-xs px-2 py-0.5 rounded-full ${
-                            product.stockQuantity > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                          className={`rounded-full px-2 py-0.5 text-xs ${
+                            product.stockQuantity > 0
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
                           }`}
                         >
                           Stock: {product.stockQuantity}
@@ -180,7 +197,7 @@ export const POSBarcodeScanner: React.FC<POSBarcodeScannerProps> = ({
                     </div>
 
                     {/* Price */}
-                    <div className="text-right ml-2 flex-shrink-0">
+                    <div className="ml-2 flex-shrink-0 text-right">
                       <p className="text-base font-bold text-green-600">
                         {formatCurrency(product.sellingPrice, settings)}
                       </p>

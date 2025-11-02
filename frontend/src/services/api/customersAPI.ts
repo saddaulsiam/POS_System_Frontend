@@ -1,8 +1,17 @@
 import api from "../api";
-import { Customer, PaginatedResponse, CreateCustomerRequest, UpdateCustomerRequest } from "../../types";
+import {
+  Customer,
+  PaginatedResponse,
+  CreateCustomerRequest,
+  UpdateCustomerRequest,
+} from "../../types";
 
 export const customersAPI = {
-  getAll: async (params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<Customer>> => {
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<PaginatedResponse<Customer>> => {
     const response = await api.get("/customers", { params });
     return response.data;
   },
@@ -18,7 +27,10 @@ export const customersAPI = {
     const response = await api.post("/customers", data);
     return response.data;
   },
-  update: async (id: number, data: UpdateCustomerRequest): Promise<Customer> => {
+  update: async (
+    id: number,
+    data: UpdateCustomerRequest,
+  ): Promise<Customer> => {
     const response = await api.put(`/customers/${id}`, data);
     return response.data;
   },

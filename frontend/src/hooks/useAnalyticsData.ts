@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { analyticsAPI } from "../services";
 import toast from "react-hot-toast";
-import { Period, OverviewData, SalesTrendData, TopProduct, CategoryData } from "../types/analyticsTypes";
+import {
+  Period,
+  OverviewData,
+  SalesTrendData,
+  TopProduct,
+  CategoryData,
+} from "../types/analyticsTypes";
 
 export function useAnalyticsData() {
   const [period, setPeriod] = useState<Period>("today");
@@ -23,7 +29,10 @@ export function useAnalyticsData() {
           : { period };
       const [overview, trend, products, categoryBreakdown] = await Promise.all([
         analyticsAPI.getOverview(params),
-        analyticsAPI.getSalesTrend({ period, groupBy: period === "today" ? "hour" : "day" }),
+        analyticsAPI.getSalesTrend({
+          period,
+          groupBy: period === "today" ? "hour" : "day",
+        }),
         analyticsAPI.getTopProducts({ ...params, limit: 10 }),
         analyticsAPI.getCategoryBreakdown(params),
       ]);

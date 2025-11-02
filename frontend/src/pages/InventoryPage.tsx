@@ -7,7 +7,12 @@ import { InventoryTable } from "../components/inventory/InventoryTable";
 import { StockAdjustModal } from "../components/inventory/StockAdjustModal";
 import { StockHistoryModal } from "../components/inventory/StockHistoryModal";
 
-type AllowedMovementType = "PURCHASE" | "ADJUSTMENT" | "RETURN" | "DAMAGED" | "EXPIRED";
+type AllowedMovementType =
+  | "PURCHASE"
+  | "ADJUSTMENT"
+  | "RETURN"
+  | "DAMAGED"
+  | "EXPIRED";
 
 const InventoryPage: React.FC = () => {
   const [report, setReport] = useState<InventoryReport | null>(null);
@@ -90,17 +95,23 @@ const InventoryPage: React.FC = () => {
 
   const filteredProducts =
     report?.products.filter(
-      (p) => p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase())
+      (p) =>
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.sku.toLowerCase().includes(search.toLowerCase()),
     ) || [];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold mb-6">Inventory Management</h1>
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h1 className="mb-6 text-3xl font-bold">Inventory Management</h1>
 
-        <InventorySearch search={search} onSearchChange={setSearch} report={report} />
+        <InventorySearch
+          search={search}
+          onSearchChange={setSearch}
+          report={report}
+        />
 
-        <div className="bg-white rounded-lg shadow p-6 overflow-x-auto">
+        <div className="overflow-x-auto rounded-lg bg-white p-6 shadow">
           <InventoryTable
             products={filteredProducts}
             isLoading={isLoading}

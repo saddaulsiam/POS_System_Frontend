@@ -27,7 +27,10 @@ export const salesAPI = {
   },
   processRefund: async (
     id: number,
-    data: { items: Array<{ saleItemId: number; quantity: number }>; reason?: string }
+    data: {
+      items: Array<{ saleItemId: number; quantity: number }>;
+      reason?: string;
+    },
   ): Promise<Sale> => {
     const response = await api.post(`/sales/${id}/refund`, data);
     return response.data;
@@ -37,7 +40,7 @@ export const salesAPI = {
   },
   voidSale: async (
     id: number,
-    data: { reason: string; password?: string; restoreStock?: boolean }
+    data: { reason: string; password?: string; restoreStock?: boolean },
   ): Promise<{ message: string; sale: Sale }> => {
     const response = await api.post(`/sales/${id}/void`, data);
     return response.data;

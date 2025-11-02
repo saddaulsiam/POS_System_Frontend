@@ -6,9 +6,12 @@ interface SupplierSearchProps {
   onSearchChange: (value: string) => void;
 }
 
-export const SupplierSearch: React.FC<SupplierSearchProps> = ({ searchTerm, onSearchChange }) => {
+export const SupplierSearch: React.FC<SupplierSearchProps> = ({
+  searchTerm,
+  onSearchChange,
+}) => {
   return (
-    <div className="bg-white rounded-lg shadow mb-6 p-4">
+    <div className="mb-6 rounded-lg bg-white p-4 shadow">
       <SearchBar
         value={searchTerm}
         onChange={onSearchChange}

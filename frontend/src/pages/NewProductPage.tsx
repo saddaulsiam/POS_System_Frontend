@@ -52,10 +52,15 @@ const NewProductPage: React.FC = () => {
     }
   };
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleFormChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
-      setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
+      setForm((prev) => ({
+        ...prev,
+        [name]: (e.target as HTMLInputElement).checked,
+      }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -117,34 +122,46 @@ const NewProductPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl relative">
-        <h2 className="text-2xl font-bold mb-2 text-blue-700 text-center">Add New Product</h2>
-        <p className="mb-4 text-gray-500 text-sm text-center">
-          Fill in the details below to add a new product to your inventory. A barcode will be automatically generated.
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-8">
+      <div className="relative w-full max-w-2xl rounded-lg bg-white p-6 shadow-lg">
+        <h2 className="mb-2 text-center text-2xl font-bold text-blue-700">
+          Add New Product
+        </h2>
+        <p className="mb-4 text-center text-sm text-gray-500">
+          Fill in the details below to add a new product to your inventory. A
+          barcode will be automatically generated.
         </p>
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleAddProduct}>
+        <form
+          className="grid grid-cols-1 gap-4 md:grid-cols-2"
+          onSubmit={handleAddProduct}
+        >
           {/* Image Upload */}
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-2">Product Image</label>
+            <label className="mb-2 block text-sm font-medium">
+              Product Image
+            </label>
             <div className="flex items-center gap-4">
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                className="block w-full text-sm text-gray-500 file:mr-4 file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
               />
               {imagePreview && (
-                <img src={imagePreview} alt="Preview" className="h-20 w-20 object-cover rounded border" />
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="h-20 w-20 rounded border object-cover"
+                />
               )}
             </div>
-            <span className="text-xs text-gray-400 mt-1 block">
+            <span className="mt-1 block text-xs text-gray-400">
               Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB
             </span>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="mb-1 block text-sm font-medium">
               Name <span className="text-red-500">*</span>
             </label>
             <Input
@@ -157,7 +174,7 @@ const NewProductPage: React.FC = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="mb-1 block text-sm font-medium">
               SKU <span className="text-red-500">*</span>
             </label>
             <Input
@@ -170,7 +187,7 @@ const NewProductPage: React.FC = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="mb-1 block text-sm font-medium">
               Category <span className="text-red-500">*</span>
             </label>
             <select
@@ -178,7 +195,7 @@ const NewProductPage: React.FC = () => {
               value={form.categoryId}
               onChange={handleFormChange}
               required
-              className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400"
+              className="w-full rounded border px-3 py-2 focus:ring-2 focus:ring-blue-400"
             >
               <option value="">Select category</option>
               {categories.map((cat) => (
@@ -189,12 +206,12 @@ const NewProductPage: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Supplier</label>
+            <label className="mb-1 block text-sm font-medium">Supplier</label>
             <select
               name="supplierId"
               value={form.supplierId}
               onChange={handleFormChange}
-              className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400"
+              className="w-full rounded border px-3 py-2 focus:ring-2 focus:ring-blue-400"
             >
               <option value="">Select supplier (optional)</option>
               {suppliers.map((supplier) => (
@@ -205,7 +222,7 @@ const NewProductPage: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="mb-1 block text-sm font-medium">
               Purchase Price <span className="text-red-500">*</span>
             </label>
             <Input
@@ -219,10 +236,12 @@ const NewProductPage: React.FC = () => {
               fullWidth
               placeholder="e.g. 10.00"
             />
-            <span className="text-xs text-gray-400">The cost you pay to acquire this product.</span>
+            <span className="text-xs text-gray-400">
+              The cost you pay to acquire this product.
+            </span>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="mb-1 block text-sm font-medium">
               Selling Price <span className="text-red-500">*</span>
             </label>
             <Input
@@ -236,10 +255,12 @@ const NewProductPage: React.FC = () => {
               fullWidth
               placeholder="e.g. 15.00"
             />
-            <span className="text-xs text-gray-400">The price at which you sell this product.</span>
+            <span className="text-xs text-gray-400">
+              The price at which you sell this product.
+            </span>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="mb-1 block text-sm font-medium">
               Stock Quantity <span className="text-red-500">*</span>
             </label>
             <Input
@@ -253,10 +274,14 @@ const NewProductPage: React.FC = () => {
               fullWidth
               placeholder="e.g. 100"
             />
-            <span className="text-xs text-gray-400">Initial stock available for this product.</span>
+            <span className="text-xs text-gray-400">
+              Initial stock available for this product.
+            </span>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Low Stock Threshold</label>
+            <label className="mb-1 block text-sm font-medium">
+              Low Stock Threshold
+            </label>
             <Input
               name="lowStockThreshold"
               type="number"
@@ -267,10 +292,14 @@ const NewProductPage: React.FC = () => {
               fullWidth
               placeholder="e.g. 10"
             />
-            <span className="text-xs text-gray-400">Get notified when stock falls below this number.</span>
+            <span className="text-xs text-gray-400">
+              Get notified when stock falls below this number.
+            </span>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Tax Rate (%)</label>
+            <label className="mb-1 block text-sm font-medium">
+              Tax Rate (%)
+            </label>
             <Input
               name="taxRate"
               type="number"
@@ -282,10 +311,12 @@ const NewProductPage: React.FC = () => {
               fullWidth
               placeholder="e.g. 5"
             />
-            <span className="text-xs text-gray-400">Leave 0 if not applicable.</span>
+            <span className="text-xs text-gray-400">
+              Leave 0 if not applicable.
+            </span>
           </div>
           <div className="flex space-x-10">
-            <div className="flex items-center mt-2">
+            <div className="mt-2 flex items-center">
               <input
                 name="isWeighted"
                 type="checkbox"
@@ -295,7 +326,7 @@ const NewProductPage: React.FC = () => {
               />
               <label className="text-sm font-medium">Weighted Product</label>
             </div>
-            <div className="flex items-center mt-2">
+            <div className="mt-2 flex items-center">
               <input
                 name="isActive"
                 type="checkbox"
@@ -306,8 +337,14 @@ const NewProductPage: React.FC = () => {
               <label className="text-sm font-medium">Active</label>
             </div>
           </div>
-          <div className="md:col-span-2 mt-2">
-            <Button type="submit" variant="primary" fullWidth size="lg" disabled={isSubmitting}>
+          <div className="mt-2 md:col-span-2">
+            <Button
+              type="submit"
+              variant="primary"
+              fullWidth
+              size="lg"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Adding..." : "Add Product"}
             </Button>
           </div>

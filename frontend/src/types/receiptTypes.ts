@@ -27,7 +27,11 @@ export interface PrintReceiptRequest {
 }
 
 export type ItemCondition = "NEW" | "OPENED" | "DAMAGED" | "DEFECTIVE";
-export type RefundMethod = "CASH" | "ORIGINAL_PAYMENT" | "STORE_CREDIT" | "EXCHANGE";
+export type RefundMethod =
+  | "CASH"
+  | "ORIGINAL_PAYMENT"
+  | "STORE_CREDIT"
+  | "EXCHANGE";
 
 export interface ReturnRequest {
   items: Array<{

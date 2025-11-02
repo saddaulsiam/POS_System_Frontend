@@ -17,18 +17,41 @@ import {
   VariantSelectorModal,
 } from "../components/pos";
 import { useAuth, useSettings } from "../context";
-import { usePOSCart, usePOSCustomer, usePOSHandlers, usePOSPayment } from "../hooks";
-import { categoriesAPI, loyaltyAPI, productsAPI, receiptsAPI, salesAPI } from "../services";
+import {
+  usePOSCart,
+  usePOSCustomer,
+  usePOSHandlers,
+  usePOSPayment,
+} from "../hooks";
+import {
+  categoriesAPI,
+  loyaltyAPI,
+  productsAPI,
+  receiptsAPI,
+  salesAPI,
+} from "../services";
 import { Category, Product } from "../types";
 import { formatCurrency } from "../utils/currencyUtils";
-import { calculateChange, calculateSubtotal, calculateTax, calculateTotal } from "../utils/posUtils";
+import {
+  calculateChange,
+  calculateSubtotal,
+  calculateTax,
+  calculateTotal,
+} from "../utils/posUtils";
 
 const POSPage: FC = () => {
   const { user, logout } = useAuth();
   const { settings } = useSettings();
 
   // Cart state
-  const { cart, setCart, addToCart, addVariantToCart, updateCartItemQuantity, removeFromCart } = usePOSCart();
+  const {
+    cart,
+    setCart,
+    addToCart,
+    addVariantToCart,
+    updateCartItemQuantity,
+    removeFromCart,
+  } = usePOSCart();
 
   // Barcode state
   const [barcode, setBarcode] = useState("");
@@ -115,7 +138,8 @@ const POSPage: FC = () => {
 
   // Variant selection state
   const [showVariantSelector, setShowVariantSelector] = useState(false);
-  const [selectedProductForVariant, setSelectedProductForVariant] = useState<Product | null>(null);
+  const [selectedProductForVariant, setSelectedProductForVariant] =
+    useState<Product | null>(null);
 
   // Modularized POS handlers
   const {
@@ -169,8 +193,10 @@ const POSPage: FC = () => {
         const now = new Date();
         const eligible = (offers || []).filter((offer: any) => {
           if (!offer.isActive) return false;
-          if (offer.requiredTier && offer.requiredTier !== customer.loyaltyTier) return false;
-          if (offer.minimumPurchase && total < offer.minimumPurchase) return false;
+          if (offer.requiredTier && offer.requiredTier !== customer.loyaltyTier)
+            return false;
+          if (offer.minimumPurchase && total < offer.minimumPurchase)
+            return false;
           const start = new Date(offer.startDate);
           const end = new Date(offer.endDate);
           if (now < start || now > end) return false;
@@ -181,12 +207,14 @@ const POSPage: FC = () => {
         if (eligible.length > 0) {
           _appliedOffer = eligible.reduce((best: any, curr: any) => {
             if (!best) return curr;
-            if ((curr.discountValue || 0) > (best.discountValue || 0)) return curr;
+            if ((curr.discountValue || 0) > (best.discountValue || 0))
+              return curr;
             return best;
           }, null);
           if (_appliedOffer) {
             if (_appliedOffer.offerType === "DISCOUNT_PERCENTAGE") {
-              _offerDiscount = (total * (_appliedOffer.discountValue || 0)) / 100;
+              _offerDiscount =
+                (total * (_appliedOffer.discountValue || 0)) / 100;
             } else if (_appliedOffer.offerType === "DISCOUNT_FIXED") {
               _offerDiscount = _appliedOffer.discountValue || 0;
             }
@@ -217,8 +245,13 @@ const POSPage: FC = () => {
           // Find best eligible offer
           const eligible = (offers || []).filter((offer: any) => {
             if (!offer.isActive) return false;
-            if (offer.requiredTier && offer.requiredTier !== customer.loyaltyTier) return false;
-            if (offer.minimumPurchase && total < offer.minimumPurchase) return false;
+            if (
+              offer.requiredTier &&
+              offer.requiredTier !== customer.loyaltyTier
+            )
+              return false;
+            if (offer.minimumPurchase && total < offer.minimumPurchase)
+              return false;
             const start = new Date(offer.startDate);
             const end = new Date(offer.endDate);
             if (now < start || now > end) return false;
@@ -228,12 +261,14 @@ const POSPage: FC = () => {
           if (eligible.length > 0) {
             _appliedOffer = eligible.reduce((best: any, curr: any) => {
               if (!best) return curr;
-              if ((curr.discountValue || 0) > (best.discountValue || 0)) return curr;
+              if ((curr.discountValue || 0) > (best.discountValue || 0))
+                return curr;
               return best;
             }, null);
             if (_appliedOffer) {
               if (_appliedOffer.offerType === "DISCOUNT_PERCENTAGE") {
-                _offerDiscount = (total * (_appliedOffer.discountValue || 0)) / 100;
+                _offerDiscount =
+                  (total * (_appliedOffer.discountValue || 0)) / 100;
               } else if (_appliedOffer.offerType === "DISCOUNT_FIXED") {
                 _offerDiscount = _appliedOffer.discountValue || 0;
               }
@@ -266,8 +301,8 @@ const POSPage: FC = () => {
           toast.error(
             `Insufficient cash. Need ${formatCurrency(finalTotal, settings)}, received ${formatCurrency(
               cashAmount,
-              settings
-            )}`
+              settings,
+            )}`,
           );
           setIsProcessingPayment(false);
           return;
@@ -326,11 +361,16 @@ const POSPage: FC = () => {
           // Replace hardcoded $ with dynamic currency symbol from settings
           const currencySymbol = settings?.currencySymbol || "$";
           // Regex: replace $ before numbers with currencySymbol
-          thermalContent = thermalContent.replace(/\$(\d+[.,]?\d*)/g, `${currencySymbol}$1`);
+          thermalContent = thermalContent.replace(
+            /\$(\d+[.,]?\d*)/g,
+            `${currencySymbol}$1`,
+          );
           console.log({ thermalContent });
           const printWindow = window.open("", "_blank", "width=400,height=600");
           if (printWindow) {
-            printWindow.document.write(`<pre style='font-size:16px; font-family:monospace;'>${thermalContent}</pre>`);
+            printWindow.document.write(
+              `<pre style='font-size:16px; font-family:monospace;'>${thermalContent}</pre>`,
+            );
             printWindow.document.close();
             setTimeout(() => {
               printWindow.print();
@@ -357,7 +397,10 @@ const POSPage: FC = () => {
       console.error("Error processing payment:", error);
       // Show meaningful error message
       let errorMessage = "Failed to process payment";
-      if (error.response?.data?.errors && error.response.data.errors.length > 0) {
+      if (
+        error.response?.data?.errors &&
+        error.response.data.errors.length > 0
+      ) {
         // Backend validation errors
         const firstError = error.response.data.errors[0];
         errorMessage = firstError.msg || errorMessage;
@@ -379,19 +422,26 @@ const POSPage: FC = () => {
   const tax = calculateTax(cart);
   const total = calculateTotal(cart);
   const finalTotal = total - loyaltyDiscount - offerDiscount;
-  const changeAmount = calculateChange(parseFloat(cashReceived) || 0, finalTotal);
+  const changeAmount = calculateChange(
+    parseFloat(cashReceived) || 0,
+    finalTotal,
+  );
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="flex h-screen flex-col bg-gray-50">
       {/* Offer Badge or Message Above Cart */}
       <OfferBadge customer={customer} cart={cart} appliedOffer={appliedOffer} />
 
       {/* Header */}
-      <POSHeader storeName={settings?.storeName} user={user || undefined} onLogout={logout} />
+      <POSHeader
+        storeName={settings?.storeName}
+        user={user || undefined}
+        onLogout={logout}
+      />
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         {/* Left Panel - Product Scanning & Categories */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden">
           {/* Barcode Scanner - conditionally shown */}
           {settings?.enableBarcodeScanner && (
             <POSBarcodeScanner
@@ -420,7 +470,7 @@ const POSPage: FC = () => {
         </div>
 
         {/* Right Panel - Shopping Cart */}
-        <div className="w-96 bg-white border-l border-gray-200 flex flex-col">
+        <div className="flex w-96 flex-col border-l border-gray-200 bg-white">
           {/* Customer Info - conditionally shown */}
           {settings?.enableCustomerSearch && (
             <POSCustomerSearch

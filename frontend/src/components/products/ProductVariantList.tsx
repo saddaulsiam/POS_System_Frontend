@@ -11,18 +11,24 @@ interface ProductVariantListProps {
   product: Product;
 }
 
-export const ProductVariantList: React.FC<ProductVariantListProps> = ({ product }) => {
+export const ProductVariantList: React.FC<ProductVariantListProps> = ({
+  product,
+}) => {
   const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(null);
+  const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(
+    null,
+  );
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const { settings } = useSettings();
 
   const fetchVariants = async () => {
     try {
       setLoading(true);
-      const response = await productVariantsAPI.getAll({ productId: product.id });
+      const response = await productVariantsAPI.getAll({
+        productId: product.id,
+      });
       const variants = Array.isArray(response) ? response : response.data || [];
       setVariants(variants);
     } catch (error) {
@@ -76,9 +82,9 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({ product 
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="rounded-lg bg-white p-6 shadow">
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <span className="ml-3 text-gray-600">Loading variants...</span>
         </div>
       </div>
@@ -86,17 +92,35 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({ product 
   }
 
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="rounded-lg bg-white shadow">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+      <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-800">Product Variants</h3>
-          <p className="text-sm text-gray-600 mt-1">Manage different sizes, colors, or variations of this product</p>
+          <h3 className="text-lg font-semibold text-gray-800">
+            Product Variants
+          </h3>
+          <p className="mt-1 text-sm text-gray-600">
+            Manage different sizes, colors, or variations of this product
+          </p>
         </div>
         {variants.length > 0 && (
-          <Button variant="primary" onClick={handleAddVariant} className="flex items-center">
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          <Button
+            variant="primary"
+            onClick={handleAddVariant}
+            className="flex items-center"
+          >
+            <svg
+              className="mr-2 h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
             </svg>
             Add Variant
           </Button>
@@ -107,7 +131,12 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({ product 
       <div className="overflow-x-auto">
         {variants.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -115,12 +144,30 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({ product 
                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
               />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No variants</h3>
-            <p className="mt-1 text-sm text-gray-500">Get started by creating a new product variant.</p>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">
+              No variants
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Get started by creating a new product variant.
+            </p>
             <div className="mt-6 flex justify-center">
-              <Button variant="primary" onClick={handleAddVariant} className="flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <Button
+                variant="primary"
+                onClick={handleAddVariant}
+                className="flex items-center"
+              >
+                <svg
+                  className="mr-2 h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
                 Add Variant
               </Button>
@@ -130,78 +177,96 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({ product 
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Variant Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  SKU
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Barcode
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Purchase Price
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Selling Price
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Stock
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 bg-white">
               {variants.map((variant) => (
                 <tr key={variant.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{variant.name}</div>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    <div className="text-sm font-medium text-gray-900">
+                      {variant.name}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <div className="text-sm text-gray-900">{variant.sku}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{variant.barcode || "-"}</div>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    <div className="text-sm text-gray-500">
+                      {variant.barcode || "-"}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{formatCurrency(variant.purchasePrice, settings)}</div>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    <div className="text-sm text-gray-900">
+                      {formatCurrency(variant.purchasePrice, settings)}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <div className="text-sm font-semibold text-gray-900">
                       {formatCurrency(variant.sellingPrice, settings)}
                     </div>
                     <div className="text-xs text-gray-500">
                       Margin:{" "}
-                      {(((variant.sellingPrice - variant.purchasePrice) / variant.sellingPrice) * 100).toFixed(1)}%
+                      {(
+                        ((variant.sellingPrice - variant.purchasePrice) /
+                          variant.sellingPrice) *
+                        100
+                      ).toFixed(1)}
+                      %
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <div
                       className={`text-sm font-medium ${
                         (variant.stockQuantity || 0) > 10
                           ? "text-green-600"
                           : (variant.stockQuantity || 0) > 0
-                          ? "text-yellow-600"
-                          : "text-red-600"
+                            ? "text-yellow-600"
+                            : "text-red-600"
                       }`}
                     >
                       {variant.stockQuantity || 0}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <span
-                      className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        variant.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold leading-5 ${
+                        variant.isActive
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
                       }`}
                     >
                       {variant.isActive ? "Active" : "Inactive"}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <button onClick={() => handleEditVariant(variant)} className="text-blue-600 hover:text-blue-900">
+                  <td className="space-x-2 whitespace-nowrap px-6 py-4 text-sm font-medium">
+                    <button
+                      onClick={() => handleEditVariant(variant)}
+                      className="text-blue-600 hover:text-blue-900"
+                    >
                       Edit
                     </button>
                     <button
@@ -221,16 +286,21 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({ product 
 
       {/* Summary */}
       {variants.length > 0 && (
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+        <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
           <div className="flex items-center justify-between text-sm text-gray-600">
             <div>
               <span className="font-semibold">{variants.length}</span> variant
               {variants.length !== 1 ? "s" : ""} •{" "}
-              <span className="font-semibold">{variants.filter((v) => v.isActive).length}</span> active
+              <span className="font-semibold">
+                {variants.filter((v) => v.isActive).length}
+              </span>{" "}
+              active
             </div>
             <div>
               Total Stock:{" "}
-              <span className="font-semibold">{variants.reduce((sum, v) => sum + (v.stockQuantity || 0), 0)}</span>
+              <span className="font-semibold">
+                {variants.reduce((sum, v) => sum + (v.stockQuantity || 0), 0)}
+              </span>
             </div>
           </div>
         </div>

@@ -31,7 +31,7 @@ api.interceptors.request.use(
   (error) => {
     console.error("❌ Request interceptor error:", error);
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor for error handling
@@ -56,7 +56,8 @@ api.interceptors.response.use(
 
     // Don't show toast for 404 on variant lookup (used for barcode scanning)
     const isVariantLookup404 =
-      error.config?.url?.includes("/product-variants/lookup/") && error.response?.status === 404;
+      error.config?.url?.includes("/product-variants/lookup/") &&
+      error.response?.status === 404;
 
     if (error.response?.status === 401) {
       console.log("🚪 401 Unauthorized - Clearing auth data");
@@ -73,7 +74,7 @@ api.interceptors.response.use(
       toast.error(error.message);
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

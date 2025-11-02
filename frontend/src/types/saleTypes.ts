@@ -58,11 +58,21 @@ export interface ParkedSale {
   customer?: any;
 }
 
-export type PaymentMethod = "CASH" | "CARD" | "MOBILE_PAYMENT" | "STORE_CREDIT" | "MIXED";
+export type PaymentMethod =
+  | "CASH"
+  | "CARD"
+  | "MOBILE_PAYMENT"
+  | "STORE_CREDIT"
+  | "MIXED";
 
 export type PaymentStatus = "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
 
-export type PurchaseOrderStatus = "PENDING" | "ORDERED" | "PARTIALLY_RECEIVED" | "RECEIVED" | "CANCELLED";
+export type PurchaseOrderStatus =
+  | "PENDING"
+  | "ORDERED"
+  | "PARTIALLY_RECEIVED"
+  | "RECEIVED"
+  | "CANCELLED";
 
 export interface PaymentSplit {
   id: number;

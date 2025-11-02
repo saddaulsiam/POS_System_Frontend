@@ -41,16 +41,16 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4">
           <h2 className="text-xl font-semibold text-gray-800">Products List</h2>
         </div>
         <div className="flex flex-col items-center justify-center py-16">
           <div className="relative">
-            <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
-            <div className="w-16 h-16 border-4 border-blue-600 rounded-full animate-spin border-t-transparent absolute top-0 left-0"></div>
+            <div className="h-16 w-16 rounded-full border-4 border-blue-200"></div>
+            <div className="absolute left-0 top-0 h-16 w-16 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
           </div>
-          <p className="text-gray-600 mt-4 font-medium">Loading products...</p>
+          <p className="mt-4 font-medium text-gray-600">Loading products...</p>
         </div>
       </div>
     );
@@ -58,15 +58,23 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
   if (products.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4">
           <h2 className="text-xl font-semibold text-gray-800">
-            Products List <span className="text-sm font-normal text-gray-500 ml-2">(0 items)</span>
+            Products List{" "}
+            <span className="ml-2 text-sm font-normal text-gray-500">
+              (0 items)
+            </span>
           </h2>
         </div>
         <div className="flex flex-col items-center justify-center py-16">
-          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
+            <svg
+              className="h-10 w-10 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -75,8 +83,12 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Products Found</h3>
-          <p className="text-gray-500 mb-6">Get started by adding your first product</p>
+          <h3 className="mb-2 text-lg font-semibold text-gray-900">
+            No Products Found
+          </h3>
+          <p className="mb-6 text-gray-500">
+            Get started by adding your first product
+          </p>
           {canWrite && (
             <Button variant="primary" onClick={onAddNew}>
               + Add Product
@@ -92,41 +104,45 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     if (!imagePath) return undefined;
     if (imagePath.startsWith("http")) return imagePath;
     // Change this to your backend URL if different
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+    const backendUrl =
+      process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
     return backendUrl + imagePath;
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-      <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+    <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4">
         <h2 className="text-xl font-semibold text-gray-800">
-          Products List <span className="text-sm font-normal text-gray-500 ml-2">({products.length} items)</span>
+          Products List{" "}
+          <span className="ml-2 text-sm font-normal text-gray-500">
+            ({products.length} items)
+          </span>
         </h2>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+            <tr className="border-b border-gray-200 bg-gray-50">
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
                 Product
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
                 SKU / Barcode
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
                 Category
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
                 Price
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
                 Stock
               </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
                 Status
               </th>
-              <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-700">
                 Actions
               </th>
             </tr>
@@ -135,7 +151,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
             {products.map((product) => (
               <tr
                 key={product.id}
-                className={`hover:bg-gray-50 transition-colors ${product.isDeleted ? "bg-red-50 text-gray-400" : ""}`}
+                className={`transition-colors hover:bg-gray-50 ${product.isDeleted ? "bg-red-50 text-gray-400" : ""}`}
               >
                 {/* Product Column */}
                 <td className="px-6 py-4">
@@ -145,11 +161,16 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                         <img
                           src={getImageUrl(product.image)}
                           alt={product.name}
-                          className="h-12 w-12 rounded-lg object-cover border border-gray-200"
+                          className="h-12 w-12 rounded-lg border border-gray-200 object-cover"
                         />
                       ) : (
-                        <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center border border-gray-200">
-                          <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-gray-200 bg-gradient-to-br from-gray-100 to-gray-200">
+                          <svg
+                            className="h-6 w-6 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -161,10 +182,14 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                      <p className="truncate text-sm font-medium text-gray-900">
+                        {product.name}
+                      </p>
                       {product.supplierId && (
                         <p className="text-xs text-gray-500">
-                          Supplier: {suppliers.find((s) => s.id === product.supplierId)?.name || "-"}
+                          Supplier:{" "}
+                          {suppliers.find((s) => s.id === product.supplierId)
+                            ?.name || "-"}
                         </p>
                       )}
                     </div>
@@ -175,22 +200,31 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 <td className="px-6 py-4">
                   <div className="text-sm">
                     <p className="font-medium text-gray-900">{product.sku}</p>
-                    {product.barcode && <p className="text-xs text-gray-500 font-mono">{product.barcode}</p>}
+                    {product.barcode && (
+                      <p className="font-mono text-xs text-gray-500">
+                        {product.barcode}
+                      </p>
+                    )}
                   </div>
                 </td>
 
                 {/* Category Column */}
                 <td className="px-6 py-4">
                   <Badge variant="primary" rounded size="sm">
-                    {categories.find((c) => c.id === product.categoryId)?.name || "-"}
+                    {categories.find((c) => c.id === product.categoryId)
+                      ?.name || "-"}
                   </Badge>
                 </td>
 
                 {/* Price Column */}
                 <td className="px-6 py-4">
                   <div className="text-sm">
-                    <p className="font-semibold text-green-700">{formatCurrency(product.sellingPrice, settings)}</p>
-                    <p className="text-xs text-gray-500">Cost: {formatCurrency(product.purchasePrice, settings)}</p>
+                    <p className="font-semibold text-green-700">
+                      {formatCurrency(product.sellingPrice, settings)}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Cost: {formatCurrency(product.purchasePrice, settings)}
+                    </p>
                   </div>
                 </td>
 
@@ -201,9 +235,10 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                       variant={
                         product.stockQuantity <= product.lowStockThreshold
                           ? "danger"
-                          : product.stockQuantity <= product.lowStockThreshold * 2
-                          ? "warning"
-                          : "success"
+                          : product.stockQuantity <=
+                              product.lowStockThreshold * 2
+                            ? "warning"
+                            : "success"
                       }
                       rounded
                       size="sm"
@@ -215,7 +250,12 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
                 {/* Status Column */}
                 <td className="px-6 py-4">
-                  <Badge variant={product.isActive ? "success" : "default"} rounded size="sm" dot>
+                  <Badge
+                    variant={product.isActive ? "success" : "default"}
+                    rounded
+                    size="sm"
+                    dot
+                  >
                     {product.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </td>
@@ -226,10 +266,15 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     {product.isDeleted && onRestore && (
                       <button
                         onClick={() => onRestore(product)}
-                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        className="rounded-lg p-2 text-green-600 transition-colors hover:bg-green-50"
                         title="Restore Product"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg
+                          className="h-5 w-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -241,10 +286,15 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     )}
                     <button
                       onClick={() => navigate(`/products/${product.id}`)}
-                      className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="rounded-lg p-2 text-indigo-600 transition-colors hover:bg-indigo-50"
                       title="View Details & Variants"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -262,10 +312,15 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     {product.barcode && (
                       <button
                         onClick={() => onPrint(product)}
-                        className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                        className="rounded-lg p-2 text-purple-600 transition-colors hover:bg-purple-50"
                         title="Print Barcode"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg
+                          className="h-5 w-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -280,10 +335,15 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                         {onQuickSale && (
                           <button
                             onClick={() => onQuickSale(product)}
-                            className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+                            className="rounded-lg p-2 text-yellow-600 transition-colors hover:bg-yellow-50"
                             title="Add to Quick Sale"
                           >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg
+                              className="h-5 w-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -295,10 +355,15 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                         )}
                         <button
                           onClick={() => onEdit(product)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50"
                           title="Edit Product"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg
+                            className="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -309,12 +374,19 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                         </button>
                         <button
                           onClick={() => onToggleStatus(product)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            product.isActive ? "text-green-600 hover:bg-green-50" : "text-gray-600 hover:bg-gray-50"
+                          className={`rounded-lg p-2 transition-colors ${
+                            product.isActive
+                              ? "text-green-600 hover:bg-green-50"
+                              : "text-gray-600 hover:bg-gray-50"
                           }`}
                           title={product.isActive ? "Deactivate" : "Activate"}
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg
+                            className="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
                             {product.isActive ? (
                               <path
                                 strokeLinecap="round"
@@ -335,11 +407,15 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                         <button
                           onClick={() => onDelete(product.id)}
                           disabled={deletingId === product.id}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                          className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
                           title="Delete Product"
                         >
                           {deletingId === product.id ? (
-                            <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                            <svg
+                              className="h-5 w-5 animate-spin"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
                               <circle
                                 className="opacity-25"
                                 cx="12"
@@ -355,7 +431,12 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                               ></path>
                             </svg>
                           ) : (
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg
+                              className="h-5 w-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"

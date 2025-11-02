@@ -4,7 +4,11 @@ export const productVariantsAPI = {
   create: async (data: any) => {
     return (await api.post("/product-variants", data)).data;
   },
-  getAll: async (params?: { productId?: number; page?: number; limit?: number }) => {
+  getAll: async (params?: {
+    productId?: number;
+    page?: number;
+    limit?: number;
+  }) => {
     return (await api.get("/product-variants", { params })).data;
   },
   getById: async (id: number) => {

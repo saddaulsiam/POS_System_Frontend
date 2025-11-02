@@ -32,7 +32,7 @@ export const RefreshButton: React.FC<RefreshButtonProps> = ({
       title="Refresh"
       type="button"
     >
-      <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`} />
+      <RefreshCw className={`h-5 w-5 ${loading ? "animate-spin" : ""}`} />
       {variant === "default" && <span>Refresh</span>}
     </button>
   );

@@ -2,7 +2,13 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { CartItem } from "../types";
 
-export function usePOSPayment({ cart, setCart }: { cart: CartItem[]; setCart: (cart: CartItem[]) => void }) {
+export function usePOSPayment({
+  cart,
+  setCart,
+}: {
+  cart: CartItem[];
+  setCart: (cart: CartItem[]) => void;
+}) {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSplitPaymentModal, setShowSplitPaymentModal] = useState(false);

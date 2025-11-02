@@ -28,7 +28,16 @@ const AnalyticsPage: React.FC = () => {
     fetchAnalytics,
   } = useAnalyticsData();
 
-  const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899", "#14B8A6", "#F97316"];
+  const COLORS = [
+    "#3B82F6",
+    "#10B981",
+    "#F59E0B",
+    "#EF4444",
+    "#8B5CF6",
+    "#EC4899",
+    "#14B8A6",
+    "#F97316",
+  ];
 
   const getPeriodLabel = () => {
     switch (period) {
@@ -45,7 +54,9 @@ const AnalyticsPage: React.FC = () => {
       case "lastMonth":
         return "Last Month";
       case "custom":
-        return customStartDate && customEndDate ? `${customStartDate} to ${customEndDate}` : "Custom Range";
+        return customStartDate && customEndDate
+          ? `${customStartDate} to ${customEndDate}`
+          : "Custom Range";
       default:
         return "Today";
     }
@@ -53,22 +64,24 @@ const AnalyticsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
+      <div className="flex h-screen items-center justify-center">
+        <RefreshCw className="h-8 w-8 animate-spin text-blue-500" />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+        <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Sales Analytics</h1>
-            <p className="text-gray-600 mt-1">{getPeriodLabel()}</p>
+            <h1 className="text-3xl font-bold text-gray-800">
+              Sales Analytics
+            </h1>
+            <p className="mt-1 text-gray-600">{getPeriodLabel()}</p>
           </div>
-          <div className="mt-4 md:mt-0 flex items-center gap-3">
+          <div className="mt-4 flex items-center gap-3 md:mt-0">
             <RefreshButton onClick={fetchAnalytics} loading={refreshing} />
           </div>
         </div>
@@ -86,12 +99,21 @@ const AnalyticsPage: React.FC = () => {
         />
 
         {/* Overview Cards */}
-        {overviewData && <AnalyticsOverviewCards overviewData={overviewData} settings={settings} />}
+        {overviewData && (
+          <AnalyticsOverviewCards
+            overviewData={overviewData}
+            settings={settings}
+          />
+        )}
 
         {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Sales Trend Chart */}
-          <SalesTrendChart salesTrend={salesTrend} settings={settings} formatCurrency={formatCurrency} />
+          <SalesTrendChart
+            salesTrend={salesTrend}
+            settings={settings}
+            formatCurrency={formatCurrency}
+          />
 
           {/* Category Breakdown */}
           <CategoryBreakdownChart
@@ -103,7 +125,11 @@ const AnalyticsPage: React.FC = () => {
         </div>
 
         {/* Top Products */}
-        <TopProductsTable topProducts={topProducts} settings={settings} formatCurrency={formatCurrency} />
+        <TopProductsTable
+          topProducts={topProducts}
+          settings={settings}
+          formatCurrency={formatCurrency}
+        />
       </div>
     </div>
   );

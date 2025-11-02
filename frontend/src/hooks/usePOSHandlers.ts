@@ -1,7 +1,12 @@
 import { useCallback, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import type { Product, ParkedSale, CartItem } from "../types";
-import { customersAPI, parkedSalesAPI, productsAPI, productVariantsAPI } from "../services";
+import {
+  customersAPI,
+  parkedSalesAPI,
+  productsAPI,
+  productVariantsAPI,
+} from "../services";
 import { formatCurrency } from "../utils/currencyUtils";
 
 interface UsePOSHandlersArgs {
@@ -74,7 +79,11 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
         try {
           product = await productsAPI.getByBarcode(barcode);
         } catch {
-          const searchResults = await productsAPI.getAll({ search: barcode, isActive: true, limit: 1 });
+          const searchResults = await productsAPI.getAll({
+            search: barcode,
+            isActive: true,
+            limit: 1,
+          });
           if (searchResults.data && searchResults.data.length > 0) {
             product = searchResults.data[0];
           } else {
@@ -83,7 +92,11 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
           }
         }
         // If product has variants, show variant selector modal
-        if (product.hasVariants && args.setShowVariantSelector && args.setSelectedProductForVariant) {
+        if (
+          product.hasVariants &&
+          args.setShowVariantSelector &&
+          args.setSelectedProductForVariant
+        ) {
           args.setSelectedProductForVariant(product);
           args.setShowVariantSelector(true);
         } else {
@@ -95,20 +108,24 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
         toast.error("Error searching product");
       }
     },
-    [addToCart, addVariantToCart]
+    [addToCart, addVariantToCart],
   );
 
   // Handler: Add to cart (matches POSProductGrid prop signature)
   const handleAddToCart = useCallback(
     (product: Product) => {
-      if (product.hasVariants && args.setShowVariantSelector && args.setSelectedProductForVariant) {
+      if (
+        product.hasVariants &&
+        args.setShowVariantSelector &&
+        args.setSelectedProductForVariant
+      ) {
         args.setSelectedProductForVariant(product);
         args.setShowVariantSelector(true);
         return;
       }
       addToCart(product);
     },
-    [addToCart]
+    [addToCart],
   );
 
   // Handler: Customer form submit (matches CustomerModal prop signature)
@@ -116,7 +133,8 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
     try {
       const customerData = {
         name: formData.name.trim(),
-        phoneNumber: formData.phoneNumber.trim() || (args.customerPhone?.trim?.() ?? ""),
+        phoneNumber:
+          formData.phoneNumber.trim() || (args.customerPhone?.trim?.() ?? ""),
         email: formData.email.trim() || undefined,
         dateOfBirth: formData.dateOfBirth.trim() || undefined,
         address: formData.address.trim() || undefined,
@@ -130,7 +148,9 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
     } catch (error) {
       console.error("Error creating customer:", error);
       if (typeof error === "object" && error && "response" in error) {
-        toast.error((error as any).response?.data?.error || "Failed to create customer");
+        toast.error(
+          (error as any).response?.data?.error || "Failed to create customer",
+        );
       } else {
         toast.error("Failed to create customer");
       }
@@ -149,10 +169,20 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
       return;
     }
     try {
-      const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      const tax = cart.reduce((sum, item) => sum + ((item.product.taxRate || 0) * item.price * item.quantity) / 100, 0);
+      const subtotal = cart.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      );
+      const tax = cart.reduce(
+        (sum, item) =>
+          sum +
+          ((item.product.taxRate || 0) * item.price * item.quantity) / 100,
+        0,
+      );
       // Set expiresAt to 7 days from now
-      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      const expiresAt = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000,
+      ).toISOString();
       const parkData = {
         customerId: args.customer?.id,
         items: cart.map((item) => ({
@@ -186,7 +216,9 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
     } catch (error) {
       console.error("Error parking sale:", error);
       if (typeof error === "object" && error && "response" in error) {
-        toast.error((error as any).response?.data?.error || "Failed to park sale");
+        toast.error(
+          (error as any).response?.data?.error || "Failed to park sale",
+        );
       } else {
         toast.error("Failed to park sale");
       }
@@ -205,14 +237,18 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
         try {
           product = await productsAPI.getById(item.productId);
         } catch (e) {
-          outOfStockItems.push(item.productName || `Product #${item.productId}`);
+          outOfStockItems.push(
+            item.productName || `Product #${item.productId}`,
+          );
           continue;
         }
         if (item.productVariantId) {
           try {
             variant = await productVariantsAPI.getById(item.productVariantId);
           } catch (e) {
-            outOfStockItems.push(`${product.name} (Variant #${item.productVariantId})`);
+            outOfStockItems.push(
+              `${product.name} (Variant #${item.productVariantId})`,
+            );
             continue;
           }
           // Check variant stock
@@ -247,7 +283,9 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
         args.setCustomerPhone(parkedSale.customer.phoneNumber || "");
       }
       if (outOfStockItems.length > 0) {
-        toast.error(`Some items could not be resumed due to insufficient stock: ${outOfStockItems.join(", ")}`);
+        toast.error(
+          `Some items could not be resumed due to insufficient stock: ${outOfStockItems.join(", ")}`,
+        );
       } else {
         toast.success("Parked sale resumed");
       }
@@ -258,11 +296,16 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
   }, []);
 
   // Handler: Points redeemed (matches RedeemPointsDialog prop signature)
-  const handlePointsRedeemed = useCallback((discountAmount: number, points: number) => {
-    args.setLoyaltyDiscount(discountAmount);
-    args.setShowRedeemPointsDialog && args.setShowRedeemPointsDialog(false);
-    toast.success(`Applied ${formatCurrency(discountAmount, args.settings)} loyalty discount using ${points} points!`);
-  }, []);
+  const handlePointsRedeemed = useCallback(
+    (discountAmount: number, points: number) => {
+      args.setLoyaltyDiscount(discountAmount);
+      args.setShowRedeemPointsDialog && args.setShowRedeemPointsDialog(false);
+      toast.success(
+        `Applied ${formatCurrency(discountAmount, args.settings)} loyalty discount using ${points} points!`,
+      );
+    },
+    [],
+  );
 
   // Handler: Confirm split payment (matches SplitPaymentDialog prop signature)
   const handleConfirmSplitPayment = useCallback(async (splits: any[]) => {
@@ -287,19 +330,29 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
       };
 
       // @ts-ignore: salesAPI should be available in your context or pass as arg
-      const sale = await (args.salesAPI || (window as any).salesAPI).create(saleData);
-      toast.success(`Sale completed! Receipt ID: ${sale.receiptId || sale.id || ""}`);
+      const sale = await (args.salesAPI || (window as any).salesAPI).create(
+        saleData,
+      );
+      toast.success(
+        `Sale completed! Receipt ID: ${sale.receiptId || sale.id || ""}`,
+      );
 
       // Auto-print receipt if enabled
       try {
         const settings = args.settings;
         // Dynamically import receiptsAPI if not present in args
         const receiptsAPI =
-          args.receiptsAPI || (window as any).receiptsAPI || (await import("../services")).receiptsAPI;
+          args.receiptsAPI ||
+          (window as any).receiptsAPI ||
+          (await import("../services")).receiptsAPI;
         if (settings?.printReceiptAuto) {
           try {
             const htmlContent = await receiptsAPI.getHTML(sale.id);
-            const printWindow = window.open("", "_blank", "width=800,height=600");
+            const printWindow = window.open(
+              "",
+              "_blank",
+              "width=800,height=600",
+            );
             if (printWindow) {
               printWindow.document.write(htmlContent);
               printWindow.document.close();
@@ -307,7 +360,10 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
                 printWindow.print();
               }, 500);
             }
-            toast.success("Receipt ready to print", { duration: 2000, icon: "🖨️" });
+            toast.success("Receipt ready to print", {
+              duration: 2000,
+              icon: "🖨️",
+            });
           } catch (printError) {
             console.error("Error printing receipt:", printError);
             toast.error("Failed to open receipt for printing");
@@ -317,10 +373,19 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
           try {
             let thermalContent = await receiptsAPI.getThermal(sale.id);
             const currencySymbol = settings?.currencySymbol || "$";
-            thermalContent = thermalContent.replace(/\$(\d+[.,]?\d*)/g, `${currencySymbol}$1`);
-            const printWindow = window.open("", "_blank", "width=400,height=600");
+            thermalContent = thermalContent.replace(
+              /\$(\d+[.,]?\d*)/g,
+              `${currencySymbol}$1`,
+            );
+            const printWindow = window.open(
+              "",
+              "_blank",
+              "width=400,height=600",
+            );
             if (printWindow) {
-              printWindow.document.write(`<pre style='font-size:16px; font-family:monospace;'>${thermalContent}</pre>`);
+              printWindow.document.write(
+                `<pre style='font-size:16px; font-family:monospace;'>${thermalContent}</pre>`,
+              );
               printWindow.document.close();
               setTimeout(() => {
                 printWindow.print();
@@ -343,7 +408,10 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
       args.loadProducts(args.selectedCategory || undefined);
     } catch (error: any) {
       let errorMessage = "Failed to process payment";
-      if (error?.response?.data?.errors && error.response.data.errors.length > 0) {
+      if (
+        error?.response?.data?.errors &&
+        error.response.data.errors.length > 0
+      ) {
         const firstError = error.response.data.errors[0];
         errorMessage = firstError.msg || errorMessage;
       } else if (error?.response?.data?.error) {

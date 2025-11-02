@@ -54,11 +54,14 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
     }
   }, [variant, product]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
@@ -109,7 +112,9 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
       onClose();
     } catch (error: any) {
       console.error("Error saving variant:", error);
-      toast.error(error.response?.data?.error || "Failed to save product variant");
+      toast.error(
+        error.response?.data?.error || "Failed to save product variant",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -118,21 +123,26 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl relative max-h-[90vh] overflow-y-auto">
-        <button className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
+        <button
+          className="absolute right-4 top-4 text-xl text-gray-500 hover:text-gray-700"
+          onClick={onClose}
+        >
           ×
         </button>
 
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">{variant ? "Edit" : "Add"} Product Variant</h2>
-        <p className="text-sm text-gray-600 mb-6">
+        <h2 className="mb-4 text-2xl font-bold text-gray-800">
+          {variant ? "Edit" : "Add"} Product Variant
+        </h2>
+        <p className="mb-6 text-sm text-gray-600">
           Product: <span className="font-semibold">{product.name}</span>
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Variant Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               Variant Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -141,7 +151,7 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
               value={formData.name}
               onChange={handleChange}
               placeholder="e.g., Small, Large, Red, 500ml"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -149,7 +159,7 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
           {/* SKU and Barcode */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 SKU <span className="text-red-500">*</span>
               </label>
               <input
@@ -158,20 +168,22 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
                 value={formData.sku}
                 onChange={handleChange}
                 placeholder="e.g., PROD-001-SM"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Barcode (Optional)</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Barcode (Optional)
+              </label>
               <input
                 type="text"
                 name="barcode"
                 value={formData.barcode}
                 onChange={handleChange}
                 placeholder="e.g., 1234567890123"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -179,7 +191,7 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
           {/* Purchase Price and Selling Price */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 Purchase Price <span className="text-red-500">*</span>
               </label>
               <input
@@ -190,13 +202,13 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 Selling Price <span className="text-red-500">*</span>
               </label>
               <input
@@ -207,7 +219,7 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
@@ -215,7 +227,9 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
 
           {/* Stock Quantity */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Initial Stock Quantity</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Initial Stock Quantity
+            </label>
             <input
               type="number"
               name="stockQuantity"
@@ -223,21 +237,27 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
               onChange={handleChange}
               min="0"
               placeholder="0"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Profit Margin Display */}
           {formData.purchasePrice && formData.sellingPrice && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
               <p className="text-sm text-gray-700">
                 <span className="font-semibold">Profit Margin:</span>{" "}
                 {(
-                  ((parseFloat(formData.sellingPrice) - parseFloat(formData.purchasePrice)) /
+                  ((parseFloat(formData.sellingPrice) -
+                    parseFloat(formData.purchasePrice)) /
                     parseFloat(formData.sellingPrice)) *
                   100
                 ).toFixed(2)}
-                % ($ {(parseFloat(formData.sellingPrice) - parseFloat(formData.purchasePrice)).toFixed(2)} per unit)
+                % (${" "}
+                {(
+                  parseFloat(formData.sellingPrice) -
+                  parseFloat(formData.purchasePrice)
+                ).toFixed(2)}{" "}
+                per unit)
               </p>
             </div>
           )}
@@ -249,18 +269,29 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
               name="isActive"
               checked={formData.isActive}
               onChange={handleChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            <label className="ml-2 block text-sm text-gray-700">Active (available for sale)</label>
+            <label className="ml-2 block text-sm text-gray-700">
+              Active (available for sale)
+            </label>
           </div>
 
           {/* Action Buttons */}
           <div className="flex justify-end space-x-3 pt-4">
-            <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
             <Button type="submit" variant="primary" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : variant ? "Update Variant" : "Create Variant"}
+              {isSubmitting
+                ? "Saving..."
+                : variant
+                  ? "Update Variant"
+                  : "Create Variant"}
             </Button>
           </div>
         </form>

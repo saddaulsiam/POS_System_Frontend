@@ -39,7 +39,9 @@ const ProductsPage: React.FC = () => {
 
   // Form and file states
   const [printProduct, setPrintProduct] = useState<Product | null>(null);
-  const [quickSaleProduct, setQuickSaleProduct] = useState<Product | null>(null);
+  const [quickSaleProduct, setQuickSaleProduct] = useState<Product | null>(
+    null,
+  );
   const [printCopies, setPrintCopies] = useState(1);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [isImporting, setIsImporting] = useState(false);
@@ -69,7 +71,11 @@ const ProductsPage: React.FC = () => {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const productsResponse = await productsAPI.getAll({ page: 1, limit: 50, showDeleted });
+      const productsResponse = await productsAPI.getAll({
+        page: 1,
+        limit: 50,
+        showDeleted,
+      });
       setProducts(productsResponse.data || []);
     } catch (error) {
       console.error("Failed to load data:", error);
@@ -95,7 +101,10 @@ const ProductsPage: React.FC = () => {
   // Restore deleted product
   const handleRestoreProduct = async (product: Product) => {
     try {
-      await productsAPI.update(product.id, { isDeleted: false, isActive: true });
+      await productsAPI.update(product.id, {
+        isDeleted: false,
+        isActive: true,
+      });
       toast.success("Product restored");
       loadData();
     } catch (error: any) {
@@ -123,7 +132,9 @@ const ProductsPage: React.FC = () => {
   };
 
   // Form handlers
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleFormChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       setForm((prev) => ({
@@ -263,10 +274,14 @@ const ProductsPage: React.FC = () => {
   const handleToggleStatus = async (product: Product) => {
     try {
       await productsAPI.update(product.id, { isActive: !product.isActive });
-      toast.success(`Product ${!product.isActive ? "activated" : "deactivated"} successfully`);
+      toast.success(
+        `Product ${!product.isActive ? "activated" : "deactivated"} successfully`,
+      );
       loadData();
     } catch (error: any) {
-      toast.error(error?.response?.data?.error || "Failed to update product status");
+      toast.error(
+        error?.response?.data?.error || "Failed to update product status",
+      );
     }
   };
 
@@ -338,13 +353,21 @@ const ProductsPage: React.FC = () => {
     } catch (error: any) {
       const errorData = error?.response?.data;
       if (errorData?.existingSkus) {
-        toast.error(`Some SKUs already exist: ${errorData.existingSkus.join(", ")}`);
+        toast.error(
+          `Some SKUs already exist: ${errorData.existingSkus.join(", ")}`,
+        );
       } else if (errorData?.invalidCategoryIds) {
-        toast.error(`Invalid category IDs: ${errorData.invalidCategoryIds.join(", ")}`);
+        toast.error(
+          `Invalid category IDs: ${errorData.invalidCategoryIds.join(", ")}`,
+        );
       } else if (errorData?.invalidSupplierIds) {
-        toast.error(`Invalid supplier IDs: ${errorData.invalidSupplierIds.join(", ")}`);
+        toast.error(
+          `Invalid supplier IDs: ${errorData.invalidSupplierIds.join(", ")}`,
+        );
       } else if (errorData?.duplicates) {
-        toast.error(`Duplicate SKUs in file: ${errorData.duplicates.join(", ")}`);
+        toast.error(
+          `Duplicate SKUs in file: ${errorData.duplicates.join(", ")}`,
+        );
       } else {
         toast.error(errorData?.error || "Failed to import products");
       }
@@ -404,8 +427,11 @@ const ProductsPage: React.FC = () => {
     // If showDeleted is false, hide deleted products
     if (!showDeleted && p.isDeleted) return false;
     const matchesSearch =
-      p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = categoryFilter ? p.categoryId === parseInt(categoryFilter) : true;
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.sku.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = categoryFilter
+      ? p.categoryId === parseInt(categoryFilter)
+      : true;
     return matchesSearch && matchesCategory;
   });
   // If showing deleted, sort so deleted products are on top
@@ -418,11 +444,11 @@ const ProductsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold mb-6">Products Management</h1>
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h1 className="mb-6 text-3xl font-bold">Products Management</h1>
 
         {/* Search, Filter, and Actions */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <ProductFilters
             search={search}
             setSearch={setSearch}
@@ -441,7 +467,7 @@ const ProductsPage: React.FC = () => {
         </div>
 
         {/* Products Table */}
-        <div className="flex items-center gap-4 mb-2">
+        <div className="mb-2 flex items-center gap-4">
           <label className="flex items-center text-sm font-medium">
             <input
               type="checkbox"

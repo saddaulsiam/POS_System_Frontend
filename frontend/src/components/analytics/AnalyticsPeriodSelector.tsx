@@ -22,7 +22,9 @@ const PERIODS: { value: Period; label: string }[] = [
   { value: "custom", label: "Custom" },
 ];
 
-export const AnalyticsPeriodSelector: React.FC<AnalyticsPeriodSelectorProps> = ({
+export const AnalyticsPeriodSelector: React.FC<
+  AnalyticsPeriodSelectorProps
+> = ({
   period,
   setPeriod,
   customStartDate,
@@ -33,15 +35,15 @@ export const AnalyticsPeriodSelector: React.FC<AnalyticsPeriodSelectorProps> = (
   loading,
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-      <div className="flex flex-wrap gap-2 mb-4">
+    <div className="mb-6 rounded-lg bg-white p-4 shadow-sm">
+      <div className="mb-4 flex flex-wrap gap-2">
         {PERIODS.map((p) => (
           <button
             key={p.value}
-            className={`px-4 py-2 rounded-lg font-medium border transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`rounded-lg border px-4 py-2 font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               period === p.value
-                ? "bg-blue-500 text-white border-blue-500"
-                : "bg-white text-gray-700 border-gray-300 hover:bg-blue-50"
+                ? "border-blue-500 bg-blue-500 text-white"
+                : "border-gray-300 bg-white text-gray-700 hover:bg-blue-50"
             }`}
             onClick={() => setPeriod(p.value)}
             disabled={loading}
@@ -51,30 +53,34 @@ export const AnalyticsPeriodSelector: React.FC<AnalyticsPeriodSelectorProps> = (
         ))}
       </div>
       {period === "custom" && (
-        <div className="flex flex-col md:flex-row gap-4 items-end">
-          <div className="flex-1 min-w-[150px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+        <div className="flex flex-col items-end gap-4 md:flex-row">
+          <div className="min-w-[150px] flex-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Start Date
+            </label>
             <input
               type="date"
               value={customStartDate}
               onChange={(e) => setCustomStartDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={loading}
             />
           </div>
-          <div className="flex-1 min-w-[150px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+          <div className="min-w-[150px] flex-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              End Date
+            </label>
             <input
               type="date"
               value={customEndDate}
               onChange={(e) => setCustomEndDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={loading}
             />
           </div>
           <button
             onClick={onApply}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
+            className="rounded-lg bg-blue-500 px-6 py-2 font-medium text-white hover:bg-blue-600"
             disabled={loading}
           >
             Apply

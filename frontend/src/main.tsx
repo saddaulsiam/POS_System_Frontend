@@ -59,5 +59,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

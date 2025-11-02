@@ -1,8 +1,17 @@
 import api from "../api";
-import { Supplier, PaginatedResponse, CreateSupplierRequest, UpdateSupplierRequest } from "../../types";
+import {
+  Supplier,
+  PaginatedResponse,
+  CreateSupplierRequest,
+  UpdateSupplierRequest,
+} from "../../types";
 
 export const suppliersAPI = {
-  getAll: async (params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<Supplier>> => {
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<PaginatedResponse<Supplier>> => {
     const response = await api.get("/suppliers", { params });
     return response.data;
   },
@@ -14,7 +23,10 @@ export const suppliersAPI = {
     const response = await api.post("/suppliers", data);
     return response.data;
   },
-  update: async (id: number, data: UpdateSupplierRequest): Promise<Supplier> => {
+  update: async (
+    id: number,
+    data: UpdateSupplierRequest,
+  ): Promise<Supplier> => {
     const response = await api.put(`/suppliers/${id}`, data);
     return response.data;
   },

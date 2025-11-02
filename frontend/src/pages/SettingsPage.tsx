@@ -97,7 +97,7 @@ const SettingsPage: React.FC = () => {
 
   const handleTextFieldChange = async (
     field: keyof POSSettings,
-    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     if (!settings) return;
 
@@ -105,7 +105,9 @@ const SettingsPage: React.FC = () => {
 
     try {
       setSaving(true);
-      const updatedSettings = await posSettingsAPI.update({ [field]: value || undefined });
+      const updatedSettings = await posSettingsAPI.update({
+        [field]: value || undefined,
+      });
       setSettings(updatedSettings);
       toast.success("Settings updated successfully");
     } catch (error) {
@@ -120,13 +122,19 @@ const SettingsPage: React.FC = () => {
     field: keyof POSSettings,
     e: React.FocusEvent<HTMLInputElement>,
     min?: number,
-    max?: number
+    max?: number,
   ) => {
     if (!settings) return;
 
     const value = parseFloat(e.target.value);
-    if (isNaN(value) || (min !== undefined && value < min) || (max !== undefined && value > max)) {
-      toast.error(`Value must be between ${min || 0} and ${max || "unlimited"}`);
+    if (
+      isNaN(value) ||
+      (min !== undefined && value < min) ||
+      (max !== undefined && value > max)
+    ) {
+      toast.error(
+        `Value must be between ${min || 0} and ${max || "unlimited"}`,
+      );
       return;
     }
 
@@ -143,7 +151,10 @@ const SettingsPage: React.FC = () => {
     }
   };
 
-  const handleSelectChange = async (field: keyof POSSettings, value: string) => {
+  const handleSelectChange = async (
+    field: keyof POSSettings,
+    value: string,
+  ) => {
     if (!settings) return;
 
     try {
@@ -163,14 +174,17 @@ const SettingsPage: React.FC = () => {
   const handleToggleString = (field: string, value: boolean) => {
     handleToggle(field as keyof POSSettings, value);
   };
-  const handleTextFieldChangeString = (field: string, e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleTextFieldChangeString = (
+    field: string,
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     handleTextFieldChange(field as keyof POSSettings, e);
   };
   const handleNumberFieldChangeString = (
     field: string,
     e: React.FocusEvent<HTMLInputElement>,
     min?: number,
-    max?: number
+    max?: number,
   ) => {
     handleNumberFieldChange(field as keyof POSSettings, e, min, max);
   };
@@ -180,18 +194,21 @@ const SettingsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   if (!settings) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-gray-600">Failed to load settings</p>
-          <button onClick={loadSettings} className="mt-4 text-blue-600 hover:text-blue-800">
+          <button
+            onClick={loadSettings}
+            className="mt-4 text-blue-600 hover:text-blue-800"
+          >
             Retry
           </button>
         </div>
@@ -201,19 +218,26 @@ const SettingsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-6">
           <BackButton to="/admin" />
-          <div className="flex items-center justify-between mt-4">
+          <div className="mt-4 flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">⚙️ POS Settings</h1>
-              <p className="text-gray-600 mt-1">Configure point of sale system features and preferences</p>
+              <h1 className="text-3xl font-bold text-gray-900">
+                ⚙️ POS Settings
+              </h1>
+              <p className="mt-1 text-gray-600">
+                Configure point of sale system features and preferences
+              </p>
             </div>
             {settings.updatedByEmployee && (
-              <div className="text-sm text-gray-500 text-right">
+              <div className="text-right text-sm text-gray-500">
                 <p>
-                  Last updated by: <span className="font-medium">{settings.updatedByEmployee.name}</span>
+                  Last updated by:{" "}
+                  <span className="font-medium">
+                    {settings.updatedByEmployee.name}
+                  </span>
                 </p>
                 <p>{new Date(settings.updatedAt).toLocaleString()}</p>
               </div>

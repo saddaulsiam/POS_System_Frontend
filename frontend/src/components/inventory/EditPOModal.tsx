@@ -49,24 +49,35 @@ interface EditPOModalProps {
       expectedDate?: string;
       notes?: string;
       items: Array<{ productId: number; quantity: number; unitPrice: number }>;
-    }
+    },
   ) => Promise<void>;
 }
 
-const EditPOModal: React.FC<EditPOModalProps> = ({ isOpen, onClose, purchaseOrder, suppliers, products, onUpdate }) => {
+const EditPOModal: React.FC<EditPOModalProps> = ({
+  isOpen,
+  onClose,
+  purchaseOrder,
+  suppliers,
+  products,
+  onUpdate,
+}) => {
   const [formData, setFormData] = useState({
     supplierId: purchaseOrder.supplierId.toString(),
     orderDate: purchaseOrder.orderDate.split("T")[0],
-    expectedDate: purchaseOrder.expectedDate ? purchaseOrder.expectedDate.split("T")[0] : "",
+    expectedDate: purchaseOrder.expectedDate
+      ? purchaseOrder.expectedDate.split("T")[0]
+      : "",
     notes: purchaseOrder.notes || "",
   });
 
-  const [poItems, setPOItems] = useState<Array<{ productId: number; quantity: number; unitPrice: number }>>(
+  const [poItems, setPOItems] = useState<
+    Array<{ productId: number; quantity: number; unitPrice: number }>
+  >(
     purchaseOrder.items.map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
       unitPrice: item.unitCost,
-    }))
+    })),
   );
 
   const [currentItem, setCurrentItem] = useState({
@@ -82,7 +93,9 @@ const EditPOModal: React.FC<EditPOModalProps> = ({ isOpen, onClose, purchaseOrde
       setFormData({
         supplierId: purchaseOrder.supplierId.toString(),
         orderDate: purchaseOrder.orderDate.split("T")[0],
-        expectedDate: purchaseOrder.expectedDate ? purchaseOrder.expectedDate.split("T")[0] : "",
+        expectedDate: purchaseOrder.expectedDate
+          ? purchaseOrder.expectedDate.split("T")[0]
+          : "",
         notes: purchaseOrder.notes || "",
       });
       setPOItems(
@@ -90,7 +103,7 @@ const EditPOModal: React.FC<EditPOModalProps> = ({ isOpen, onClose, purchaseOrde
           productId: item.productId,
           quantity: item.quantity,
           unitPrice: item.unitCost,
-        }))
+        })),
       );
     }
   }, [isOpen, purchaseOrder]);
@@ -98,12 +111,18 @@ const EditPOModal: React.FC<EditPOModalProps> = ({ isOpen, onClose, purchaseOrde
   if (!isOpen) return null;
 
   const handleAddItem = () => {
-    if (!currentItem.productId || !currentItem.quantity || !currentItem.unitPrice) {
+    if (
+      !currentItem.productId ||
+      !currentItem.quantity ||
+      !currentItem.unitPrice
+    ) {
       alert("Please fill all item fields");
       return;
     }
 
-    const product = products.find((p) => p.id === parseInt(currentItem.productId));
+    const product = products.find(
+      (p) => p.id === parseInt(currentItem.productId),
+    );
     if (!product) return;
 
     setPOItems([
@@ -148,34 +167,51 @@ const EditPOModal: React.FC<EditPOModalProps> = ({ isOpen, onClose, purchaseOrde
   };
 
   const calculateTotal = () => {
-    return poItems.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+    return poItems.reduce(
+      (sum, item) => sum + item.quantity * item.unitPrice,
+      0,
+    );
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-lg bg-white shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between border-b border-gray-200 p-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Edit Purchase Order</h2>
-            <p className="text-sm text-gray-500 mt-1">PO: {purchaseOrder.poNumber}</p>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Edit Purchase Order
+            </h2>
+            <p className="mt-1 text-sm text-gray-500">
+              PO: {purchaseOrder.poNumber}
+            </p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
-            <X className="w-6 h-6" />
+          <button
+            onClick={onClose}
+            className="text-gray-400 transition-colors hover:text-gray-600"
+          >
+            <X className="h-6 w-6" />
           </button>
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-180px)]">
-          <div className="p-6 space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="max-h-[calc(90vh-180px)] overflow-y-auto"
+        >
+          <div className="space-y-6 p-6">
             {/* Basic Info */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Supplier *</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Supplier *
+                </label>
                 <select
                   value={formData.supplierId}
-                  onChange={(e) => setFormData({ ...formData, supplierId: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) =>
+                    setFormData({ ...formData, supplierId: e.target.value })
+                  }
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
                   <option value="">Select Supplier</option>
@@ -188,58 +224,78 @@ const EditPOModal: React.FC<EditPOModalProps> = ({ isOpen, onClose, purchaseOrde
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Order Date *</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Order Date *
+                </label>
                 <input
                   type="date"
                   value={formData.orderDate}
-                  onChange={(e) => setFormData({ ...formData, orderDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) =>
+                    setFormData({ ...formData, orderDate: e.target.value })
+                  }
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Expected Date</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Expected Date
+                </label>
                 <input
                   type="date"
                   value={formData.expectedDate}
-                  onChange={(e) => setFormData({ ...formData, expectedDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) =>
+                    setFormData({ ...formData, expectedDate: e.target.value })
+                  }
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
 
             {/* Notes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Notes
+              </label>
               <textarea
                 value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Optional notes about this purchase order"
               />
             </div>
 
             {/* Add Item Section */}
             <div className="border-t border-gray-200 pt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h3>
+              <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                Order Items
+              </h3>
 
-              <div className="bg-gray-50 p-4 rounded-lg mb-4">
+              <div className="mb-4 rounded-lg bg-gray-50 p-4">
                 <div className="grid grid-cols-12 gap-3">
                   <div className="col-span-5">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Product</label>
+                    <label className="mb-1 block text-xs font-medium text-gray-700">
+                      Product
+                    </label>
                     <select
                       value={currentItem.productId}
                       onChange={(e) => {
-                        const product = products.find((p) => p.id === parseInt(e.target.value));
+                        const product = products.find(
+                          (p) => p.id === parseInt(e.target.value),
+                        );
                         setCurrentItem({
                           ...currentItem,
                           productId: e.target.value,
-                          unitPrice: product ? product.purchasePrice.toString() : "",
+                          unitPrice: product
+                            ? product.purchasePrice.toString()
+                            : "",
                         });
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Select Product</option>
                       {products.map((product) => (
@@ -251,26 +307,40 @@ const EditPOModal: React.FC<EditPOModalProps> = ({ isOpen, onClose, purchaseOrde
                   </div>
 
                   <div className="col-span-3">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Quantity</label>
+                    <label className="mb-1 block text-xs font-medium text-gray-700">
+                      Quantity
+                    </label>
                     <input
                       type="number"
                       min="0.01"
                       step="0.01"
                       value={currentItem.quantity}
-                      onChange={(e) => setCurrentItem({ ...currentItem, quantity: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      onChange={(e) =>
+                        setCurrentItem({
+                          ...currentItem,
+                          quantity: e.target.value,
+                        })
+                      }
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
                   <div className="col-span-3">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Unit Price</label>
+                    <label className="mb-1 block text-xs font-medium text-gray-700">
+                      Unit Price
+                    </label>
                     <input
                       type="number"
                       min="0"
                       step="0.01"
                       value={currentItem.unitPrice}
-                      onChange={(e) => setCurrentItem({ ...currentItem, unitPrice: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      onChange={(e) =>
+                        setCurrentItem({
+                          ...currentItem,
+                          unitPrice: e.target.value,
+                        })
+                      }
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
@@ -278,9 +348,9 @@ const EditPOModal: React.FC<EditPOModalProps> = ({ isOpen, onClose, purchaseOrde
                     <button
                       type="button"
                       onClick={handleAddItem}
-                      className="w-full px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                      className="w-full rounded-md bg-blue-600 px-3 py-2 text-white transition-colors hover:bg-blue-700"
                     >
-                      <Plus className="w-5 h-5 mx-auto" />
+                      <Plus className="mx-auto h-5 w-5" />
                     </button>
                   </div>
                 </div>
@@ -288,47 +358,67 @@ const EditPOModal: React.FC<EditPOModalProps> = ({ isOpen, onClose, purchaseOrde
 
               {/* Items List */}
               {poItems.length > 0 && (
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="overflow-hidden rounded-lg border border-gray-200">
                   <table className="w-full">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Quantity</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Unit Price</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Action</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                          Product
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                          Quantity
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                          Unit Price
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                          Total
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                          Action
+                        </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="divide-y divide-gray-200 bg-white">
                       {poItems.map((item, index) => {
-                        const product = products.find((p) => p.id === item.productId);
+                        const product = products.find(
+                          (p) => p.id === item.productId,
+                        );
                         return (
                           <tr key={index}>
                             <td className="px-4 py-3 text-sm text-gray-900">
-                              {product?.name || "Unknown"} ({product?.sku || "N/A"})
+                              {product?.name || "Unknown"} (
+                              {product?.sku || "N/A"})
                             </td>
-                            <td className="px-4 py-3 text-sm text-right text-gray-900">{item.quantity}</td>
-                            <td className="px-4 py-3 text-sm text-right text-gray-900">${item.unitPrice.toFixed(2)}</td>
-                            <td className="px-4 py-3 text-sm text-right font-medium text-gray-900">
+                            <td className="px-4 py-3 text-right text-sm text-gray-900">
+                              {item.quantity}
+                            </td>
+                            <td className="px-4 py-3 text-right text-sm text-gray-900">
+                              ${item.unitPrice.toFixed(2)}
+                            </td>
+                            <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
                               ${(item.quantity * item.unitPrice).toFixed(2)}
                             </td>
-                            <td className="px-4 py-3 text-sm text-right">
+                            <td className="px-4 py-3 text-right text-sm">
                               <button
                                 type="button"
                                 onClick={() => handleRemoveItem(index)}
-                                className="text-red-600 hover:text-red-800 transition-colors"
+                                className="text-red-600 transition-colors hover:text-red-800"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="h-4 w-4" />
                               </button>
                             </td>
                           </tr>
                         );
                       })}
                       <tr className="bg-gray-50">
-                        <td colSpan={3} className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
+                        <td
+                          colSpan={3}
+                          className="px-4 py-3 text-right text-sm font-semibold text-gray-900"
+                        >
                           Total Amount:
                         </td>
-                        <td className="px-4 py-3 text-sm font-bold text-gray-900 text-right">
+                        <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">
                           ${calculateTotal().toFixed(2)}
                         </td>
                         <td></td>
@@ -341,11 +431,11 @@ const EditPOModal: React.FC<EditPOModalProps> = ({ isOpen, onClose, purchaseOrde
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+          <div className="flex items-center justify-end gap-3 border-t border-gray-200 bg-gray-50 p-6">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
               disabled={loading}
             >
               Cancel
@@ -353,7 +443,7 @@ const EditPOModal: React.FC<EditPOModalProps> = ({ isOpen, onClose, purchaseOrde
             <button
               type="submit"
               disabled={loading || poItems.length === 0}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-400"
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:bg-blue-400"
             >
               {loading ? "Updating..." : "Update Purchase Order"}
             </button>

@@ -32,7 +32,7 @@ export const printBarcodeLabel = (product: Product, copies: number = 1) => {
           </div>
           <div class="barcode-text">${product.barcode}</div>
         </div>
-      `
+      `,
       )
       .join("");
 

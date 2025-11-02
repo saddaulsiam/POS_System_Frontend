@@ -1,5 +1,8 @@
 import { PaginatedResponse, Product } from "../../types";
-import { CreateProductRequest, UpdateProductRequest } from "../../types/productRequestTypes";
+import {
+  CreateProductRequest,
+  UpdateProductRequest,
+} from "../../types/productRequestTypes";
 import api from "../api";
 
 export const productsAPI = {
@@ -86,7 +89,7 @@ export const productsAPI = {
   },
 
   importCSV: async (
-    file: File
+    file: File,
   ): Promise<{
     message: string;
     imported: number;
@@ -104,7 +107,7 @@ export const productsAPI = {
   },
 
   importExcel: async (
-    file: File
+    file: File,
   ): Promise<{
     message: string;
     imported: number;

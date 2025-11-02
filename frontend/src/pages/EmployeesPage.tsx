@@ -35,7 +35,11 @@ const EmployeesPage: React.FC = () => {
   const loadEmployees = async () => {
     setIsLoading(true);
     try {
-      const response = await employeesAPI.getAll({ page: currentPage, limit: 20, search: searchTerm || undefined });
+      const response = await employeesAPI.getAll({
+        page: currentPage,
+        limit: 20,
+        search: searchTerm || undefined,
+      });
       setEmployees(response.data);
       setTotalPages(response.pagination.totalPages);
     } catch (error: any) {
@@ -132,17 +136,22 @@ const EmployeesPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Employee Management</h1>
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Employee Management
+          </h1>
           <Button variant="primary" onClick={handleAdd}>
             Add Employee
           </Button>
         </div>
 
-        <EmployeeSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        <EmployeeSearch
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
 
-        <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className="overflow-hidden rounded-lg bg-white shadow">
           <EmployeesTable
             employees={employees}
             isLoading={isLoading}
@@ -150,7 +159,11 @@ const EmployeesPage: React.FC = () => {
             onDelete={handleDelete}
             onViewDetails={handleViewDetails}
           />
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
 

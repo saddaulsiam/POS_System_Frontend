@@ -8,7 +8,11 @@ import { getCurrencyConfig, formatWithSymbol } from "../config/currencyConfig";
  */
 export const formatCurrency = (
   n: number,
-  settings?: { currencyCode?: string; currencySymbol?: string; currencyPosition?: string }
+  settings?: {
+    currencyCode?: string;
+    currencySymbol?: string;
+    currencyPosition?: string;
+  },
 ): string => {
   // If currencyCode is provided, use the currency configuration system
   if (settings?.currencyCode) {
@@ -39,7 +43,9 @@ export const formatDate = (date: Date): string => {
 /**
  * Get date range for common periods
  */
-export const getDateRange = (period: "today" | "week" | "month" | "year"): { start: string; end: string } => {
+export const getDateRange = (
+  period: "today" | "week" | "month" | "year",
+): { start: string; end: string } => {
   const now = new Date();
   const end = formatDate(now);
   let start: string;

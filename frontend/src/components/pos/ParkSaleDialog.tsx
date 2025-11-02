@@ -56,59 +56,77 @@ export const ParkSaleDialog: React.FC<ParkSaleDialogProps> = ({
   const total = subtotal + taxAmount - discountAmount;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative">
-        <button className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl" onClick={handleClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="relative w-full max-w-lg rounded-lg bg-white p-6 shadow-lg">
+        <button
+          className="absolute right-4 top-4 text-xl text-gray-500 hover:text-gray-700"
+          onClick={handleClose}
+        >
           ×
         </button>
 
-        <h2 className="text-2xl font-bold mb-2 text-gray-800">Park Sale</h2>
-        <p className="text-sm text-gray-600 mb-6">Save this sale to resume later</p>
+        <h2 className="mb-2 text-2xl font-bold text-gray-800">Park Sale</h2>
+        <p className="mb-6 text-sm text-gray-600">
+          Save this sale to resume later
+        </p>
 
         {/* Sale Summary */}
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between mb-2">
+        <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <div className="mb-2 flex items-center justify-between">
             <span className="text-sm text-gray-600">Items:</span>
             <span className="font-semibold text-gray-900">
               {cartItems.reduce((sum, item) => sum + item.quantity, 0)} item
-              {cartItems.reduce((sum, item) => sum + item.quantity, 0) !== 1 ? "s" : ""}
+              {cartItems.reduce((sum, item) => sum + item.quantity, 0) !== 1
+                ? "s"
+                : ""}
             </span>
           </div>
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <span className="text-sm text-gray-600">Subtotal:</span>
-            <span className="font-semibold text-gray-900">{formatCurrency(subtotal, settings)}</span>
+            <span className="font-semibold text-gray-900">
+              {formatCurrency(subtotal, settings)}
+            </span>
           </div>
           {taxAmount > 0 && (
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2 flex items-center justify-between">
               <span className="text-sm text-gray-600">Tax:</span>
-              <span className="font-semibold text-gray-900">{formatCurrency(taxAmount, settings)}</span>
+              <span className="font-semibold text-gray-900">
+                {formatCurrency(taxAmount, settings)}
+              </span>
             </div>
           )}
           {discountAmount > 0 && (
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2 flex items-center justify-between">
               <span className="text-sm text-gray-600">Discount:</span>
-              <span className="font-semibold text-red-600">-{formatCurrency(discountAmount, settings)}</span>
+              <span className="font-semibold text-red-600">
+                -{formatCurrency(discountAmount, settings)}
+              </span>
             </div>
           )}
-          <div className="flex items-center justify-between pt-2 border-t border-gray-300">
+          <div className="flex items-center justify-between border-t border-gray-300 pt-2">
             <span className="text-sm font-semibold text-gray-700">Total:</span>
-            <span className="text-lg font-bold text-blue-600">{formatCurrency(total, settings)}</span>
+            <span className="text-lg font-bold text-blue-600">
+              {formatCurrency(total, settings)}
+            </span>
           </div>
         </div>
 
         {/* Items List */}
         <div className="mb-6">
-          <h3 className="font-semibold text-gray-800 mb-2">Items in Cart:</h3>
-          <div className="max-h-40 overflow-y-auto bg-gray-50 border border-gray-200 rounded-lg">
+          <h3 className="mb-2 font-semibold text-gray-800">Items in Cart:</h3>
+          <div className="max-h-40 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50">
             {cartItems.map((item, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between px-4 py-2 border-b border-gray-200 last:border-b-0"
+                className="flex items-center justify-between border-b border-gray-200 px-4 py-2 last:border-b-0"
               >
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{item.productName}</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {item.productName}
+                  </p>
                   <p className="text-xs text-gray-500">
-                    Qty: {item.quantity} × {formatCurrency(item.price, settings)}
+                    Qty: {item.quantity} ×{" "}
+                    {formatCurrency(item.price, settings)}
                   </p>
                 </div>
                 <span className="text-sm font-semibold text-gray-900">
@@ -121,21 +139,29 @@ export const ParkSaleDialog: React.FC<ParkSaleDialogProps> = ({
 
         {/* Notes */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Notes (Optional)</label>
+          <label className="mb-2 block text-sm font-medium text-gray-700">
+            Notes (Optional)
+          </label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Add notes about this parked sale..."
             rows={3}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <p className="text-xs text-gray-500 mt-1">This sale will be saved and can be resumed anytime</p>
+          <p className="mt-1 text-xs text-gray-500">
+            This sale will be saved and can be resumed anytime
+          </p>
         </div>
 
         {/* Info Notice */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-3">
           <div className="flex items-start">
-            <svg className="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <svg
+              className="mr-2 mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
               <path
                 fillRule="evenodd"
                 d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
@@ -143,8 +169,11 @@ export const ParkSaleDialog: React.FC<ParkSaleDialogProps> = ({
               />
             </svg>
             <div className="text-xs text-blue-800">
-              <p className="font-semibold mb-1">Parked Sales Expire</p>
-              <p>This sale will expire after 7 days. You can resume it anytime before expiration.</p>
+              <p className="mb-1 font-semibold">Parked Sales Expire</p>
+              <p>
+                This sale will expire after 7 days. You can resume it anytime
+                before expiration.
+              </p>
             </div>
           </div>
         </div>
@@ -160,7 +189,12 @@ export const ParkSaleDialog: React.FC<ParkSaleDialogProps> = ({
             disabled={cartItems.length === 0}
             className="flex items-center"
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="mr-2 h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

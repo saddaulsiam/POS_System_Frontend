@@ -17,7 +17,10 @@ const monthNames = [
   "December",
 ];
 
-export function generateAllSalarySlipsHTML(sheets: SalarySheet[], employees: Employee[]) {
+export function generateAllSalarySlipsHTML(
+  sheets: SalarySheet[],
+  employees: Employee[],
+) {
   const store = {
     name: "POS System",
     address: "123 Main St, City, Country",
@@ -41,7 +44,9 @@ export function generateAllSalarySlipsHTML(sheets: SalarySheet[], employees: Emp
       }
       const joinDate = emp.joinedDate || emp.createdAt;
       const joinDateObj = joinDate ? new Date(joinDate) : null;
-      const joinDateStr = joinDateObj ? `${monthNames[joinDateObj.getMonth()]} ${joinDateObj.getFullYear()}` : "N/A";
+      const joinDateStr = joinDateObj
+        ? `${monthNames[joinDateObj.getMonth()]} ${joinDateObj.getFullYear()}`
+        : "N/A";
       const monthName = monthNames[sheet.month - 1] || sheet.month;
       return `<tr>
       <td>${emp.id}</td>
@@ -185,7 +190,9 @@ export function generateSalarySlipHTML(sheet: SalarySheet, employee: Employee) {
   const joinDate = employee.joinedDate || employee.createdAt;
   // Format join date as: 28 October 2025
   const joinDateObj = joinDate ? new Date(joinDate) : null;
-  const joinDateStr = joinDateObj ? `${monthNames[joinDateObj.getMonth()]} ${joinDateObj.getFullYear()}` : "N/A";
+  const joinDateStr = joinDateObj
+    ? `${monthNames[joinDateObj.getMonth()]} ${joinDateObj.getFullYear()}`
+    : "N/A";
   const monthName = monthNames[sheet.month - 1] || sheet.month;
   return `
     <!DOCTYPE html>
@@ -309,10 +316,10 @@ export function generateSalarySlipHTML(sheet: SalarySheet, employee: Employee) {
           <div class="totals-row"><span class="label">Bonus:</span> <span>${currency}${sheet.bonus.toLocaleString()}</span></div>
           <div class="totals-row"><span class="label">Deduction:</span> <span>${currency}${sheet.deduction.toLocaleString()}</span></div>
           <div class="totals-row total"><span class="label">Total:</span> <span>${currency}${(
-    sheet.baseSalary +
-    sheet.bonus -
-    sheet.deduction
-  ).toLocaleString()}</span></div>
+            sheet.baseSalary +
+            sheet.bonus -
+            sheet.deduction
+          ).toLocaleString()}</span></div>
           <div class="status">${sheet.paid ? "Status: Paid" : "Status: Unpaid"}</div>
         </div>
         <div class="footer">This is a computer-generated salary slip.<br>Thank you for your dedication and hard work!</div>

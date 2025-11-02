@@ -36,17 +36,21 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
   pinSaving,
   handlePinChange,
 }) => (
-  <div className="bg-white rounded-lg shadow">
-    <div className="p-6 border-b border-gray-200">
+  <div className="rounded-lg bg-white shadow">
+    <div className="border-b border-gray-200 p-6">
       <h2 className="text-xl font-semibold text-gray-900">🙍 Profile</h2>
-      <p className="text-sm text-gray-600 mt-1">Configure system alerts and notification preferences</p>
+      <p className="mt-1 text-sm text-gray-600">
+        Configure system alerts and notification preferences
+      </p>
     </div>
-    <form className="space-y-6 w-full p-6">
+    <form className="w-full space-y-6 p-6">
       {/* Profile Info Section */}
-      <div className="bg-gray-50 rounded-xl p-6 border border-gray-100 mb-2">
+      <div className="mb-2 rounded-xl border border-gray-100 bg-gray-50 p-6">
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Personal Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+          <h3 className="mb-4 text-lg font-semibold text-gray-800">
+            Personal Information
+          </h3>
+          <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <Input
                 label="Full Name"
@@ -73,18 +77,22 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
             </div>
           </div>
         </div>
-        <div className="flex gap-4 items-center mt-2 justify-end">
+        <div className="mt-2 flex items-center justify-end gap-4">
           <Button onClick={handleProfileSave} disabled={savingProfile}>
             Save Profile
           </Button>
-          {profileMsg && <span className="text-sm text-gray-600 pt-2">{profileMsg}</span>}
+          {profileMsg && (
+            <span className="pt-2 text-sm text-gray-600">{profileMsg}</span>
+          )}
         </div>
       </div>
       {/* PIN Section */}
-      <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
+      <div className="rounded-xl border border-gray-100 bg-gray-50 p-6">
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Change PIN</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+          <h3 className="mb-4 text-lg font-semibold text-gray-800">
+            Change PIN
+          </h3>
+          <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <Input
                 label="Current PIN"
@@ -95,7 +103,11 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
                 onChange={(e) => setCurrentPin(e.target.value)}
                 disabled={pinSaving}
                 fullWidth
-                error={currentPin === "" && !pinSaving && pinMsg ? "Current PIN is required" : undefined}
+                error={
+                  currentPin === "" && !pinSaving && pinMsg
+                    ? "Current PIN is required"
+                    : undefined
+                }
               />
             </div>
             <div>
@@ -108,16 +120,22 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
                 onChange={(e) => setNewPin(e.target.value)}
                 disabled={pinSaving}
                 fullWidth
-                error={newPin === "" && !pinSaving && pinMsg ? "New PIN is required" : undefined}
+                error={
+                  newPin === "" && !pinSaving && pinMsg
+                    ? "New PIN is required"
+                    : undefined
+                }
               />
             </div>
           </div>
         </div>
-        <div className="flex gap-4 items-center mt-2 justify-end">
+        <div className="mt-2 flex items-center justify-end gap-4">
           <Button onClick={handlePinChange} disabled={pinSaving}>
             Change PIN
           </Button>
-          {pinMsg && <span className="text-sm text-gray-600 pt-2">{pinMsg}</span>}
+          {pinMsg && (
+            <span className="pt-2 text-sm text-gray-600">{pinMsg}</span>
+          )}
         </div>
       </div>
     </form>

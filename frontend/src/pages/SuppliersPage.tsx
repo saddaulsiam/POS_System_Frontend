@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { suppliersAPI } from "../services";
-import { Supplier, CreateSupplierRequest, UpdateSupplierRequest } from "../types";
+import {
+  Supplier,
+  CreateSupplierRequest,
+  UpdateSupplierRequest,
+} from "../types";
 import toast from "react-hot-toast";
 import { SupplierSearch } from "../components/suppliers/SupplierSearch";
 import { SuppliersTable } from "../components/suppliers/SuppliersTable";
@@ -107,24 +111,38 @@ const SuppliersPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Supplier Management</h1>
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Supplier Management
+          </h1>
           <Button variant="primary" onClick={handleAdd}>
             Add Supplier
           </Button>
         </div>
 
         {/* Search */}
-        <SupplierSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        <SupplierSearch
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
 
         {/* Suppliers Table */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <SuppliersTable suppliers={suppliers} isLoading={isLoading} onEdit={handleEdit} onDelete={handleDelete} />
+        <div className="overflow-hidden rounded-lg bg-white shadow">
+          <SuppliersTable
+            suppliers={suppliers}
+            isLoading={isLoading}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
 
           {/* Pagination */}
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
 

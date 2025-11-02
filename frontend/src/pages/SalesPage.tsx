@@ -35,7 +35,14 @@ const SalesPage: React.FC = () => {
 
   useEffect(() => {
     loadSales();
-  }, [currentPage, dateFrom, dateTo, selectedCustomer, selectedEmployee, receiptId]);
+  }, [
+    currentPage,
+    dateFrom,
+    dateTo,
+    selectedCustomer,
+    selectedEmployee,
+    receiptId,
+  ]);
 
   useEffect(() => {
     loadCustomers();
@@ -67,9 +74,11 @@ const SalesPage: React.FC = () => {
       let items = 0;
       if (pagination) {
         if ("pages" in pagination) pages = Number((pagination as any).pages);
-        else if ("totalPages" in pagination) pages = Number((pagination as any).totalPages);
+        else if ("totalPages" in pagination)
+          pages = Number((pagination as any).totalPages);
         if ("total" in pagination) items = Number((pagination as any).total);
-        else if ("totalItems" in pagination) items = Number((pagination as any).totalItems);
+        else if ("totalItems" in pagination)
+          items = Number((pagination as any).totalItems);
       }
       setTotalPages(pages);
       setTotalItems(items);
@@ -112,7 +121,11 @@ const SalesPage: React.FC = () => {
   };
 
   const handleRefund = async (sale: Sale) => {
-    if (!confirm(`Are you sure you want to process a refund for sale #${sale.receiptId}?`)) {
+    if (
+      !confirm(
+        `Are you sure you want to process a refund for sale #${sale.receiptId}?`,
+      )
+    ) {
       return;
     }
 
@@ -138,12 +151,20 @@ const SalesPage: React.FC = () => {
     setShowVoidModal(true);
   };
 
-  const handleVoidConfirm = async (reason: string, password: string, restoreStock: boolean) => {
+  const handleVoidConfirm = async (
+    reason: string,
+    password: string,
+    restoreStock: boolean,
+  ) => {
     if (!selectedSale) return;
 
     try {
       setVoidLoading(true);
-      await salesAPI.voidSale(selectedSale.id, { reason, password, restoreStock });
+      await salesAPI.voidSale(selectedSale.id, {
+        reason,
+        password,
+        restoreStock,
+      });
       toast.success(`Sale #${selectedSale.receiptId} has been voided`);
       setShowVoidModal(false);
       setSelectedSale(null);
@@ -167,7 +188,7 @@ const SalesPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <h1 className="mb-8 text-3xl font-bold text-gray-900">Sales History</h1>
 
@@ -189,7 +210,7 @@ const SalesPage: React.FC = () => {
         />
 
         {/* Sales Table */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className="overflow-hidden rounded-lg bg-white shadow">
           <SalesTable
             sales={sales}
             isLoading={isLoading}
@@ -197,8 +218,12 @@ const SalesPage: React.FC = () => {
             onRefund={handleRefund}
             onVoid={handleVoidSale}
             userRole={user?.role}
-            getCustomerName={(customerId) => getCustomerName(customerId, customers)}
-            getEmployeeName={(employeeId) => getEmployeeName(employeeId, employees)}
+            getCustomerName={(customerId) =>
+              getCustomerName(customerId, customers)
+            }
+            getEmployeeName={(employeeId) =>
+              getEmployeeName(employeeId, employees)
+            }
           />
 
           {/* Pagination */}

@@ -3,7 +3,10 @@ import { Customer, Employee } from "../types";
 /**
  * Get customer name from customer ID
  */
-export const getCustomerName = (customerId: number | undefined, customers: Customer[]): string => {
+export const getCustomerName = (
+  customerId: number | undefined,
+  customers: Customer[],
+): string => {
   if (!customerId) return "Walk-in Customer";
   const customer = customers.find((c) => c.id === customerId);
   return customer?.name || "Unknown Customer";
@@ -12,7 +15,10 @@ export const getCustomerName = (customerId: number | undefined, customers: Custo
 /**
  * Get employee name from employee ID
  */
-export const getEmployeeName = (employeeId: number, employees: Employee[]): string => {
+export const getEmployeeName = (
+  employeeId: number,
+  employees: Employee[],
+): string => {
   const employee = employees.find((e) => e.id === employeeId);
   return employee?.name || "Unknown Employee";
 };

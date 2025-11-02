@@ -2,10 +2,16 @@ import api from "../api";
 
 export const loyaltyAPI = {
   getCustomerLoyalty: async (customerId: number) => {
-    const response = await api.get(`/loyalty/customers/${customerId}/loyalty-status`);
+    const response = await api.get(
+      `/loyalty/customers/${customerId}/loyalty-status`,
+    );
     return response.data;
   },
-  awardPoints: async (data: { customerId: number; saleId: number; amount: number }) => {
+  awardPoints: async (data: {
+    customerId: number;
+    saleId: number;
+    amount: number;
+  }) => {
     const response = await api.post("/loyalty/award-points", data);
     return response.data;
   },
@@ -20,7 +26,9 @@ export const loyaltyAPI = {
     return response.data;
   },
   getTransactions: async (customerId: number) => {
-    const response = await api.get(`/loyalty/customers/${customerId}/points-history`);
+    const response = await api.get(
+      `/loyalty/customers/${customerId}/points-history`,
+    );
     return response.data;
   },
   getRewards: async (customerId: number) => {
@@ -71,7 +79,9 @@ export const loyaltyAPI = {
     return response.data;
   },
   getLoyaltyStatus: async (customerId: number) => {
-    const response = await api.get(`/loyalty/customers/${customerId}/loyalty-status`);
+    const response = await api.get(
+      `/loyalty/customers/${customerId}/loyalty-status`,
+    );
     return response.data;
   },
   getStatistics: async () => {

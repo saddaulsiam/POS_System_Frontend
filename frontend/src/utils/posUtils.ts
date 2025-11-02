@@ -36,6 +36,9 @@ export const calculateTotal = (cart: CartItem[]): number => {
  * @param total - Total amount due
  * @returns Change amount (0 if cash < total)
  */
-export const calculateChange = (cashReceived: number, total: number): number => {
+export const calculateChange = (
+  cashReceived: number,
+  total: number,
+): number => {
   return Math.max(0, cashReceived - total);
 };

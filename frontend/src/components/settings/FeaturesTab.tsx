@@ -22,7 +22,8 @@ const featureToggles: FeatureToggle[] = [
   {
     key: "enableQuickSale",
     title: "Quick Sale Buttons",
-    description: "Enable quick access buttons for frequently sold products on POS",
+    description:
+      "Enable quick access buttons for frequently sold products on POS",
     icon: "⚡",
     detailedInfo: {
       whatIs:
@@ -33,8 +34,10 @@ const featureToggles: FeatureToggle[] = [
         "Cashiers can add products to cart with a single click",
         "Ideal for fast-moving items like coffee, snacks, or common services",
       ],
-      whenToUse: "Enable when you have high-volume, repeat products that need quick access",
-      whenToDisable: "Disable during training periods or if your inventory changes frequently",
+      whenToUse:
+        "Enable when you have high-volume, repeat products that need quick access",
+      whenToDisable:
+        "Disable during training periods or if your inventory changes frequently",
     },
   },
   {
@@ -52,7 +55,8 @@ const featureToggles: FeatureToggle[] = [
         "All payment methods are recorded in the sale record",
       ],
       whenToUse: "Enable when customers commonly use multiple payment methods",
-      whenToDisable: "Disable if your store policy requires single payment method only",
+      whenToDisable:
+        "Disable if your store policy requires single payment method only",
     },
   },
   {
@@ -70,14 +74,17 @@ const featureToggles: FeatureToggle[] = [
         "Resume parked sale anytime from 'Parked Sales' list",
         "Complete payment when customer returns",
       ],
-      whenToUse: "Enable for high-traffic stores where customers may need to step aside",
-      whenToDisable: "Disable if all transactions complete immediately or you want to prevent incomplete sales",
+      whenToUse:
+        "Enable for high-traffic stores where customers may need to step aside",
+      whenToDisable:
+        "Disable if all transactions complete immediately or you want to prevent incomplete sales",
     },
   },
   {
     key: "enableCustomerSearch",
     title: "Customer Search",
-    description: "Search and link customers to transactions for loyalty tracking",
+    description:
+      "Search and link customers to transactions for loyalty tracking",
     icon: "👤",
     detailedInfo: {
       whatIs:
@@ -89,8 +96,10 @@ const featureToggles: FeatureToggle[] = [
         "Loyalty points are automatically calculated and awarded",
         "Customer can redeem points for discounts",
       ],
-      whenToUse: "Enable if you have a loyalty program or want to track customer purchases",
-      whenToDisable: "Disable for anonymous-only sales or privacy-focused businesses",
+      whenToUse:
+        "Enable if you have a loyalty program or want to track customer purchases",
+      whenToDisable:
+        "Disable for anonymous-only sales or privacy-focused businesses",
     },
   },
   {
@@ -108,8 +117,10 @@ const featureToggles: FeatureToggle[] = [
         "Autocomplete suggestions appear as you type",
         "System finds product by barcode and adds to transaction",
       ],
-      whenToUse: "Enable when using barcode scanners or products have barcode labels",
-      whenToDisable: "Disable if you don't use barcodes or want to prevent accidental scans",
+      whenToUse:
+        "Enable when using barcode scanners or products have barcode labels",
+      whenToDisable:
+        "Disable if you don't use barcodes or want to prevent accidental scans",
     },
   },
   {
@@ -127,8 +138,10 @@ const featureToggles: FeatureToggle[] = [
         "Customers can redeem points for discounts at checkout",
         "Birthday rewards and special promotions available",
       ],
-      whenToUse: "Enable to encourage repeat customers and increase customer retention",
-      whenToDisable: "Disable if not using loyalty program or during system maintenance",
+      whenToUse:
+        "Enable to encourage repeat customers and increase customer retention",
+      whenToDisable:
+        "Disable if not using loyalty program or during system maintenance",
     },
   },
 ];
@@ -144,31 +157,41 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({
 }) => {
   return (
     <>
-      <div className="bg-white rounded-lg shadow">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">🎯 POS Feature Controls</h2>
-          <p className="text-sm text-gray-600 mt-1">Enable or disable core point of sale features</p>
+      <div className="rounded-lg bg-white shadow">
+        <div className="border-b border-gray-200 p-6">
+          <h2 className="text-xl font-semibold text-gray-900">
+            🎯 POS Feature Controls
+          </h2>
+          <p className="mt-1 text-sm text-gray-600">
+            Enable or disable core point of sale features
+          </p>
         </div>
         <div className="space-y-4 p-6">
           {featureToggles.map((feature) => (
             <div
               key={feature.key}
-              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-50"
             >
               <div className="flex items-center gap-4">
                 <span className="text-2xl">{feature.icon}</span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900">{feature.title}</span>
+                    <span className="font-medium text-gray-900">
+                      {feature.title}
+                    </span>
                     <button
                       onClick={() => {
                         setSelectedFeature(feature.key);
                         setShowInfoModal(true);
                       }}
-                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                      className="text-blue-600 transition-colors hover:text-blue-800"
                       title="View detailed information"
                     >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        className="h-5 w-5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path
                           fillRule="evenodd"
                           d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
@@ -177,11 +200,15 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({
                       </svg>
                     </button>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">{feature.description}</p>
+                  <p className="mt-1 text-sm text-gray-600">
+                    {feature.description}
+                  </p>
                 </div>
               </div>
               <button
-                onClick={() => handleToggle(feature.key, !settings[feature.key])}
+                onClick={() =>
+                  handleToggle(feature.key, !settings[feature.key])
+                }
                 disabled={saving}
                 className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 ${
                   settings[feature.key] ? "bg-blue-600" : "bg-gray-200"
@@ -199,9 +226,13 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({
           ))}
         </div>
         {/* Info Box */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 mx-6 mb-6">
+        <div className="mx-6 mb-6 mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
           <div className="flex items-start">
-            <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+            <svg
+              className="mr-3 mt-0.5 h-5 w-5 text-blue-600"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
               <path
                 fillRule="evenodd"
                 d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
@@ -210,9 +241,10 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({
             </svg>
             <div>
               <h4 className="text-sm font-medium text-blue-900">Quick Tip</h4>
-              <p className="text-sm text-blue-700 mt-1">
-                Changes take effect immediately. Click the <strong>ℹ️ info icon</strong> next to each feature for
-                detailed explanations.
+              <p className="mt-1 text-sm text-blue-700">
+                Changes take effect immediately. Click the{" "}
+                <strong>ℹ️ info icon</strong> next to each feature for detailed
+                explanations.
               </p>
             </div>
           </div>
@@ -220,21 +252,27 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({
       </div>
       {/* Info Modal (moved from SettingsPage) */}
       {showInfoModal && selectedFeature && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white shadow-xl">
             {(() => {
-              const feature = featureToggles.find((f) => f.key === selectedFeature);
+              const feature = featureToggles.find(
+                (f) => f.key === selectedFeature,
+              );
               if (!feature) return null;
               return (
                 <>
                   {/* Modal Header */}
-                  <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-lg">
+                  <div className="sticky top-0 rounded-t-lg bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <span className="text-4xl">{feature.icon}</span>
                         <div>
-                          <h2 className="text-2xl font-bold">{feature.title}</h2>
-                          <p className="text-blue-100 text-sm mt-1">{feature.description}</p>
+                          <h2 className="text-2xl font-bold">
+                            {feature.title}
+                          </h2>
+                          <p className="mt-1 text-sm text-blue-100">
+                            {feature.description}
+                          </p>
                         </div>
                       </div>
                       <button
@@ -242,66 +280,86 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({
                           setShowInfoModal(false);
                           setSelectedFeature(null);
                         }}
-                        className="text-white hover:text-gray-200 transition-colors"
+                        className="text-white transition-colors hover:text-gray-200"
                       >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        <svg
+                          className="h-6 w-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
                         </svg>
                       </button>
                     </div>
                   </div>
                   {/* Modal Content */}
-                  <div className="p-6 space-y-6">
+                  <div className="space-y-6 p-6">
                     {/* What is it? */}
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
+                      <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-gray-900">
                         <span className="text-blue-600">📘</span>
                         What is it?
                       </h3>
-                      <p className="text-gray-700 leading-relaxed">{feature.detailedInfo.whatIs}</p>
+                      <p className="leading-relaxed text-gray-700">
+                        {feature.detailedInfo.whatIs}
+                      </p>
                     </div>
                     {/* How it works */}
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-3">
+                      <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-gray-900">
                         <span className="text-green-600">⚙️</span>
                         How it works
                       </h3>
                       <ol className="space-y-2">
-                        {feature.detailedInfo.howItWorks.map((step: string, index: number) => (
-                          <li key={index} className="flex gap-3">
-                            <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium">
-                              {index + 1}
-                            </span>
-                            <span className="text-gray-700 pt-0.5">{step}</span>
-                          </li>
-                        ))}
+                        {feature.detailedInfo.howItWorks.map(
+                          (step: string, index: number) => (
+                            <li key={index} className="flex gap-3">
+                              <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-600">
+                                {index + 1}
+                              </span>
+                              <span className="pt-0.5 text-gray-700">
+                                {step}
+                              </span>
+                            </li>
+                          ),
+                        )}
                       </ol>
                     </div>
                     {/* When to use */}
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <h3 className="text-lg font-semibold text-green-900 flex items-center gap-2 mb-2">
+                    <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+                      <h3 className="mb-2 flex items-center gap-2 text-lg font-semibold text-green-900">
                         <span>✅</span>
                         When to Enable
                       </h3>
-                      <p className="text-green-800">{feature.detailedInfo.whenToUse}</p>
+                      <p className="text-green-800">
+                        {feature.detailedInfo.whenToUse}
+                      </p>
                     </div>
                     {/* When to disable */}
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                      <h3 className="text-lg font-semibold text-orange-900 flex items-center gap-2 mb-2">
+                    <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
+                      <h3 className="mb-2 flex items-center gap-2 text-lg font-semibold text-orange-900">
                         <span>❌</span>
                         When to Disable
                       </h3>
-                      <p className="text-orange-800">{feature.detailedInfo.whenToDisable}</p>
+                      <p className="text-orange-800">
+                        {feature.detailedInfo.whenToDisable}
+                      </p>
                     </div>
                   </div>
                   {/* Modal Footer */}
-                  <div className="sticky bottom-0 bg-gray-50 px-6 py-4 rounded-b-lg border-t border-gray-200">
+                  <div className="sticky bottom-0 rounded-b-lg border-t border-gray-200 bg-gray-50 px-6 py-4">
                     <button
                       onClick={() => {
                         setShowInfoModal(false);
                         setSelectedFeature(null);
                       }}
-                      className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                      className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
                     >
                       Got it!
                     </button>

@@ -5,12 +5,20 @@ export const inventoryAPI = {
     productId: number,
     data: {
       quantity: number;
-      movementType: "PURCHASE" | "ADJUSTMENT" | "RETURN" | "DAMAGED" | "EXPIRED";
+      movementType:
+        | "PURCHASE"
+        | "ADJUSTMENT"
+        | "RETURN"
+        | "DAMAGED"
+        | "EXPIRED";
       reason?: string;
       reference?: string;
-    }
+    },
   ) => {
-    const response = await api.post(`/inventory/adjust`, { productId, ...data });
+    const response = await api.post(`/inventory/adjust`, {
+      productId,
+      ...data,
+    });
     return response.data;
   },
   getStockMovements: async (
@@ -20,9 +28,11 @@ export const inventoryAPI = {
       limit?: number;
       startDate?: string;
       endDate?: string;
-    }
+    },
   ) => {
-    const response = await api.get("/inventory/movements", { params: { productId, ...params } });
+    const response = await api.get("/inventory/movements", {
+      params: { productId, ...params },
+    });
     return response.data;
   },
   adjustStock: async (data: {
@@ -110,7 +120,7 @@ export const inventoryAPI = {
         quantity: number;
         unitPrice: number;
       }>;
-    }
+    },
   ) => {
     const response = await api.put(`/inventory/purchase-orders/${id}`, data);
     return response.data;
@@ -120,17 +130,26 @@ export const inventoryAPI = {
     items: Array<{
       itemId: number;
       receivedQuantity: number;
-    }>
+    }>,
   ) => {
-    const response = await api.post(`/inventory/purchase-orders/${id}/receive`, { items });
+    const response = await api.post(
+      `/inventory/purchase-orders/${id}/receive`,
+      { items },
+    );
     return response.data;
   },
   cancelPurchaseOrder: async (id: number) => {
     const response = await api.delete(`/inventory/purchase-orders/${id}`);
     return response.data;
   },
-  getPurchaseOrderStats: async (params?: { startDate?: string; endDate?: string; supplierId?: number }) => {
-    const response = await api.get("/inventory/purchase-orders/stats/summary", { params });
+  getPurchaseOrderStats: async (params?: {
+    startDate?: string;
+    endDate?: string;
+    supplierId?: number;
+  }) => {
+    const response = await api.get("/inventory/purchase-orders/stats/summary", {
+      params,
+    });
     return response.data;
   },
 };

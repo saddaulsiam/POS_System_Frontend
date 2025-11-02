@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { Product } from "../../types";
 import { Button } from "../common";
 
-type AllowedMovementType = "PURCHASE" | "ADJUSTMENT" | "RETURN" | "DAMAGED" | "EXPIRED";
+type AllowedMovementType =
+  | "PURCHASE"
+  | "ADJUSTMENT"
+  | "RETURN"
+  | "DAMAGED"
+  | "EXPIRED";
 
 const movementTypes: { label: string; value: AllowedMovementType }[] = [
   { label: "Purchase", value: "PURCHASE" },
@@ -16,10 +21,19 @@ interface StockAdjustModalProps {
   isOpen: boolean;
   product: Product | null;
   onClose: () => void;
-  onSubmit: (data: { quantity: number; movementType: AllowedMovementType; reason: string }) => Promise<void>;
+  onSubmit: (data: {
+    quantity: number;
+    movementType: AllowedMovementType;
+    reason: string;
+  }) => Promise<void>;
 }
 
-export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({ isOpen, product, onClose, onSubmit }) => {
+export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
+  isOpen,
+  product,
+  onClose,
+  onSubmit,
+}) => {
   const [formData, setFormData] = useState<{
     quantity: number;
     movementType: AllowedMovementType;
@@ -30,7 +44,9 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({ isOpen, prod
     reason: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => {
       if (name === "quantity") {
@@ -53,35 +69,39 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({ isOpen, prod
   if (!isOpen || !product) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <div className="relative w-full max-w-lg rounded-lg bg-white p-6 shadow-lg">
         <button
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+          className="absolute right-2 top-2 text-xl text-gray-500 hover:text-gray-700"
           onClick={onClose}
           aria-label="Close"
         >
           &times;
         </button>
-        <h2 className="text-xl font-semibold mb-4">Adjust Stock for {product.name}</h2>
+        <h2 className="mb-4 text-xl font-semibold">
+          Adjust Stock for {product.name}
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Quantity</label>
+            <label className="mb-1 block text-sm font-medium">Quantity</label>
             <input
               name="quantity"
               type="number"
               value={formData.quantity}
               onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full rounded border px-3 py-2"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Movement Type</label>
+            <label className="mb-1 block text-sm font-medium">
+              Movement Type
+            </label>
             <select
               name="movementType"
               value={formData.movementType}
               onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full rounded border px-3 py-2"
             >
               {movementTypes.map((type) => (
                 <option key={type.value} value={type.value}>
@@ -91,12 +111,14 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({ isOpen, prod
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Reason (optional)</label>
+            <label className="mb-1 block text-sm font-medium">
+              Reason (optional)
+            </label>
             <input
               name="reason"
               value={formData.reason}
               onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full rounded border px-3 py-2"
             />
           </div>
           <div className="flex justify-end gap-2">

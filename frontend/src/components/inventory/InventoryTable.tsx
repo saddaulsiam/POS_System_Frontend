@@ -17,8 +17,8 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-40">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+      <div className="flex min-h-40 items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -28,15 +28,27 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
   }
 
   return (
-    <table className="min-w-full rounded-lg overflow-hidden border border-gray-200">
+    <table className="min-w-full overflow-hidden rounded-lg border border-gray-200">
       <thead className="bg-gray-100">
         <tr>
-          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase w-16">Image</th>
-          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase min-w-[120px]">Name</th>
-          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase min-w-[80px]">SKU</th>
-          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase min-w-[60px]">Stock</th>
-          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase min-w-[90px]">Status</th>
-          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase min-w-[120px]">Actions</th>
+          <th className="w-16 px-3 py-2 text-left text-xs font-semibold uppercase text-gray-600">
+            Image
+          </th>
+          <th className="min-w-[120px] px-3 py-2 text-left text-xs font-semibold uppercase text-gray-600">
+            Name
+          </th>
+          <th className="min-w-[80px] px-3 py-2 text-left text-xs font-semibold uppercase text-gray-600">
+            SKU
+          </th>
+          <th className="min-w-[60px] px-3 py-2 text-left text-xs font-semibold uppercase text-gray-600">
+            Stock
+          </th>
+          <th className="min-w-[90px] px-3 py-2 text-left text-xs font-semibold uppercase text-gray-600">
+            Status
+          </th>
+          <th className="min-w-[120px] px-3 py-2 text-left text-xs font-semibold uppercase text-gray-600">
+            Actions
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -61,11 +73,11 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-12 h-12 object-cover rounded border"
+                    className="h-12 w-12 rounded border object-cover"
                     loading="lazy"
                   />
                 ) : (
-                  <div className="w-12 h-12 flex items-center justify-center bg-gray-100 text-gray-400 rounded border">
+                  <div className="flex h-12 w-12 items-center justify-center rounded border bg-gray-100 text-gray-400">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-6 w-6"
@@ -73,25 +85,44 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
                     </svg>
                   </div>
                 )}
               </td>
-              <td className="px-3 py-2 font-medium text-gray-900 min-w-[120px]">{product.name}</td>
-              <td className="px-3 py-2 text-gray-600 min-w-[80px]">{product.sku}</td>
-              <td className="px-3 py-2 text-gray-900 min-w-[60px]">{product.stockQuantity}</td>
-              <td className="px-3 py-2 min-w-[90px]">
+              <td className="min-w-[120px] px-3 py-2 font-medium text-gray-900">
+                {product.name}
+              </td>
+              <td className="min-w-[80px] px-3 py-2 text-gray-600">
+                {product.sku}
+              </td>
+              <td className="min-w-[60px] px-3 py-2 text-gray-900">
+                {product.stockQuantity}
+              </td>
+              <td className="min-w-[90px] px-3 py-2">
                 <Badge variant={variant} size="sm">
                   {status}
                 </Badge>
               </td>
-              <td className="px-3 py-2 min-w-[120px]">
-                <div className="flex items-center justify-center gap-2 w-full">
-                  <Button variant="primary" size="sm" onClick={() => onAdjustStock(product)}>
+              <td className="min-w-[120px] px-3 py-2">
+                <div className="flex w-full items-center justify-center gap-2">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => onAdjustStock(product)}
+                  >
                     Adjust Stock
                   </Button>
-                  <Button variant="secondary" size="sm" onClick={() => onViewHistory(product)}>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => onViewHistory(product)}
+                  >
                     History
                   </Button>
                 </div>

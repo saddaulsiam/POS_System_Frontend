@@ -61,7 +61,9 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
     }
   }, [editingCustomer, isOpen, initialPhoneNumber]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -89,7 +91,7 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
       title={
         <div className="flex items-center gap-3">
           <div
-            className={`w-12 h-12 rounded-full flex items-center justify-center ${
+            className={`flex h-12 w-12 items-center justify-center rounded-full ${
               isNewCustomer ? "bg-blue-100" : "bg-green-100"
             }`}
           >
@@ -100,7 +102,9 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
               {isNewCustomer ? "Create New Customer" : "Edit Customer"}
             </h2>
             <p className="text-xs text-gray-500">
-              {isNewCustomer ? "Add customer details for loyalty program" : "Update customer information"}
+              {isNewCustomer
+                ? "Add customer details for loyalty program"
+                : "Update customer information"}
             </p>
           </div>
         </div>
@@ -109,9 +113,11 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Required Field Section */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm font-semibold text-blue-900">📋 Required Information</span>
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-sm font-semibold text-blue-900">
+              📋 Required Information
+            </span>
           </div>
 
           <Input
@@ -128,9 +134,11 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
         </div>
 
         {/* Contact Information Section */}
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm font-semibold text-gray-900">📞 Contact Details</span>
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-sm font-semibold text-gray-900">
+              📞 Contact Details
+            </span>
             <span className="text-xs text-gray-500">(Optional)</span>
           </div>
 
@@ -146,11 +154,12 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
                 placeholder="+880 1XXX-XXXXXX"
                 className="bg-white"
               />
-              {initialPhoneNumber && formData.phoneNumber === initialPhoneNumber && (
-                <span className="absolute right-3 top-9 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                  Pre-filled
-                </span>
-              )}
+              {initialPhoneNumber &&
+                formData.phoneNumber === initialPhoneNumber && (
+                  <span className="absolute right-3 top-9 rounded bg-blue-100 px-2 py-1 text-xs text-blue-700">
+                    Pre-filled
+                  </span>
+                )}
             </div>
 
             <Input
@@ -167,10 +176,14 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
         </div>
 
         {/* Additional Information Section */}
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm font-semibold text-purple-900">🎂 Additional Info</span>
-            <span className="text-xs text-purple-600">(Optional - for birthday rewards)</span>
+        <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-sm font-semibold text-purple-900">
+              🎂 Additional Info
+            </span>
+            <span className="text-xs text-purple-600">
+              (Optional - for birthday rewards)
+            </span>
           </div>
 
           <div className="space-y-4">
@@ -184,8 +197,9 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
                 fullWidth
                 className="bg-white"
               />
-              <p className="text-xs text-purple-600 mt-1 flex items-center gap-1">
-                <span>🎁</span> Customers receive bonus points on their birthday!
+              <p className="mt-1 flex items-center gap-1 text-xs text-purple-600">
+                <span>🎁</span> Customers receive bonus points on their
+                birthday!
               </p>
             </div>
 
@@ -203,8 +217,13 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-          <Button type="button" variant="ghost" onClick={onClose} className="px-6">
+        <div className="flex justify-end space-x-3 border-t border-gray-200 pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onClose}
+            className="px-6"
+          >
             Cancel
           </Button>
           <Button
@@ -219,7 +238,7 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
                     cx="12"

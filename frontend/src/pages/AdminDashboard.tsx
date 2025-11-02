@@ -109,7 +109,9 @@ const AdminDashboard: React.FC = () => {
   const loadDashboardData = async () => {
     setIsLoading(true);
     try {
-      const { reportsAPI, customersAPI, analyticsAPI } = await import("../services");
+      const { reportsAPI, customersAPI, analyticsAPI } = await import(
+        "../services"
+      );
 
       // Helper to format date as YYYY-MM-DD
       const formatDate = (date: Date) => {
@@ -144,11 +146,18 @@ const AdminDashboard: React.FC = () => {
         reportsAPI.getSalesRange(formatDate(weekAgo), formatDate(today)),
         reportsAPI.getSalesRange(formatDate(monthAgo), formatDate(today)),
         reportsAPI.getInventory(),
-        reportsAPI.getProductPerformance(formatDate(weekAgo), formatDate(today), 5),
+        reportsAPI.getProductPerformance(
+          formatDate(weekAgo),
+          formatDate(today),
+          5,
+        ),
         customersAPI.getAll({ page: 1, limit: 1 }),
         customersAPI.getAll({ page: 1, limit: 100 }),
         reportsAPI.getSalesRange(formatDate(today), formatDate(today)),
-        analyticsAPI.getCategoryBreakdown({ startDate: formatDate(weekAgo), endDate: formatDate(today) }),
+        analyticsAPI.getCategoryBreakdown({
+          startDate: formatDate(weekAgo),
+          endDate: formatDate(today),
+        }),
       ]);
 
       // Defensive checks for required fields
@@ -177,15 +186,19 @@ const AdminDashboard: React.FC = () => {
       }).length;
 
       // Map top selling products
-      const topSellingProducts = (productPerformance.products || []).map((p: any) => ({
-        id: p.product.id,
-        name: p.product.name,
-        totalSold: p.totalQuantitySold,
-        revenue: p.totalRevenue,
-      }));
+      const topSellingProducts = (productPerformance.products || []).map(
+        (p: any) => ({
+          id: p.product.id,
+          name: p.product.name,
+          totalSold: p.totalQuantitySold,
+          revenue: p.totalRevenue,
+        }),
+      );
 
       // Map recent transactions
-      const recentTransactions: DashboardStats["recentTransactions"] = (todaySalesRange.sales || [])
+      const recentTransactions: DashboardStats["recentTransactions"] = (
+        todaySalesRange.sales || []
+      )
         .slice(0, 5)
         .map((sale: any) => ({
           id: sale.id,
@@ -193,7 +206,10 @@ const AdminDashboard: React.FC = () => {
           createdAt: sale.createdAt,
           customerName: sale.customer?.name,
           itemCount: Array.isArray(sale.saleItems)
-            ? sale.saleItems.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0)
+            ? sale.saleItems.reduce(
+                (sum: number, item: any) => sum + (item.quantity || 0),
+                0,
+              )
             : 0,
         }));
 
@@ -213,39 +229,57 @@ const AdminDashboard: React.FC = () => {
         todayTransactions: todaySalesReport.summary.totalTransactions ?? 0,
         weekTransactions: weekSalesReport.summary.totalTransactions ?? 0,
         averageOrderValue:
-          todaySalesReport.summary.totalSales && todaySalesReport.summary.totalTransactions
-            ? todaySalesReport.summary.totalSales / todaySalesReport.summary.totalTransactions
+          todaySalesReport.summary.totalSales &&
+          todaySalesReport.summary.totalTransactions
+            ? todaySalesReport.summary.totalSales /
+              todaySalesReport.summary.totalTransactions
             : 0,
         topSellingProducts,
         recentTransactions,
-        salesByCategory: (categoryBreakdown.categories || []).map((cat: any) => ({
-          category: cat.name,
-          sales: cat.revenue,
-          percentage: cat.percentage,
-        })),
+        salesByCategory: (categoryBreakdown.categories || []).map(
+          (cat: any) => ({
+            category: cat.name,
+            sales: cat.revenue,
+            percentage: cat.percentage,
+          }),
+        ),
         hourlySales: [],
       });
     } catch (error: any) {
       console.error("Failed to load dashboard data:", error);
-      toast.error("Failed to load dashboard data: " + (error?.message || error));
+      toast.error(
+        "Failed to load dashboard data: " + (error?.message || error),
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const ChartCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 p-6 border border-gray-100">
-      <h3 className="text-lg font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">{title}</h3>
+  const ChartCard = ({
+    title,
+    children,
+  }: {
+    title: string;
+    children: React.ReactNode;
+  }) => (
+    <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-md transition-shadow duration-300 hover:shadow-lg">
+      <h3 className="mb-6 border-b border-gray-200 pb-3 text-lg font-bold text-gray-900">
+        {title}
+      </h3>
       {children}
     </div>
   );
 
   if (user?.role === "CASHIER") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-4">You don't have permission to access the admin dashboard.</p>
+          <h1 className="mb-4 text-2xl font-bold text-gray-900">
+            Access Denied
+          </h1>
+          <p className="mb-4 text-gray-600">
+            You don't have permission to access the admin dashboard.
+          </p>
           <BackButton to="/" label="Back to POS" />
         </div>
       </div>
@@ -254,20 +288,23 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+              <h1 className="mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-4xl font-bold text-transparent">
                 Dashboard
               </h1>
-              <p className="text-gray-600 text-lg">
-                Welcome back, <span className="font-semibold text-gray-900">{user?.name || "Admin"}</span>! Here's
-                what's happening with your store today.
+              <p className="text-lg text-gray-600">
+                Welcome back,{" "}
+                <span className="font-semibold text-gray-900">
+                  {user?.name || "Admin"}
+                </span>
+                ! Here's what's happening with your store today.
               </p>
             </div>
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden items-center gap-4 md:flex">
               <div className="text-right">
                 <p className="text-sm text-gray-500">Today's Date</p>
                 <p className="text-lg font-semibold text-gray-900">
@@ -284,22 +321,25 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {isLoading ? (
-          <div className="flex flex-col justify-center items-center min-h-96">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mb-4"></div>
-            <p className="text-gray-600 text-lg">Loading dashboard data...</p>
+          <div className="flex min-h-96 flex-col items-center justify-center">
+            <div className="mb-4 h-16 w-16 animate-spin rounded-full border-b-4 border-blue-600"></div>
+            <p className="text-lg text-gray-600">Loading dashboard data...</p>
           </div>
         ) : (
           <div className="space-y-8">
             {/* Key Metrics */}
             <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900">
                   <span className="text-3xl">📊</span>
                   <span>Key Metrics</span>
                 </h2>
-                <RefreshButton onClick={loadDashboardData} loading={isLoading} />
+                <RefreshButton
+                  onClick={loadDashboardData}
+                  loading={isLoading}
+                />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <DashboardStatCard
                   title="Today's Sales"
                   value={formatCurrency(stats.todaySales, settings)}
@@ -307,8 +347,18 @@ const AdminDashboard: React.FC = () => {
                   icon="💰"
                   color="green"
                 />
-                <DashboardStatCard title="Total Products" value={stats.totalProducts} icon="📦" color="blue" />
-                <DashboardStatCard title="Low Stock Items" value={stats.lowStockCount} icon="⚠️" color="yellow" />
+                <DashboardStatCard
+                  title="Total Products"
+                  value={stats.totalProducts}
+                  icon="📦"
+                  color="blue"
+                />
+                <DashboardStatCard
+                  title="Low Stock Items"
+                  value={stats.lowStockCount}
+                  icon="⚠️"
+                  color="yellow"
+                />
                 <DashboardStatCard
                   title="Today's Orders"
                   value={stats.todayTransactions}
@@ -321,11 +371,11 @@ const AdminDashboard: React.FC = () => {
 
             {/* Sales Overview */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold text-gray-900">
                 <span className="text-3xl">📈</span>
                 <span>Sales Overview</span>
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <DashboardStatCard
                   title="Yesterday"
                   value={formatCurrency(stats.yesterdaySales, settings)}
@@ -358,11 +408,11 @@ const AdminDashboard: React.FC = () => {
 
             {/* Performance Metrics */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold text-gray-900">
                 <span className="text-3xl">⚡</span>
                 <span>Performance Metrics</span>
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <DashboardStatCard
                   title="Total Customers"
                   value={stats.totalCustomers}
@@ -388,11 +438,11 @@ const AdminDashboard: React.FC = () => {
 
             {/* Charts and Analytics */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold text-gray-900">
                 <span className="text-3xl">📊</span>
                 <span>Analytics & Insights</span>
               </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <ChartCard title="Top Selling Products">
                   <SimpleBarChart
                     data={stats.topSellingProducts.map((p) => ({
@@ -415,36 +465,47 @@ const AdminDashboard: React.FC = () => {
 
             {/* Recent Activity */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold text-gray-900">
                 <span className="text-3xl">⚡</span>
                 <span>Recent Activity</span>
               </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <RecentTransactionsList transactions={stats.recentTransactions} />
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <RecentTransactionsList
+                  transactions={stats.recentTransactions}
+                />
                 <QuickActionsGrid actions={quickActions} />
               </div>
             </div>
 
             {/* Alerts and Notifications */}
-            <AlertsSection lowStockCount={stats.lowStockCount} outOfStockCount={stats.outOfStockCount} />
+            <AlertsSection
+              lowStockCount={stats.lowStockCount}
+              outOfStockCount={stats.outOfStockCount}
+            />
 
             {/* Dashboard Footer - Quick Summary */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-8 text-white">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+            <div className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white shadow-lg">
+              <div className="grid grid-cols-1 gap-6 text-center md:grid-cols-4">
                 <div>
-                  <p className="text-blue-100 text-sm mb-1">Total Revenue (Month)</p>
-                  <p className="text-3xl font-bold">{formatCurrency(stats.monthSales, settings)}</p>
+                  <p className="mb-1 text-sm text-blue-100">
+                    Total Revenue (Month)
+                  </p>
+                  <p className="text-3xl font-bold">
+                    {formatCurrency(stats.monthSales, settings)}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-blue-100 text-sm mb-1">Transactions (Week)</p>
+                  <p className="mb-1 text-sm text-blue-100">
+                    Transactions (Week)
+                  </p>
                   <p className="text-3xl font-bold">{stats.weekTransactions}</p>
                 </div>
                 <div>
-                  <p className="text-blue-100 text-sm mb-1">Active Inventory</p>
+                  <p className="mb-1 text-sm text-blue-100">Active Inventory</p>
                   <p className="text-3xl font-bold">{stats.activeProducts}</p>
                 </div>
                 <div>
-                  <p className="text-blue-100 text-sm mb-1">Total Customers</p>
+                  <p className="mb-1 text-sm text-blue-100">Total Customers</p>
                   <p className="text-3xl font-bold">{stats.totalCustomers}</p>
                 </div>
               </div>

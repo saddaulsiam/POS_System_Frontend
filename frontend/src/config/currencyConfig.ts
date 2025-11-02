@@ -95,7 +95,10 @@ export const getCurrencyConfig = (code?: string): CurrencyConfig => {
 /**
  * Get list of all supported currencies for dropdowns
  */
-export const getCurrencyOptions = (): Array<{ value: string; label: string }> => {
+export const getCurrencyOptions = (): Array<{
+  value: string;
+  label: string;
+}> => {
   return Object.values(CURRENCIES).map((currency) => ({
     value: currency.code,
     label: `${currency.name} (${currency.symbol})`,
@@ -108,7 +111,10 @@ export const getCurrencyOptions = (): Array<{ value: string; label: string }> =>
  * @param config - Currency configuration
  * @returns Formatted number (without symbol)
  */
-export const formatNumber = (amount: number, config: CurrencyConfig): string => {
+export const formatNumber = (
+  amount: number,
+  config: CurrencyConfig,
+): string => {
   try {
     // Use Intl.NumberFormat for proper locale formatting
     if (config.locale) {
@@ -120,7 +126,10 @@ export const formatNumber = (amount: number, config: CurrencyConfig): string => 
 
     // Fallback to manual formatting
     const parts = amount.toFixed(config.decimals).split(".");
-    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, config.thousandSeparator);
+    const integerPart = parts[0].replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      config.thousandSeparator,
+    );
     const decimalPart = parts[1];
 
     if (config.decimals > 0 && decimalPart) {
@@ -140,7 +149,10 @@ export const formatNumber = (amount: number, config: CurrencyConfig): string => 
  * @param config - Currency configuration
  * @returns Formatted currency string (e.g., "$1,234.56" or "1,234.56৳")
  */
-export const formatWithSymbol = (amount: number, config: CurrencyConfig): string => {
+export const formatWithSymbol = (
+  amount: number,
+  config: CurrencyConfig,
+): string => {
   const formattedNumber = formatNumber(amount, config);
 
   if (config.symbolPosition === "after") {

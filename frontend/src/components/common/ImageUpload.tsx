@@ -6,7 +6,11 @@ interface ImageUploadProps {
   onChange: (file: File | null, preview: string) => void;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ label = "Upload Photo", value, onChange }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({
+  label = "Upload Photo",
+  value,
+  onChange,
+}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,13 +32,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ label = "Upload Photo", value
 
   return (
     <div>
-      {label && <label className="block text-sm font-medium mb-2">{label}</label>}
+      {label && (
+        <label className="mb-2 block text-sm font-medium">{label}</label>
+      )}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
         onChange={handleFileChange}
-        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+        className="block w-full text-sm text-gray-500 file:mr-4 file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
       />
       {/* Preview is handled by parent, not here */}
     </div>

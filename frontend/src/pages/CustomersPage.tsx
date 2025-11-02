@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { customersAPI } from "../services";
-import { Customer, CreateCustomerRequest, UpdateCustomerRequest } from "../types";
+import {
+  Customer,
+  CreateCustomerRequest,
+  UpdateCustomerRequest,
+} from "../types";
 import toast from "react-hot-toast";
 import { CustomerSearch } from "../components/customers/CustomerSearch";
 import { CustomersTable } from "../components/customers/CustomersTable";
 import { CustomerModal } from "../components/customers/CustomerModal";
 import { Pagination } from "../components/sales/Pagination";
 import { Button, BackButton } from "../components/common";
-import { LoyaltyDashboard, PointsHistoryTable, RewardsGallery } from "../components/loyalty";
+import {
+  LoyaltyDashboard,
+  PointsHistoryTable,
+  RewardsGallery,
+} from "../components/loyalty";
 
 interface CustomerFormData {
   name: string;
@@ -26,7 +34,9 @@ const CustomersPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "loyalty">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "loyalty">(
+    "overview",
+  );
 
   useEffect(() => {
     loadCustomers();
@@ -89,7 +99,9 @@ const CustomersPage: React.FC = () => {
         toast.success("Customer updated successfully");
         updatedCustomerId = editingCustomer.id;
       } else {
-        const newCustomer = await customersAPI.create(customerData as CreateCustomerRequest);
+        const newCustomer = await customersAPI.create(
+          customerData as CreateCustomerRequest,
+        );
         toast.success("Customer created successfully");
         updatedCustomerId = newCustomer.id;
       }
@@ -138,34 +150,42 @@ const CustomersPage: React.FC = () => {
   if (viewingCustomer) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
           {/* Header with Back Button */}
           <div className="mb-6">
-            <BackButton onClick={handleCloseDetails} label="Back to Customers" className="mb-4" />
-            <h1 className="text-3xl font-bold text-gray-900">{viewingCustomer.name}</h1>
-            <p className="text-gray-600 mt-1">{viewingCustomer.email || viewingCustomer.phoneNumber}</p>
+            <BackButton
+              onClick={handleCloseDetails}
+              label="Back to Customers"
+              className="mb-4"
+            />
+            <h1 className="text-3xl font-bold text-gray-900">
+              {viewingCustomer.name}
+            </h1>
+            <p className="mt-1 text-gray-600">
+              {viewingCustomer.email || viewingCustomer.phoneNumber}
+            </p>
           </div>
 
           {/* Tabs */}
-          <div className="bg-white shadow rounded-lg mb-6">
+          <div className="mb-6 rounded-lg bg-white shadow">
             <div className="border-b border-gray-200">
-              <nav className="flex -mb-px">
+              <nav className="-mb-px flex">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`py-4 px-6 text-sm font-medium border-b-2 ${
+                  className={`border-b-2 px-6 py-4 text-sm font-medium ${
                     activeTab === "overview"
                       ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                   }`}
                 >
                   Overview
                 </button>
                 <button
                   onClick={() => setActiveTab("loyalty")}
-                  className={`py-4 px-6 text-sm font-medium border-b-2 ${
+                  className={`border-b-2 px-6 py-4 text-sm font-medium ${
                     activeTab === "loyalty"
                       ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                   }`}
                 >
                   🎁 Loyalty Program
@@ -178,23 +198,33 @@ const CustomersPage: React.FC = () => {
               {activeTab === "overview" && (
                 <div className="space-y-6">
                   {/* Customer Information */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-sm font-medium text-gray-500 mb-3">Contact Information</h3>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div className="rounded-lg bg-gray-50 p-4">
+                      <h3 className="mb-3 text-sm font-medium text-gray-500">
+                        Contact Information
+                      </h3>
                       <dl className="space-y-2">
                         <div>
                           <dt className="text-xs text-gray-500">Phone</dt>
-                          <dd className="text-sm font-medium text-gray-900">{viewingCustomer.phoneNumber || "N/A"}</dd>
+                          <dd className="text-sm font-medium text-gray-900">
+                            {viewingCustomer.phoneNumber || "N/A"}
+                          </dd>
                         </div>
                         <div>
                           <dt className="text-xs text-gray-500">Email</dt>
-                          <dd className="text-sm font-medium text-gray-900">{viewingCustomer.email || "N/A"}</dd>
+                          <dd className="text-sm font-medium text-gray-900">
+                            {viewingCustomer.email || "N/A"}
+                          </dd>
                         </div>
                         <div>
-                          <dt className="text-xs text-gray-500">Date of Birth</dt>
+                          <dt className="text-xs text-gray-500">
+                            Date of Birth
+                          </dt>
                           <dd className="text-sm font-medium text-gray-900">
                             {viewingCustomer.dateOfBirth
-                              ? new Date(viewingCustomer.dateOfBirth).toLocaleDateString("en-US", {
+                              ? new Date(
+                                  viewingCustomer.dateOfBirth,
+                                ).toLocaleDateString("en-US", {
                                   year: "numeric",
                                   month: "long",
                                   day: "numeric",
@@ -204,34 +234,50 @@ const CustomersPage: React.FC = () => {
                         </div>
                         <div>
                           <dt className="text-xs text-gray-500">Address</dt>
-                          <dd className="text-sm font-medium text-gray-900">{viewingCustomer.address || "N/A"}</dd>
+                          <dd className="text-sm font-medium text-gray-900">
+                            {viewingCustomer.address || "N/A"}
+                          </dd>
                         </div>
                       </dl>
                     </div>
 
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-sm font-medium text-gray-500 mb-3">Account Information</h3>
+                    <div className="rounded-lg bg-gray-50 p-4">
+                      <h3 className="mb-3 text-sm font-medium text-gray-500">
+                        Account Information
+                      </h3>
                       <dl className="space-y-2">
                         <div>
                           <dt className="text-xs text-gray-500">Customer ID</dt>
-                          <dd className="text-sm font-medium text-gray-900">#{viewingCustomer.id}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-xs text-gray-500">Loyalty Points</dt>
-                          <dd className="text-lg font-medium text-blue-600">{viewingCustomer.loyaltyPoints || 0}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-xs text-gray-500">Member Since</dt>
                           <dd className="text-sm font-medium text-gray-900">
-                            {new Date(viewingCustomer.createdAt).toLocaleDateString()}
+                            #{viewingCustomer.id}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-gray-500">
+                            Loyalty Points
+                          </dt>
+                          <dd className="text-lg font-medium text-blue-600">
+                            {viewingCustomer.loyaltyPoints || 0}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-gray-500">
+                            Member Since
+                          </dt>
+                          <dd className="text-sm font-medium text-gray-900">
+                            {new Date(
+                              viewingCustomer.createdAt,
+                            ).toLocaleDateString()}
                           </dd>
                         </div>
                         <div>
                           <dt className="text-xs text-gray-500">Status</dt>
                           <dd className="text-sm font-medium">
                             <span
-                              className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                                viewingCustomer.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                              className={`inline-flex rounded-full px-2 py-1 text-xs ${
+                                viewingCustomer.isActive
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
                               }`}
                             >
                               {viewingCustomer.isActive ? "Active" : "Inactive"}
@@ -244,7 +290,10 @@ const CustomersPage: React.FC = () => {
 
                   {/* Quick Actions */}
                   <div className="flex gap-3">
-                    <Button variant="primary" onClick={() => handleEdit(viewingCustomer)}>
+                    <Button
+                      variant="primary"
+                      onClick={() => handleEdit(viewingCustomer)}
+                    >
                       Edit Customer
                     </Button>
                     <Button
@@ -266,7 +315,9 @@ const CustomersPage: React.FC = () => {
                     onRefresh={() => {
                       loadCustomers();
                       // Refresh the viewing customer
-                      const updated = customers.find((c) => c.id === viewingCustomer.id);
+                      const updated = customers.find(
+                        (c) => c.id === viewingCustomer.id,
+                      );
                       if (updated) setViewingCustomer(updated);
                     }}
                   />
@@ -280,7 +331,9 @@ const CustomersPage: React.FC = () => {
                     customerPoints={viewingCustomer.loyaltyPoints || 0}
                     onRewardRedeemed={() => {
                       loadCustomers();
-                      const updated = customers.find((c) => c.id === viewingCustomer.id);
+                      const updated = customers.find(
+                        (c) => c.id === viewingCustomer.id,
+                      );
                       if (updated) setViewingCustomer(updated);
                     }}
                   />
@@ -295,20 +348,25 @@ const CustomersPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Customer Management</h1>
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Customer Management
+          </h1>
           <Button variant="primary" onClick={handleAdd}>
             Add Customer
           </Button>
         </div>
 
         {/* Search */}
-        <CustomerSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        <CustomerSearch
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
 
         {/* Customers Table */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className="overflow-hidden rounded-lg bg-white shadow">
           <CustomersTable
             customers={customers}
             isLoading={isLoading}
@@ -318,7 +376,11 @@ const CustomersPage: React.FC = () => {
           />
 
           {/* Pagination */}
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
 

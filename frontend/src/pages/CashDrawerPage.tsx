@@ -40,7 +40,8 @@ const CashDrawerPage: React.FC = () => {
   const { user } = useAuth();
   const [currentDrawer, setCurrentDrawer] = useState<CashDrawer | null>(null);
   const [drawerHistory, setDrawerHistory] = useState<CashDrawer[]>([]);
-  const [reconciliation, setReconciliation] = useState<DrawerReconciliation | null>(null);
+  const [reconciliation, setReconciliation] =
+    useState<DrawerReconciliation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -125,7 +126,9 @@ const CashDrawerPage: React.FC = () => {
 
     try {
       setLoading(true);
-      const response = await cashDrawerAPI.open({ openingBalance: parseFloat(openingBalance) });
+      const response = await cashDrawerAPI.open({
+        openingBalance: parseFloat(openingBalance),
+      });
       setCurrentDrawer(response);
       setSuccess("Cash drawer opened successfully");
       setShowOpenForm(false);
@@ -157,7 +160,9 @@ const CashDrawerPage: React.FC = () => {
       setLoading(true);
       await cashDrawerAPI.close(currentDrawer.id, {
         closingBalance: parseFloat(closingBalance),
-        actualCash: actualCash ? parseFloat(actualCash) : parseFloat(closingBalance),
+        actualCash: actualCash
+          ? parseFloat(actualCash)
+          : parseFloat(closingBalance),
         notes: closeNotes,
       });
 
@@ -188,12 +193,16 @@ const CashDrawerPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Cash Drawer Management</h1>
-            <p className="text-gray-600 mt-2">Manage your cash drawer and track shifts</p>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Cash Drawer Management
+            </h1>
+            <p className="mt-2 text-gray-600">
+              Manage your cash drawer and track shifts
+            </p>
           </div>
           <RefreshButton
             onClick={() => {
@@ -207,27 +216,29 @@ const CashDrawerPage: React.FC = () => {
       </div>
 
       {error && (
-        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
+        <div className="mb-4 flex items-center rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
           <span className="font-medium">⚠️ {error}</span>
         </div>
       )}
 
       {success && (
-        <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
+        <div className="mb-4 flex items-center rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-700">
           <span className="font-medium">✓ {success}</span>
         </div>
       )}
 
       {/* Current Drawer Status */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 flex items-center">💵 Current Shift</h2>
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="flex items-center text-xl font-semibold text-gray-900">
+                💵 Current Shift
+              </h2>
               {!currentDrawer && (
                 <button
                   onClick={() => setShowOpenForm(true)}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+                  className="rounded-lg bg-green-600 px-4 py-2 text-white transition hover:bg-green-700"
                 >
                   Open Drawer
                 </button>
@@ -235,7 +246,7 @@ const CashDrawerPage: React.FC = () => {
               {currentDrawer && (
                 <button
                   onClick={() => setShowCloseForm(true)}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                  className="rounded-lg bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"
                 >
                   Close Drawer
                 </button>
@@ -243,23 +254,29 @@ const CashDrawerPage: React.FC = () => {
             </div>
 
             {!currentDrawer && !showOpenForm && (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">💵</div>
-                <p className="text-gray-500 text-lg">No cash drawer is currently open</p>
-                <p className="text-gray-400 mt-2">Click "Open Drawer" to start a new shift</p>
+              <div className="py-12 text-center">
+                <div className="mb-4 text-6xl">💵</div>
+                <p className="text-lg text-gray-500">
+                  No cash drawer is currently open
+                </p>
+                <p className="mt-2 text-gray-400">
+                  Click "Open Drawer" to start a new shift
+                </p>
               </div>
             )}
 
             {showOpenForm && (
               <form onSubmit={handleOpenDrawer} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Opening Balance</label>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Opening Balance
+                  </label>
                   <input
                     type="number"
                     step="0.01"
                     value={openingBalance}
                     onChange={(e) => setOpeningBalance(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-green-500"
                     placeholder="0.00"
                     required
                   />
@@ -268,7 +285,7 @@ const CashDrawerPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+                    className="flex-1 rounded-lg bg-green-600 px-4 py-2 text-white transition hover:bg-green-700 disabled:opacity-50"
                   >
                     {loading ? "Opening..." : "Open Drawer"}
                   </button>
@@ -278,7 +295,7 @@ const CashDrawerPage: React.FC = () => {
                       setShowOpenForm(false);
                       setOpeningBalance("");
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                    className="rounded-lg border border-gray-300 px-4 py-2 transition hover:bg-gray-50"
                   >
                     Cancel
                   </button>
@@ -289,11 +306,13 @@ const CashDrawerPage: React.FC = () => {
             {currentDrawer && !showCloseForm && reconciliation && (
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="rounded-lg bg-gray-50 p-4">
                     <p className="text-sm text-gray-600">Opening Balance</p>
-                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(currentDrawer.openingBalance)}</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {formatCurrency(currentDrawer.openingBalance)}
+                    </p>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="rounded-lg bg-gray-50 p-4">
                     <p className="text-sm text-gray-600">Expected Cash</p>
                     <p className="text-2xl font-bold text-green-600">
                       {formatCurrency(reconciliation.expectedCashBalance)}
@@ -302,31 +321,45 @@ const CashDrawerPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Shift Summary</h3>
+                  <h3 className="mb-3 font-semibold text-gray-900">
+                    Shift Summary
+                  </h3>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Total Sales:</span>
-                      <span className="font-medium">{reconciliation.sales}</span>
+                      <span className="font-medium">
+                        {reconciliation.sales}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Total Amount:</span>
-                      <span className="font-medium">{formatCurrency(reconciliation.totalSales)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(reconciliation.totalSales)}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Cash Sales:</span>
-                      <span className="font-medium">{formatCurrency(reconciliation.paymentBreakdown.cash)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(reconciliation.paymentBreakdown.cash)}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Card Sales:</span>
-                      <span className="font-medium">{formatCurrency(reconciliation.paymentBreakdown.card)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(reconciliation.paymentBreakdown.card)}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Mobile Sales:</span>
-                      <span className="font-medium">{formatCurrency(reconciliation.paymentBreakdown.mobile)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(reconciliation.paymentBreakdown.mobile)}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Opened At:</span>
-                      <span className="font-medium">{new Date(currentDrawer.openedAt).toLocaleTimeString()}</span>
+                      <span className="font-medium">
+                        {new Date(currentDrawer.openedAt).toLocaleTimeString()}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -335,18 +368,22 @@ const CashDrawerPage: React.FC = () => {
 
             {showCloseForm && reconciliation && (
               <form onSubmit={handleCloseDrawer} className="space-y-4">
-                <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                  <p className="text-sm text-blue-800 font-medium">
-                    Expected Cash Balance: {formatCurrency(reconciliation.expectedCashBalance)}
+                <div className="mb-4 rounded-lg bg-blue-50 p-4">
+                  <p className="text-sm font-medium text-blue-800">
+                    Expected Cash Balance:{" "}
+                    {formatCurrency(reconciliation.expectedCashBalance)}
                   </p>
-                  <p className="text-xs text-blue-600 mt-1">
-                    Opening: {formatCurrency(currentDrawer!.openingBalance)} + Cash Sales:{" "}
+                  <p className="mt-1 text-xs text-blue-600">
+                    Opening: {formatCurrency(currentDrawer!.openingBalance)} +
+                    Cash Sales:{" "}
                     {formatCurrency(reconciliation.paymentBreakdown.cash)}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Actual Cash Count</label>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Actual Cash Count
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -355,29 +392,37 @@ const CashDrawerPage: React.FC = () => {
                       setActualCash(e.target.value);
                       setClosingBalance(e.target.value);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-red-500"
                     placeholder="0.00"
                     required
                   />
                   {actualCash && (
                     <p
-                      className={`text-sm mt-1 ${
-                        parseFloat(actualCash) - reconciliation.expectedCashBalance >= 0
+                      className={`mt-1 text-sm ${
+                        parseFloat(actualCash) -
+                          reconciliation.expectedCashBalance >=
+                        0
                           ? "text-green-600"
                           : "text-red-600"
                       }`}
                     >
-                      Difference: {formatCurrency(parseFloat(actualCash) - reconciliation.expectedCashBalance)}
+                      Difference:{" "}
+                      {formatCurrency(
+                        parseFloat(actualCash) -
+                          reconciliation.expectedCashBalance,
+                      )}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Notes (Optional)</label>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Notes (Optional)
+                  </label>
                   <textarea
                     value={closeNotes}
                     onChange={(e) => setCloseNotes(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-red-500"
                     rows={3}
                     placeholder="Any notes about this shift..."
                   />
@@ -387,7 +432,7 @@ const CashDrawerPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+                    className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-white transition hover:bg-red-700 disabled:opacity-50"
                   >
                     {loading ? "Closing..." : "Close Drawer"}
                   </button>
@@ -399,7 +444,7 @@ const CashDrawerPage: React.FC = () => {
                       setActualCash("");
                       setCloseNotes("");
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                    className="rounded-lg border border-gray-300 px-4 py-2 transition hover:bg-gray-50"
                   >
                     Cancel
                   </button>
@@ -411,14 +456,16 @@ const CashDrawerPage: React.FC = () => {
 
         {/* Quick Stats */}
         <div className="space-y-4">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Shift Status</h3>
+          <div className="rounded-lg bg-white p-6 shadow-md">
+            <h3 className="mb-4 font-semibold text-gray-900">Shift Status</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Status:</span>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    currentDrawer ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                  className={`rounded-full px-3 py-1 text-sm font-medium ${
+                    currentDrawer
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
                   }`}
                 >
                   {currentDrawer ? "Open" : "Closed"}
@@ -428,7 +475,9 @@ const CashDrawerPage: React.FC = () => {
                 <>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Employee:</span>
-                    <span className="text-sm font-medium">{currentDrawer.employee?.name}</span>
+                    <span className="text-sm font-medium">
+                      {currentDrawer.employee?.name}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Duration:</span>
@@ -449,20 +498,33 @@ const CashDrawerPage: React.FC = () => {
           </div>
 
           {reconciliation && (
-            <div className="bg-white rounded-lg shadow-md p-6 h-36">
-              <h3 className="font-semibold text-gray-900 mb-4">Recent Transactions</h3>
+            <div className="h-36 rounded-lg bg-white p-6 shadow-md">
+              <h3 className="mb-4 font-semibold text-gray-900">
+                Recent Transactions
+              </h3>
               <div className="space-y-1">
                 {reconciliation.recentTransactions.length === 0 ? (
                   <p className="text-sm text-gray-500">No transactions yet</p>
                 ) : (
-                  reconciliation.recentTransactions.slice(0, 3).map((transaction) => (
-                    <div key={transaction.receiptId} className="flex justify-between text-sm">
-                      <span className="text-gray-600">#{transaction.receiptId}</span>
-                      <span className="font-medium">
-                        {formatCurrency(typeof transaction.finalAmount === "number" ? transaction.finalAmount : 0)}
-                      </span>
-                    </div>
-                  ))
+                  reconciliation.recentTransactions
+                    .slice(0, 3)
+                    .map((transaction) => (
+                      <div
+                        key={transaction.receiptId}
+                        className="flex justify-between text-sm"
+                      >
+                        <span className="text-gray-600">
+                          #{transaction.receiptId}
+                        </span>
+                        <span className="font-medium">
+                          {formatCurrency(
+                            typeof transaction.finalAmount === "number"
+                              ? transaction.finalAmount
+                              : 0,
+                          )}
+                        </span>
+                      </div>
+                    ))
                 )}
               </div>
             </div>
@@ -472,63 +534,94 @@ const CashDrawerPage: React.FC = () => {
 
       {/* Drawer History (Admin/Manager only) */}
       {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center">🕐 Drawer History</h2>
+        <div className="rounded-lg bg-white p-6 shadow-md">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="flex items-center text-xl font-semibold text-gray-900">
+              🕐 Drawer History
+            </h2>
           </div>
 
           {loading && drawerHistory.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="py-8 text-center">
+              <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
             </div>
           ) : drawerHistory.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">No drawer history found</div>
+            <div className="py-8 text-center text-gray-500">
+              No drawer history found
+            </div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-200">
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Opened</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Closed</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Opening</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Closing</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Difference</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                        Employee
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                        Opened
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                        Closed
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                        Opening
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                        Closing
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                        Difference
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">
+                        Status
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {drawerHistory.filter(Boolean).map((drawer) => (
-                      <tr key={drawer?.id ?? Math.random()} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm text-gray-900">{drawer?.employee?.name ?? "-"}</td>
+                      <tr
+                        key={drawer?.id ?? Math.random()}
+                        className="hover:bg-gray-50"
+                      >
+                        <td className="px-4 py-3 text-sm text-gray-900">
+                          {drawer?.employee?.name ?? "-"}
+                        </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {drawer?.openedAt ? formatDate(drawer.openedAt) : "-"}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {drawer?.closedAt ? formatDate(drawer.closedAt) : "-"}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900 text-right">
-                          {drawer?.openingBalance !== undefined ? formatCurrency(drawer.openingBalance) : "-"}
+                        <td className="px-4 py-3 text-right text-sm text-gray-900">
+                          {drawer?.openingBalance !== undefined
+                            ? formatCurrency(drawer.openingBalance)
+                            : "-"}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900 text-right">
-                          {drawer.closingBalance ? formatCurrency(drawer.closingBalance) : "-"}
+                        <td className="px-4 py-3 text-right text-sm text-gray-900">
+                          {drawer.closingBalance
+                            ? formatCurrency(drawer.closingBalance)
+                            : "-"}
                         </td>
                         <td
-                          className={`px-4 py-3 text-sm text-right font-medium ${
+                          className={`px-4 py-3 text-right text-sm font-medium ${
                             drawer.difference === null
                               ? "text-gray-400"
                               : drawer.difference >= 0
-                              ? "text-green-600"
-                              : "text-red-600"
+                                ? "text-green-600"
+                                : "text-red-600"
                           }`}
                         >
-                          {drawer.difference !== null ? formatCurrency(drawer.difference) : "-"}
+                          {drawer.difference !== null
+                            ? formatCurrency(drawer.difference)
+                            : "-"}
                         </td>
                         <td className="px-4 py-3 text-center">
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              drawer.status === "OPEN" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                            className={`rounded-full px-3 py-1 text-xs font-medium ${
+                              drawer.status === "OPEN"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-800"
                             }`}
                           >
                             {drawer.status}
@@ -542,11 +635,11 @@ const CashDrawerPage: React.FC = () => {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-6">
+                <div className="mt-6 flex items-center justify-between">
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Previous
                   </button>
@@ -556,7 +649,7 @@ const CashDrawerPage: React.FC = () => {
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Next
                   </button>

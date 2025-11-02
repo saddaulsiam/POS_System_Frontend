@@ -8,7 +8,10 @@ interface TierBenefitsDisplayProps {
   lifetimePoints?: number;
 }
 
-const TierBenefitsDisplay: React.FC<TierBenefitsDisplayProps> = ({ currentTier, lifetimePoints = 0 }) => {
+const TierBenefitsDisplay: React.FC<TierBenefitsDisplayProps> = ({
+  currentTier,
+  lifetimePoints = 0,
+}) => {
   const [tierConfigs, setTierConfigs] = useState<LoyaltyTierConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,8 +66,8 @@ const TierBenefitsDisplay: React.FC<TierBenefitsDisplayProps> = ({ currentTier, 
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center justify-center h-64">
+      <div className="rounded-lg bg-white p-6 shadow">
+        <div className="flex h-64 items-center justify-center">
           <div className="text-gray-500">Loading tier information...</div>
         </div>
       </div>
@@ -73,10 +76,13 @@ const TierBenefitsDisplay: React.FC<TierBenefitsDisplayProps> = ({ currentTier, 
 
   if (error) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex flex-col items-center justify-center h-64 text-red-500">
+      <div className="rounded-lg bg-white p-6 shadow">
+        <div className="flex h-64 flex-col items-center justify-center text-red-500">
           <p className="mb-4">{error}</p>
-          <button onClick={fetchTierConfigs} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          <button
+            onClick={fetchTierConfigs}
+            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          >
             Retry
           </button>
         </div>
@@ -85,14 +91,16 @@ const TierBenefitsDisplay: React.FC<TierBenefitsDisplayProps> = ({ currentTier, 
   }
 
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="rounded-lg bg-white shadow">
       <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-800">Loyalty Tier Benefits</h2>
-          <TrendingUp className="w-6 h-6 text-blue-500" />
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-800">
+            Loyalty Tier Benefits
+          </h2>
+          <TrendingUp className="h-6 w-6 text-blue-500" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {tierConfigs.map((config) => {
             const Icon = getTierIcon(config.tier);
             const gradient = getTierGradient(config.tier);
@@ -104,61 +112,85 @@ const TierBenefitsDisplay: React.FC<TierBenefitsDisplayProps> = ({ currentTier, 
               <div
                 key={config.id}
                 className={`relative overflow-hidden rounded-lg border-2 transition-all ${
-                  isCurrent ? `${border} ring-4 ring-blue-200` : isUnlocked ? `${border}` : "border-gray-200 opacity-60"
+                  isCurrent
+                    ? `${border} ring-4 ring-blue-200`
+                    : isUnlocked
+                      ? `${border}`
+                      : "border-gray-200 opacity-60"
                 }`}
               >
                 {/* Current Badge */}
                 {isCurrent && (
-                  <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl">
+                  <div className="absolute right-0 top-0 rounded-bl bg-blue-500 px-3 py-1 text-xs font-bold text-white">
                     CURRENT
                   </div>
                 )}
 
                 {/* Header */}
                 <div className={`bg-gradient-to-r ${gradient} p-4 text-white`}>
-                  <Icon className="w-10 h-10 mb-2" />
-                  <h3 className="text-xl font-bold mb-1">{config.tier}</h3>
-                  <p className="text-sm opacity-90">{config.minimumPoints.toLocaleString()} points</p>
+                  <Icon className="mb-2 h-10 w-10" />
+                  <h3 className="mb-1 text-xl font-bold">{config.tier}</h3>
+                  <p className="text-sm opacity-90">
+                    {config.minimumPoints.toLocaleString()} points
+                  </p>
                 </div>
 
                 {/* Benefits */}
-                <div className="p-4 space-y-3">
+                <div className="space-y-3 p-4">
                   <div className="flex items-start gap-2 text-sm">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                    <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-green-500"></div>
                     <div>
                       <span className="text-gray-600">Earn </span>
-                      <span className="font-bold text-gray-800">{config.pointsMultiplier}x</span>
-                      <span className="text-gray-600"> points on every purchase</span>
+                      <span className="font-bold text-gray-800">
+                        {config.pointsMultiplier}x
+                      </span>
+                      <span className="text-gray-600">
+                        {" "}
+                        points on every purchase
+                      </span>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-2 text-sm">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                    <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-green-500"></div>
                     <div>
                       <span className="text-gray-600">Get </span>
-                      <span className="font-bold text-gray-800">{config.discountPercentage}%</span>
-                      <span className="text-gray-600"> discount on all purchases</span>
+                      <span className="font-bold text-gray-800">
+                        {config.discountPercentage}%
+                      </span>
+                      <span className="text-gray-600">
+                        {" "}
+                        discount on all purchases
+                      </span>
                     </div>
                   </div>
 
                   {config.birthdayBonus > 0 && (
                     <div className="flex items-start gap-2 text-sm">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                      <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-green-500"></div>
                       <div>
                         <span className="text-gray-600">Receive </span>
-                        <span className="font-bold text-gray-800">{config.birthdayBonus}</span>
-                        <span className="text-gray-600"> bonus points on your birthday</span>
+                        <span className="font-bold text-gray-800">
+                          {config.birthdayBonus}
+                        </span>
+                        <span className="text-gray-600">
+                          {" "}
+                          bonus points on your birthday
+                        </span>
                       </div>
                     </div>
                   )}
 
                   {/* Progress indicator for locked tiers */}
                   {!isUnlocked && (
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                      <div className="text-xs text-gray-500 mb-2">
-                        {(config.minimumPoints - lifetimePoints).toLocaleString()} points to unlock
+                    <div className="mt-4 border-t border-gray-200 pt-4">
+                      <div className="mb-2 text-xs text-gray-500">
+                        {(
+                          config.minimumPoints - lifetimePoints
+                        ).toLocaleString()}{" "}
+                        points to unlock
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="h-2 w-full rounded-full bg-gray-200">
                         <div
                           className={`bg-gradient-to-r ${gradient} h-2 rounded-full transition-all`}
                           style={{
@@ -171,8 +203,8 @@ const TierBenefitsDisplay: React.FC<TierBenefitsDisplayProps> = ({ currentTier, 
 
                   {/* Unlocked badge */}
                   {isUnlocked && !isCurrent && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 text-center">
-                      <span className="inline-block text-xs font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                    <div className="mt-4 border-t border-gray-200 pt-4 text-center">
+                      <span className="inline-block rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-600">
                         ✓ Unlocked
                       </span>
                     </div>
@@ -184,10 +216,11 @@ const TierBenefitsDisplay: React.FC<TierBenefitsDisplayProps> = ({ currentTier, 
         </div>
 
         {/* Info Banner */}
-        <div className="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+        <div className="mt-6 rounded border-l-4 border-blue-500 bg-blue-50 p-4">
           <p className="text-sm text-blue-800">
-            <strong>How it works:</strong> Your tier is determined by your lifetime points. As you earn more points,
-            you'll automatically advance to higher tiers with better benefits!
+            <strong>How it works:</strong> Your tier is determined by your
+            lifetime points. As you earn more points, you'll automatically
+            advance to higher tiers with better benefits!
           </p>
         </div>
       </div>

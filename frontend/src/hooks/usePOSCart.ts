@@ -13,7 +13,9 @@ export function usePOSCart() {
       toast.error("Product is out of stock");
       return;
     }
-    const existingItem = cart.find((item) => item.product.id === product.id && !item.variant);
+    const existingItem = cart.find(
+      (item) => item.product.id === product.id && !item.variant,
+    );
     if (existingItem) {
       if (existingItem.quantity >= product.stockQuantity) {
         toast.error("Not enough stock available");
@@ -22,9 +24,13 @@ export function usePOSCart() {
       setCart(
         cart.map((item) =>
           item.product.id === product.id && !item.variant
-            ? { ...item, quantity: item.quantity + 1, subtotal: (item.quantity + 1) * item.price }
-            : item
-        )
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+                subtotal: (item.quantity + 1) * item.price,
+              }
+            : item,
+        ),
       );
     } else {
       const newItem: CartItem = {
@@ -43,7 +49,10 @@ export function usePOSCart() {
       toast.error("Variant is out of stock");
       return;
     }
-    const existingItem = cart.find((item) => item.product.id === product.id && item.variant?.id === variant.id);
+    const existingItem = cart.find(
+      (item) =>
+        item.product.id === product.id && item.variant?.id === variant.id,
+    );
     if (existingItem) {
       if (existingItem.quantity >= (variant.stockQuantity || 0)) {
         toast.error("Not enough stock available");
@@ -52,9 +61,13 @@ export function usePOSCart() {
       setCart(
         cart.map((item) =>
           item.product.id === product.id && item.variant?.id === variant.id
-            ? { ...item, quantity: item.quantity + 1, subtotal: (item.quantity + 1) * item.price }
-            : item
-        )
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+                subtotal: (item.quantity + 1) * item.price,
+              }
+            : item,
+        ),
       );
     } else {
       const newItem: CartItem = {
@@ -69,25 +82,34 @@ export function usePOSCart() {
     toast.success(`${product.name} - ${variant.name} added to cart`);
   };
 
-  const updateCartItemQuantity = (productId: number, quantity: number, variantId?: number) => {
+  const updateCartItemQuantity = (
+    productId: number,
+    quantity: number,
+    variantId?: number,
+  ) => {
     if (quantity <= 0) {
       removeFromCart(productId, variantId);
       return;
     }
     setCart(
       cart.map((item) =>
-        item.product.id === productId && (variantId ? item.variant?.id === variantId : !item.variant)
+        item.product.id === productId &&
+        (variantId ? item.variant?.id === variantId : !item.variant)
           ? { ...item, quantity, subtotal: quantity * item.price }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
   const removeFromCart = (productId: number, variantId?: number) => {
     setCart(
       cart.filter(
-        (item) => !(item.product.id === productId && (variantId ? item.variant?.id === variantId : !item.variant))
-      )
+        (item) =>
+          !(
+            item.product.id === productId &&
+            (variantId ? item.variant?.id === variantId : !item.variant)
+          ),
+      ),
     );
   };
 

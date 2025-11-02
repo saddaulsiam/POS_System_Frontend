@@ -23,21 +23,24 @@ export function useSalarySheets() {
     }
   }, []);
 
-  const fetchSalarySheets = useCallback(async (month?: number | "", year?: number | "") => {
-    setLoading(true);
-    try {
-      const params: any = {};
-      if (month !== "" && month !== undefined) params.month = month;
-      if (year !== "" && year !== undefined) params.year = year;
-      if ("employeeId" in params) delete params.employeeId;
-      const res = await salarySheetsAPI.getAll(params);
-      setSalarySheets(res);
-    } catch (err: any) {
-      // error handled in page
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const fetchSalarySheets = useCallback(
+    async (month?: number | "", year?: number | "") => {
+      setLoading(true);
+      try {
+        const params: any = {};
+        if (month !== "" && month !== undefined) params.month = month;
+        if (year !== "" && year !== undefined) params.year = year;
+        if ("employeeId" in params) delete params.employeeId;
+        const res = await salarySheetsAPI.getAll(params);
+        setSalarySheets(res);
+      } catch (err: any) {
+        // error handled in page
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     fetchEmployees();

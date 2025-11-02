@@ -11,14 +11,18 @@ export const SimpleBarChart: React.FC<SimpleBarChartProps> = ({ data }) => {
     <div className="space-y-3">
       {data.map((item, index) => (
         <div key={index} className="flex items-center space-x-3">
-          <div className="w-20 text-sm text-gray-600 truncate">{item.label}</div>
-          <div className="flex-1 bg-gray-200 rounded-full h-4 relative">
+          <div className="w-20 truncate text-sm text-gray-600">
+            {item.label}
+          </div>
+          <div className="relative h-4 flex-1 rounded-full bg-gray-200">
             <div
-              className="bg-blue-500 h-4 rounded-full transition-all duration-500"
+              className="h-4 rounded-full bg-blue-500 transition-all duration-500"
               style={{ width: `${(item.value / maxValue) * 100}%` }}
             />
           </div>
-          <div className="w-16 text-sm font-medium text-right">{item.value.toLocaleString()}</div>
+          <div className="w-16 text-right text-sm font-medium">
+            {item.value.toLocaleString()}
+          </div>
         </div>
       ))}
     </div>

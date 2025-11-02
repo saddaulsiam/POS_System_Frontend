@@ -1,4 +1,11 @@
-export type Period = "today" | "yesterday" | "week" | "lastWeek" | "month" | "lastMonth" | "custom";
+export type Period =
+  | "today"
+  | "yesterday"
+  | "week"
+  | "lastWeek"
+  | "month"
+  | "lastMonth"
+  | "custom";
 
 export interface OverviewData {
   metrics: {

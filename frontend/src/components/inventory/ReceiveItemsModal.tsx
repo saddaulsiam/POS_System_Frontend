@@ -23,16 +23,29 @@ interface ReceiveItemsModalProps {
     poNumber: string;
     items: PurchaseOrderItem[];
   };
-  onReceive: (poId: number, items: Array<{ itemId: number; receivedQuantity: number }>) => Promise<void>;
+  onReceive: (
+    poId: number,
+    items: Array<{ itemId: number; receivedQuantity: number }>,
+  ) => Promise<void>;
 }
 
-const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, onClose, purchaseOrder, onReceive }) => {
-  const [receivedQuantities, setReceivedQuantities] = useState<Record<number, string>>(
-    purchaseOrder.items.reduce((acc, item) => {
-      const remaining = item.quantity - item.receivedQuantity;
-      acc[item.id] = remaining > 0 ? remaining.toString() : "0";
-      return acc;
-    }, {} as Record<number, string>)
+const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({
+  isOpen,
+  onClose,
+  purchaseOrder,
+  onReceive,
+}) => {
+  const [receivedQuantities, setReceivedQuantities] = useState<
+    Record<number, string>
+  >(
+    purchaseOrder.items.reduce(
+      (acc, item) => {
+        const remaining = item.quantity - item.receivedQuantity;
+        acc[item.id] = remaining > 0 ? remaining.toString() : "0";
+        return acc;
+      },
+      {} as Record<number, string>,
+    ),
   );
   const [loading, setLoading] = useState(false);
 
@@ -70,7 +83,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, onClose, 
           alert(
             `Cannot receive ${item.receivedQuantity} of ${poItem.product.name}. Maximum: ${
               poItem.quantity - poItem.receivedQuantity
-            }`
+            }`,
           );
           return;
         }
@@ -92,65 +105,101 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, onClose, 
     return item.quantity - item.receivedQuantity;
   };
 
-  const hasItemsToReceive = purchaseOrder.items.some((item) => item.receivedQuantity < item.quantity);
+  const hasItemsToReceive = purchaseOrder.items.some(
+    (item) => item.receivedQuantity < item.quantity,
+  );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between border-b border-gray-200 p-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Receive Items</h2>
-            <p className="text-sm text-gray-500 mt-1">PO: {purchaseOrder.poNumber}</p>
+            <p className="mt-1 text-sm text-gray-500">
+              PO: {purchaseOrder.poNumber}
+            </p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
-            <X className="w-6 h-6" />
+          <button
+            onClick={onClose}
+            className="text-gray-400 transition-colors hover:text-gray-600"
+          >
+            <X className="h-6 w-6" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+        <div className="max-h-[calc(90vh-180px)] overflow-y-auto p-6">
           {!hasItemsToReceive ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500">All items have been fully received.</p>
+            <div className="py-8 text-center">
+              <p className="text-gray-500">
+                All items have been fully received.
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>Note:</strong> Enter the quantity received for each item. Stock levels will be updated
-                  automatically.
+                  <strong>Note:</strong> Enter the quantity received for each
+                  item. Stock levels will be updated automatically.
                 </p>
               </div>
 
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">SKU</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ordered</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                      Product
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                      SKU
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                      Ordered
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
                       Previously Received
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Remaining</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Receive Now</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                      Remaining
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                      Receive Now
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 bg-white">
                   {purchaseOrder.items.map((item) => {
                     const remaining = getRemainingQuantity(item);
                     const isFullyReceived = remaining === 0;
 
                     return (
-                      <tr key={item.id} className={isFullyReceived ? "bg-gray-50 opacity-50" : ""}>
-                        <td className="px-4 py-4 text-sm font-medium text-gray-900">{item.product.name}</td>
-                        <td className="px-4 py-4 text-sm text-gray-500">{item.product.sku}</td>
-                        <td className="px-4 py-4 text-sm text-right text-gray-900">{item.quantity}</td>
-                        <td className="px-4 py-4 text-sm text-right text-gray-600">{item.receivedQuantity}</td>
-                        <td className="px-4 py-4 text-sm text-right font-medium text-gray-900">{remaining}</td>
-                        <td className="px-4 py-4 text-sm text-right">
+                      <tr
+                        key={item.id}
+                        className={
+                          isFullyReceived ? "bg-gray-50 opacity-50" : ""
+                        }
+                      >
+                        <td className="px-4 py-4 text-sm font-medium text-gray-900">
+                          {item.product.name}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-500">
+                          {item.product.sku}
+                        </td>
+                        <td className="px-4 py-4 text-right text-sm text-gray-900">
+                          {item.quantity}
+                        </td>
+                        <td className="px-4 py-4 text-right text-sm text-gray-600">
+                          {item.receivedQuantity}
+                        </td>
+                        <td className="px-4 py-4 text-right text-sm font-medium text-gray-900">
+                          {remaining}
+                        </td>
+                        <td className="px-4 py-4 text-right text-sm">
                           {isFullyReceived ? (
-                            <span className="text-green-600 font-medium">Completed</span>
+                            <span className="font-medium text-green-600">
+                              Completed
+                            </span>
                           ) : (
                             <input
                               type="number"
@@ -158,8 +207,10 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, onClose, 
                               max={remaining}
                               step="0.01"
                               value={receivedQuantities[item.id] || ""}
-                              onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                              className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                              onChange={(e) =>
+                                handleQuantityChange(item.id, e.target.value)
+                              }
+                              className="w-24 rounded-md border border-gray-300 px-3 py-2 text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
                               placeholder="0"
                             />
                           )}
@@ -174,10 +225,10 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, onClose, 
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-end gap-3 border-t border-gray-200 bg-gray-50 p-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
             disabled={loading}
           >
             Cancel
@@ -186,7 +237,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, onClose, 
             <button
               onClick={handleReceive}
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-400"
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:bg-blue-400"
             >
               {loading ? "Receiving..." : "Receive Items"}
             </button>

@@ -10,7 +10,9 @@ interface PointsHistoryTableProps {
 type DateFilter = "all" | "week" | "month" | "year";
 type TypeFilter = "all" | PointsTransactionType;
 
-const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) => {
+const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({
+  customerId,
+}) => {
   const [transactions, setTransactions] = useState<PointsTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +64,10 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) =
     }
 
     // Sort by date (newest first)
-    filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    filtered.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 
     return filtered;
   }, [transactions, typeFilter, dateFilter]);
@@ -70,7 +75,8 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) =
   const transactionsWithBalance = React.useMemo(() => {
     // Create a copy to avoid mutating the original array
     const sortedTransactions = [...filteredTransactions].sort(
-      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
 
     let balance = 0;
@@ -89,7 +95,7 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) =
         type: t.type,
         points: t.points,
         balance: t.balance,
-      }))
+      })),
     );
 
     return result;
@@ -105,7 +111,9 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) =
       t.balance.toString(),
     ]);
 
-    const csv = [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+    const csv = [headers.join(","), ...rows.map((row) => row.join(","))].join(
+      "\n",
+    );
 
     const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
@@ -116,15 +124,19 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) =
   };
 
   const getTransactionIcon = (type: PointsTransactionType) => {
-    return type === "EARNED" || type === "BIRTHDAY_BONUS" || type === "ADJUSTED" ? (
-      <ArrowUp className="w-4 h-4 text-green-500" />
+    return type === "EARNED" ||
+      type === "BIRTHDAY_BONUS" ||
+      type === "ADJUSTED" ? (
+      <ArrowUp className="h-4 w-4 text-green-500" />
     ) : (
-      <ArrowDown className="w-4 h-4 text-red-500" />
+      <ArrowDown className="h-4 w-4 text-red-500" />
     );
   };
 
   const getPointsColor = (points: number) => {
-    return points > 0 ? "text-green-600 font-semibold" : "text-red-600 font-semibold";
+    return points > 0
+      ? "text-green-600 font-semibold"
+      : "text-red-600 font-semibold";
   };
 
   const getTypeLabel = (type: PointsTransactionType) => {
@@ -151,8 +163,14 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) =
 
   // Calculate summary statistics
   const totalPoints = transactions.reduce((sum, t) => sum + t.points, 0);
-  const earnedPoints = transactions.filter((t) => t.points > 0).reduce((sum, t) => sum + t.points, 0);
-  const redeemedPoints = Math.abs(transactions.filter((t) => t.points < 0).reduce((sum, t) => sum + t.points, 0));
+  const earnedPoints = transactions
+    .filter((t) => t.points > 0)
+    .reduce((sum, t) => sum + t.points, 0);
+  const redeemedPoints = Math.abs(
+    transactions
+      .filter((t) => t.points < 0)
+      .reduce((sum, t) => sum + t.points, 0),
+  );
 
   console.log("Points History - Summary Stats:", {
     totalTransactions: transactions.length,
@@ -164,8 +182,8 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) =
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center justify-center h-64">
+      <div className="rounded-lg bg-white p-6 shadow">
+        <div className="flex h-64 items-center justify-center">
           <div className="text-gray-500">Loading transaction history...</div>
         </div>
       </div>
@@ -174,10 +192,13 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) =
 
   if (error) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex flex-col items-center justify-center h-64 text-red-500">
+      <div className="rounded-lg bg-white p-6 shadow">
+        <div className="flex h-64 flex-col items-center justify-center text-red-500">
           <p className="mb-4">{error}</p>
-          <button onClick={fetchTransactions} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          <button
+            onClick={fetchTransactions}
+            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          >
             Retry
           </button>
         </div>
@@ -186,45 +207,51 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) =
   }
 
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="rounded-lg bg-white shadow">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-4">
+      <div className="border-b border-gray-200 p-6">
+        <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-800">Points History</h2>
           <button
             onClick={exportToCSV}
             disabled={transactions.length === 0}
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded bg-blue-500 px-3 py-2 text-sm text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Download className="w-4 h-4" />
+            <Download className="h-4 w-4" />
             Export CSV
           </button>
         </div>
 
         {/* Summary Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className="bg-blue-50 rounded-lg p-3">
-            <div className="text-xs text-gray-600 mb-1">Total Earned</div>
-            <div className="text-lg font-bold text-blue-600">+{earnedPoints.toLocaleString()}</div>
+        <div className="mb-4 grid grid-cols-3 gap-4">
+          <div className="rounded-lg bg-blue-50 p-3">
+            <div className="mb-1 text-xs text-gray-600">Total Earned</div>
+            <div className="text-lg font-bold text-blue-600">
+              +{earnedPoints.toLocaleString()}
+            </div>
           </div>
-          <div className="bg-red-50 rounded-lg p-3">
-            <div className="text-xs text-gray-600 mb-1">Total Redeemed</div>
-            <div className="text-lg font-bold text-red-600">-{redeemedPoints.toLocaleString()}</div>
+          <div className="rounded-lg bg-red-50 p-3">
+            <div className="mb-1 text-xs text-gray-600">Total Redeemed</div>
+            <div className="text-lg font-bold text-red-600">
+              -{redeemedPoints.toLocaleString()}
+            </div>
           </div>
-          <div className="bg-green-50 rounded-lg p-3">
-            <div className="text-xs text-gray-600 mb-1">Net Balance</div>
-            <div className="text-lg font-bold text-green-600">{totalPoints.toLocaleString()}</div>
+          <div className="rounded-lg bg-green-50 p-3">
+            <div className="mb-1 text-xs text-gray-600">Net Balance</div>
+            <div className="text-lg font-bold text-green-600">
+              {totalPoints.toLocaleString()}
+            </div>
           </div>
         </div>
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-gray-500" />
+            <Calendar className="h-4 w-4 text-gray-500" />
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value as DateFilter)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="rounded border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Time</option>
               <option value="week">Last 7 Days</option>
@@ -234,11 +261,11 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) =
           </div>
 
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-500" />
+            <Filter className="h-4 w-4 text-gray-500" />
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="rounded border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Types</option>
               <option value="EARNED">Earned</option>
@@ -250,7 +277,8 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) =
           </div>
 
           <div className="ml-auto text-sm text-gray-600">
-            Showing {filteredTransactions.length} of {transactions.length} transactions
+            Showing {filteredTransactions.length} of {transactions.length}{" "}
+            transactions
           </div>
         </div>
       </div>
@@ -259,61 +287,73 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({ customerId }) =
       <div className="overflow-x-auto">
         {filteredTransactions.length === 0 ? (
           <div className="p-12 text-center text-gray-500">
-            <p className="text-lg mb-2">No transactions found</p>
+            <p className="mb-2 text-lg">No transactions found</p>
             <p className="text-sm">Adjust your filters or check back later</p>
           </div>
         ) : (
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Description
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                   Points
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                   Balance
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 bg-white">
               {transactionsWithBalance.map((transaction) => (
                 <tr key={transaction.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(transaction.createdAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                    {new Date(transaction.createdAt).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      },
+                    )}
                     <br />
                     <span className="text-xs text-gray-500">
-                      {new Date(transaction.createdAt).toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {new Date(transaction.createdAt).toLocaleTimeString(
+                        "en-US",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        },
+                      )}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getTypeBadgeColor(
-                        transaction.type
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${getTypeBadgeColor(
+                        transaction.type,
                       )}`}
                     >
                       {getTransactionIcon(transaction.type)}
                       {getTypeLabel(transaction.type)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{transaction.description || "-"}</td>
+                  <td className="px-6 py-4 text-sm text-gray-700">
+                    {transaction.description || "-"}
+                  </td>
                   <td
-                    className={`px-6 py-4 whitespace-nowrap text-right text-sm ${getPointsColor(transaction.points)}`}
+                    className={`whitespace-nowrap px-6 py-4 text-right text-sm ${getPointsColor(transaction.points)}`}
                   >
                     {transaction.points > 0 ? "+" : ""}
                     {transaction.points.toLocaleString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">
+                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium text-gray-900">
                     {transaction.balance.toLocaleString()}
                   </td>
                 </tr>

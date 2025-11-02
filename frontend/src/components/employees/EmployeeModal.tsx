@@ -25,7 +25,12 @@ interface EmployeeModalProps {
   onSubmit: (data: EmployeeFormData) => Promise<void>;
 }
 
-const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, editingEmployee, onClose, onSubmit }) => {
+const EmployeeModal: React.FC<EmployeeModalProps> = ({
+  isOpen,
+  editingEmployee,
+  onClose,
+  onSubmit,
+}) => {
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<EmployeeFormData>({
@@ -53,7 +58,9 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, editingEmployee, 
         email: editingEmployee.email || "",
         phone: editingEmployee.phone || "",
         photo: editingEmployee.photo || "",
-        joinedDate: editingEmployee.joinedDate ? editingEmployee.joinedDate.split("T")[0] : "",
+        joinedDate: editingEmployee.joinedDate
+          ? editingEmployee.joinedDate.split("T")[0]
+          : "",
         salary: editingEmployee.salary ?? undefined,
         contractDetails: editingEmployee.contractDetails || "",
         notes: editingEmployee.notes || "",
@@ -79,11 +86,16 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, editingEmployee, 
     }
   }, [editingEmployee, isOpen]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "number" ? (value === "" ? undefined : Number(value)) : value,
+      [name]:
+        type === "number" ? (value === "" ? undefined : Number(value)) : value,
     }));
   };
 
@@ -98,7 +110,10 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, editingEmployee, 
       await onSubmit(formData);
       // If photo file selected, upload it
       if (photoFile && editingEmployee) {
-        const res = await employeesAPI.uploadPhoto(editingEmployee.id, photoFile);
+        const res = await employeesAPI.uploadPhoto(
+          editingEmployee.id,
+          photoFile,
+        );
         setPhotoPreview(res.url);
       }
     } finally {
@@ -114,28 +129,34 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, editingEmployee, 
       title={
         <div className="flex items-center gap-3">
           <div
-            className={`w-12 h-12 rounded-full flex items-center justify-center ${
+            className={`flex h-12 w-12 items-center justify-center rounded-full ${
               isNewEmployee ? "bg-blue-100" : "bg-green-100"
             }`}
           >
             <span className="text-2xl">{isNewEmployee ? "➕" : "✏️"}</span>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">{isNewEmployee ? "Add New Employee" : "Edit Employee"}</h2>
+            <h2 className="text-xl font-bold text-gray-900">
+              {isNewEmployee ? "Add New Employee" : "Edit Employee"}
+            </h2>
             <p className="text-xs text-gray-500">
-              {isNewEmployee ? "Add employee details for system access" : "Update employee information"}
+              {isNewEmployee
+                ? "Add employee details for system access"
+                : "Update employee information"}
             </p>
           </div>
         </div>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Left Column: Personal & Account Info */}
           <div className="flex flex-col gap-5">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-sm font-semibold text-blue-900">👤 Personal & Account Info</span>
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="text-sm font-semibold text-blue-900">
+                  👤 Personal & Account Info
+                </span>
               </div>
               <div className="space-y-4">
                 <Input
@@ -161,12 +182,12 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, editingEmployee, 
                   className="bg-white"
                 />
                 <div>
-                  <label className="block text-sm font-medium mb-1">Role</label>
+                  <label className="mb-1 block text-sm font-medium">Role</label>
                   <select
                     name="role"
                     value={formData.role}
                     onChange={handleInputChange}
-                    className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 bg-white"
+                    className="w-full rounded border bg-white px-3 py-2 focus:ring-2 focus:ring-blue-400"
                   >
                     <option value="ADMIN">Admin</option>
                     <option value="MANAGER">Manager</option>
@@ -212,10 +233,12 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, editingEmployee, 
           </div>
           {/* Right Column: Employment & Extra Info */}
           <div className="flex flex-col gap-5">
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 h-full flex flex-col justify-between">
+            <div className="flex h-full flex-col justify-between rounded-lg border border-gray-200 bg-gray-50 p-4">
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm font-semibold text-gray-900">🗂 Employment & Extra Info</span>
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="text-sm font-semibold text-gray-900">
+                    🗂 Employment & Extra Info
+                  </span>
                   <span className="text-xs text-gray-500">(Optional)</span>
                 </div>
                 <div className="grid grid-cols-1 gap-4">
@@ -233,7 +256,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, editingEmployee, 
                         <img
                           src={photoPreview}
                           alt="Employee Preview"
-                          className="absolute top-4 right-12 w-24 h-24 object-cover rounded-lg border border-gray-300 shadow bg-white z-10"
+                          className="absolute right-12 top-4 z-10 h-24 w-24 rounded-lg border border-gray-300 bg-white object-cover shadow"
                           style={{ transform: "translate(50%,-50%)" }}
                         />
                       )}
@@ -263,22 +286,26 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, editingEmployee, 
                 </div>
                 <div className="mt-4 grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Contract Details</label>
+                    <label className="mb-1 block text-sm font-medium">
+                      Contract Details
+                    </label>
                     <textarea
                       name="contractDetails"
                       value={formData.contractDetails}
                       onChange={handleInputChange}
-                      className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 bg-white min-h-[48px]"
+                      className="min-h-[48px] w-full rounded border bg-white px-3 py-2 focus:ring-2 focus:ring-blue-400"
                       placeholder="Contract details, terms, etc."
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Notes</label>
+                    <label className="mb-1 block text-sm font-medium">
+                      Notes
+                    </label>
                     <textarea
                       name="notes"
                       value={formData.notes}
                       onChange={handleInputChange}
-                      className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 bg-white min-h-[48px]"
+                      className="min-h-[48px] w-full rounded border bg-white px-3 py-2 focus:ring-2 focus:ring-blue-400"
                       placeholder="Additional notes about the employee"
                     />
                   </div>
@@ -288,8 +315,13 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, editingEmployee, 
           </div>
         </div>
         {/* Action Buttons */}
-        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-          <Button type="button" variant="ghost" onClick={onClose} className="px-6">
+        <div className="flex justify-end space-x-3 border-t border-gray-200 pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onClose}
+            className="px-6"
+          >
             Cancel
           </Button>
           <Button
@@ -304,7 +336,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, editingEmployee, 
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
                     cx="12"

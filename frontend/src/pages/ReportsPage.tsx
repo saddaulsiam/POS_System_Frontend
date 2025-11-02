@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { reportsAPI } from "../services";
-import { DailySalesReport, EmployeePerformanceReport, ProductPerformanceReport, InventoryReport } from "../types";
+import {
+  DailySalesReport,
+  EmployeePerformanceReport,
+  ProductPerformanceReport,
+  InventoryReport,
+} from "../types";
 import { formatDate } from "../utils/reportUtils";
 import { RefreshButton } from "../components/common";
 import { DateRangeFilter } from "../components/reports/DateRangeFilter";
@@ -19,8 +24,10 @@ const ReportsPage: React.FC = () => {
     end: formatDate(new Date()),
   });
   const [salesRange, setSalesRange] = useState<any>(null);
-  const [employeePerf, setEmployeePerf] = useState<EmployeePerformanceReport | null>(null);
-  const [productPerf, setProductPerf] = useState<ProductPerformanceReport | null>(null);
+  const [employeePerf, setEmployeePerf] =
+    useState<EmployeePerformanceReport | null>(null);
+  const [productPerf, setProductPerf] =
+    useState<ProductPerformanceReport | null>(null);
   const [inventory, setInventory] = useState<InventoryReport | null>(null);
 
   const fetchReports = async () => {
@@ -53,10 +60,12 @@ const ReportsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-4xl font-extrabold text-blue-900 tracking-tight">📊 Reports & Analytics</h1>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-4xl font-extrabold tracking-tight text-blue-900">
+            📊 Reports & Analytics
+          </h1>
           <RefreshButton onClick={fetchReports} loading={isLoading} />
         </div>
 
@@ -70,28 +79,44 @@ const ReportsPage: React.FC = () => {
 
         {/* Loading State */}
         {isLoading ? (
-          <div className="flex justify-center items-center min-h-40">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="flex min-h-40 items-center justify-center">
+            <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           </div>
         ) : error ? (
           /* Error State */
-          <div className="bg-red-100 text-red-700 p-4 rounded mb-6">{error}</div>
+          <div className="mb-6 rounded bg-red-100 p-4 text-red-700">
+            {error}
+          </div>
         ) : (
           <>
             {/* Daily Sales Summary */}
             {daily && <DailySalesCard daily={daily} />}
 
             {/* Sales Range Summary */}
-            {salesRange && <SalesRangeCard salesRange={salesRange} startDate={range.start} endDate={range.end} />}
+            {salesRange && (
+              <SalesRangeCard
+                salesRange={salesRange}
+                startDate={range.start}
+                endDate={range.end}
+              />
+            )}
 
             {/* Employee Performance */}
             {employeePerf && (
-              <EmployeePerformanceCard employeePerf={employeePerf} startDate={range.start} endDate={range.end} />
+              <EmployeePerformanceCard
+                employeePerf={employeePerf}
+                startDate={range.start}
+                endDate={range.end}
+              />
             )}
 
             {/* Product Performance */}
             {productPerf && (
-              <ProductPerformanceCard productPerf={productPerf} startDate={range.start} endDate={range.end} />
+              <ProductPerformanceCard
+                productPerf={productPerf}
+                startDate={range.start}
+                endDate={range.end}
+              />
             )}
 
             {/* Inventory Summary */}

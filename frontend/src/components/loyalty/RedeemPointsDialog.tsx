@@ -34,7 +34,9 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
   onClose,
   onRedeemed,
 }) => {
-  const [selectedOption, setSelectedOption] = useState<RedemptionOption | null>(null);
+  const [selectedOption, setSelectedOption] = useState<RedemptionOption | null>(
+    null,
+  );
   const [customPoints, setCustomPoints] = useState<string>("");
   const [redeeming, setRedeeming] = useState(false);
   const { settings } = useSettings();
@@ -89,8 +91,12 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
       return;
     }
 
-    const pointsToRedeem = selectedOption ? selectedOption.pointsRequired : parseInt(customPoints);
-    const discountValue = selectedOption ? selectedOption.value : calculateCustomDiscount(pointsToRedeem);
+    const pointsToRedeem = selectedOption
+      ? selectedOption.pointsRequired
+      : parseInt(customPoints);
+    const discountValue = selectedOption
+      ? selectedOption.value
+      : calculateCustomDiscount(pointsToRedeem);
     const rewardType = selectedOption ? selectedOption.type : "DISCOUNT";
 
     if (pointsToRedeem > availablePoints) {
@@ -131,48 +137,66 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
   const customDiscount = calculateCustomDiscount(customPointsValue);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white p-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <Gift className="w-7 h-7 text-blue-500" />
+            <h2 className="flex items-center gap-2 text-2xl font-bold text-gray-800">
+              <Gift className="h-7 w-7 text-blue-500" />
               Redeem Points
             </h2>
-            <p className="text-sm text-gray-600 mt-1">{customerName}</p>
+            <p className="mt-1 text-sm text-gray-600">{customerName}</p>
           </div>
-          <button onClick={onClose} disabled={redeeming} className="text-gray-400 hover:text-gray-600">
-            <X className="w-6 h-6" />
+          <button
+            onClick={onClose}
+            disabled={redeeming}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="h-6 w-6" />
           </button>
         </div>
 
         {/* Points Summary */}
-        <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6">
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white rounded-lg p-4 border border-blue-200">
-              <div className="text-xs text-gray-600 mb-1">Available Points</div>
-              <div className="text-2xl font-bold text-blue-600">{availablePoints.toLocaleString()}</div>
-              <div className="text-xs text-gray-500 mt-1">
-                = {formatCurrency(calculateCustomDiscount(availablePoints), settings)} value
+            <div className="rounded-lg border border-blue-200 bg-white p-4">
+              <div className="mb-1 text-xs text-gray-600">Available Points</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {availablePoints.toLocaleString()}
+              </div>
+              <div className="mt-1 text-xs text-gray-500">
+                ={" "}
+                {formatCurrency(
+                  calculateCustomDiscount(availablePoints),
+                  settings,
+                )}{" "}
+                value
               </div>
             </div>
-            <div className="bg-white rounded-lg p-4 border border-green-200">
-              <div className="text-xs text-gray-600 mb-1">Cart Total</div>
-              <div className="text-2xl font-bold text-green-600">{formatCurrency(cartTotal, settings)}</div>
-              <div className="text-xs text-gray-500 mt-1">Current purchase amount</div>
+            <div className="rounded-lg border border-green-200 bg-white p-4">
+              <div className="mb-1 text-xs text-gray-600">Cart Total</div>
+              <div className="text-2xl font-bold text-green-600">
+                {formatCurrency(cartTotal, settings)}
+              </div>
+              <div className="mt-1 text-xs text-gray-500">
+                Current purchase amount
+              </div>
             </div>
           </div>
         </div>
 
         {/* Redemption Options */}
         <div className="p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Select Redemption Option</h3>
+          <h3 className="mb-4 text-lg font-semibold text-gray-800">
+            Select Redemption Option
+          </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
             {predefinedOptions.map((option) => {
               const canAfford = availablePoints >= option.pointsRequired;
-              const isSelected = selectedOption?.pointsRequired === option.pointsRequired;
+              const isSelected =
+                selectedOption?.pointsRequired === option.pointsRequired;
 
               return (
                 <button
@@ -182,29 +206,41 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
                     setCustomPoints("");
                   }}
                   disabled={!canAfford || redeeming}
-                  className={`relative p-4 rounded-lg border-2 text-left transition-all ${
+                  className={`relative rounded-lg border-2 p-4 text-left transition-all ${
                     isSelected
                       ? "border-blue-500 bg-blue-50"
                       : canAfford
-                      ? "border-gray-200 hover:border-blue-300 bg-white"
-                      : "border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed"
+                        ? "border-gray-200 bg-white hover:border-blue-300"
+                        : "cursor-not-allowed border-gray-100 bg-gray-50 opacity-50"
                   }`}
                 >
                   {isSelected && (
-                    <div className="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs">✓</span>
+                    <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500">
+                      <span className="text-xs text-white">✓</span>
                     </div>
                   )}
 
-                  <div className="text-3xl mb-2">{option.icon}</div>
-                  <div className="font-bold text-gray-800 mb-1">{option.label}</div>
-                  <div className="text-sm text-gray-600 mb-2">{option.description}</div>
+                  <div className="mb-2 text-3xl">{option.icon}</div>
+                  <div className="mb-1 font-bold text-gray-800">
+                    {option.label}
+                  </div>
+                  <div className="mb-2 text-sm text-gray-600">
+                    {option.description}
+                  </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className={canAfford ? "text-blue-600 font-semibold" : "text-red-600 font-semibold"}>
+                    <span
+                      className={
+                        canAfford
+                          ? "font-semibold text-blue-600"
+                          : "font-semibold text-red-600"
+                      }
+                    >
                       {option.pointsRequired} points
                     </span>
                     {!canAfford && (
-                      <span className="text-red-600">Need {option.pointsRequired - availablePoints} more</span>
+                      <span className="text-red-600">
+                        Need {option.pointsRequired - availablePoints} more
+                      </span>
                     )}
                   </div>
                 </button>
@@ -214,15 +250,18 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
 
           {/* Custom Redemption */}
           <div className="border-t border-gray-200 pt-6">
-            <h4 className="text-md font-semibold text-gray-800 mb-3">Custom Redemption</h4>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Enter points to redeem ({pointsToMoneyRate} points = {formatCurrency(1, settings)})
+            <h4 className="text-md mb-3 font-semibold text-gray-800">
+              Custom Redemption
+            </h4>
+            <div className="rounded-lg bg-gray-50 p-4">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Enter points to redeem ({pointsToMoneyRate} points ={" "}
+                {formatCurrency(1, settings)})
               </label>
 
               {/* Quick Amount Buttons */}
               <div className="mb-4">
-                <p className="text-xs text-gray-600 mb-2">Quick amounts:</p>
+                <p className="mb-2 text-xs text-gray-600">Quick amounts:</p>
                 <div className="grid grid-cols-5 gap-2">
                   {[50, 100, 200, 500].map((amount) => {
                     const pointsNeeded = Math.round(amount * pointsToMoneyRate);
@@ -238,19 +277,19 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
                           setSelectedOption(null);
                         }}
                         disabled={isDisabled}
-                        className={`px-3 py-2 rounded-lg border-2 text-sm font-semibold transition-all ${
+                        className={`rounded-lg border-2 px-3 py-2 text-sm font-semibold transition-all ${
                           customPointsValue === pointsNeeded
                             ? "border-blue-500 bg-blue-500 text-white"
                             : isDisabled
-                            ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
-                            : "border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50"
+                              ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+                              : "border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50"
                         }`}
                         title={
                           !canAfford
                             ? `Need ${pointsNeeded - availablePoints} more points`
                             : exceedsCart
-                            ? "Exceeds cart total"
-                            : `${pointsNeeded} points`
+                              ? "Exceeds cart total"
+                              : `${pointsNeeded} points`
                         }
                       >
                         {formatCurrency(amount, settings)}
@@ -262,16 +301,18 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
                     onClick={() => {
                       const maxDiscount = Math.min(
                         calculateCustomDiscount(availablePoints),
-                        cartTotal || calculateCustomDiscount(availablePoints)
+                        cartTotal || calculateCustomDiscount(availablePoints),
                       );
-                      const maxPoints = Math.round(maxDiscount * pointsToMoneyRate);
+                      const maxPoints = Math.round(
+                        maxDiscount * pointsToMoneyRate,
+                      );
                       setCustomPoints(maxPoints.toString());
                       setSelectedOption(null);
                     }}
                     disabled={availablePoints === 0 || redeeming}
-                    className={`px-3 py-2 rounded-lg border-2 text-sm font-bold transition-all ${
+                    className={`rounded-lg border-2 px-3 py-2 text-sm font-bold transition-all ${
                       availablePoints === 0 || redeeming
-                        ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                        ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
                         : "border-green-500 bg-white text-green-700 hover:bg-green-500 hover:text-white"
                     }`}
                     title="Use maximum available points"
@@ -293,23 +334,25 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
                 }}
                 disabled={redeeming}
                 placeholder="e.g., 500"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {customPointsValue > 0 && (
                 <div className="mt-3 flex items-center justify-between text-sm">
                   <span className="text-gray-600">Discount Value:</span>
-                  <span className="font-bold text-green-600 text-lg">{formatCurrency(customDiscount, settings)}</span>
+                  <span className="text-lg font-bold text-green-600">
+                    {formatCurrency(customDiscount, settings)}
+                  </span>
                 </div>
               )}
               {customPointsValue > availablePoints && (
-                <div className="mt-2 flex items-center gap-2 text-red-600 text-sm">
-                  <AlertCircle className="w-4 h-4" />
+                <div className="mt-2 flex items-center gap-2 text-sm text-red-600">
+                  <AlertCircle className="h-4 w-4" />
                   <span>Insufficient points</span>
                 </div>
               )}
               {customDiscount > cartTotal && cartTotal > 0 && (
-                <div className="mt-2 flex items-center gap-2 text-yellow-600 text-sm">
-                  <AlertCircle className="w-4 h-4" />
+                <div className="mt-2 flex items-center gap-2 text-sm text-yellow-600">
+                  <AlertCircle className="h-4 w-4" />
                   <span>Discount cannot exceed cart total</span>
                 </div>
               )}
@@ -317,20 +360,21 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
           </div>
 
           {/* Info */}
-          <div className="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+          <div className="mt-6 rounded border-l-4 border-blue-500 bg-blue-50 p-4">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> Redeemed points will be deducted from your balance and applied as a discount to
-              this purchase. This action cannot be undone.
+              <strong>Note:</strong> Redeemed points will be deducted from your
+              balance and applied as a discount to this purchase. This action
+              cannot be undone.
             </p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-200 bg-gray-50 flex gap-3">
+        <div className="flex gap-3 border-t border-gray-200 bg-gray-50 p-6">
           <button
             onClick={onClose}
             disabled={redeeming}
-            className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+            className="flex-1 rounded-lg border border-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-100 disabled:opacity-50"
           >
             Cancel
           </button>
@@ -340,9 +384,10 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
               redeeming ||
               (!selectedOption && !customPoints) ||
               (customPointsValue > 0 && customPointsValue > availablePoints) ||
-              (!!selectedOption && selectedOption.pointsRequired > availablePoints)
+              (!!selectedOption &&
+                selectedOption.pointsRequired > availablePoints)
             }
-            className="flex-1 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 font-semibold"
+            className="flex-1 rounded-lg bg-blue-500 px-6 py-3 font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
           >
             {redeeming ? "Redeeming..." : "Redeem Points"}
           </button>

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { posSettingsAPI } from "../services";
 
 interface POSSettings {
@@ -58,7 +64,9 @@ interface SettingsContextType {
   refreshSettings: () => Promise<void>;
 }
 
-const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+const SettingsContext = createContext<SettingsContextType | undefined>(
+  undefined,
+);
 
 export const useSettings = () => {
   const context = useContext(SettingsContext);
@@ -72,7 +80,9 @@ interface SettingsProviderProps {
   children: ReactNode;
 }
 
-export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
+export const SettingsProvider: React.FC<SettingsProviderProps> = ({
+  children,
+}) => {
   const [settings, setSettings] = useState<POSSettings | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -140,5 +150,9 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
     await loadSettings();
   };
 
-  return <SettingsContext.Provider value={{ settings, loading, refreshSettings }}>{children}</SettingsContext.Provider>;
+  return (
+    <SettingsContext.Provider value={{ settings, loading, refreshSettings }}>
+      {children}
+    </SettingsContext.Provider>
+  );
 };

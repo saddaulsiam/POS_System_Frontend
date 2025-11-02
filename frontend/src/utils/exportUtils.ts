@@ -8,7 +8,12 @@ interface ExportTableToPDFOptions {
   filename?: string;
 }
 
-export function exportTableToPDF({ title, columns, data, filename = "report.pdf" }: ExportTableToPDFOptions) {
+export function exportTableToPDF({
+  title,
+  columns,
+  data,
+  filename = "report.pdf",
+}: ExportTableToPDFOptions) {
   const doc = new jsPDF();
   doc.setFontSize(18);
   doc.text(title, 14, 18);
@@ -28,12 +33,18 @@ interface ExportTableToCSVOptions {
   sheetName?: string;
 }
 
-export function exportTableToCSV({ columns, data, sheetName = "Sheet1" }: ExportTableToCSVOptions) {
+export function exportTableToCSV({
+  columns,
+  data,
+  sheetName = "Sheet1",
+}: ExportTableToCSVOptions) {
   // This function generates a CSV
   const csvRows = [columns.join(",")].concat(
     data.map((row: (string | number)[]) =>
-      row.map((cell: string | number) => `"${String(cell).replace(/"/g, '""')}"`).join(",")
-    )
+      row
+        .map((cell: string | number) => `"${String(cell).replace(/"/g, '""')}"`)
+        .join(","),
+    ),
   );
   const csvContent = csvRows.join("\n");
   const blob = new Blob([csvContent], { type: "text/csv" });

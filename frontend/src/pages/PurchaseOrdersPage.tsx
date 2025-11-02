@@ -168,12 +168,18 @@ const PurchaseOrdersPage: React.FC = () => {
   };
 
   const handleAddItem = () => {
-    if (!currentItem.productId || !currentItem.quantity || !currentItem.unitPrice) {
+    if (
+      !currentItem.productId ||
+      !currentItem.quantity ||
+      !currentItem.unitPrice
+    ) {
       toast.error("Please fill all item fields");
       return;
     }
 
-    const product = products.find((p) => p.id === parseInt(currentItem.productId));
+    const product = products.find(
+      (p) => p.id === parseInt(currentItem.productId),
+    );
     if (!product) return;
 
     setPOItems([
@@ -223,7 +229,9 @@ const PurchaseOrdersPage: React.FC = () => {
       fetchStats();
     } catch (err: any) {
       console.error("Error creating purchase order:", err);
-      toast.error(err.response?.data?.error || "Failed to create purchase order");
+      toast.error(
+        err.response?.data?.error || "Failed to create purchase order",
+      );
     } finally {
       setLoading(false);
     }
@@ -243,7 +251,9 @@ const PurchaseOrdersPage: React.FC = () => {
         setShowViewModal(false);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.error || "Failed to cancel purchase order");
+      toast.error(
+        err.response?.data?.error || "Failed to cancel purchase order",
+      );
     }
   };
 
@@ -267,7 +277,10 @@ const PurchaseOrdersPage: React.FC = () => {
     }
   };
 
-  const handleReceiveItems = async (poId: number, items: Array<{ itemId: number; receivedQuantity: number }>) => {
+  const handleReceiveItems = async (
+    poId: number,
+    items: Array<{ itemId: number; receivedQuantity: number }>,
+  ) => {
     try {
       const response = await inventoryAPI.receiveItems(poId, items);
       toast.success("Items received successfully");
@@ -301,7 +314,9 @@ const PurchaseOrdersPage: React.FC = () => {
           }
           // Critical margin warnings (red)
           else if (warning.severity === "critical") {
-            toast.error(`⚠️ ${warning.productName}: ${warning.message}`, { duration: 8000 });
+            toast.error(`⚠️ ${warning.productName}: ${warning.message}`, {
+              duration: 8000,
+            });
           }
           // Low margin warnings (yellow)
           else if (warning.severity === "warning") {
@@ -322,7 +337,9 @@ const PurchaseOrdersPage: React.FC = () => {
       fetchStats();
       // Update view modal if open
       if (showViewModal && selectedPO) {
-        const updatedPO = await inventoryAPI.getPurchaseOrderById(selectedPO.id);
+        const updatedPO = await inventoryAPI.getPurchaseOrderById(
+          selectedPO.id,
+        );
         setSelectedPO(updatedPO);
       }
     } catch (err: any) {
@@ -349,7 +366,7 @@ const PurchaseOrdersPage: React.FC = () => {
       expectedDate?: string;
       notes?: string;
       items: Array<{ productId: number; quantity: number; unitPrice: number }>;
-    }
+    },
   ) => {
     try {
       await inventoryAPI.updatePurchaseOrder(poId, data);
@@ -359,11 +376,15 @@ const PurchaseOrdersPage: React.FC = () => {
       fetchStats();
       // Update view modal if open
       if (showViewModal && selectedPO) {
-        const updatedPO = await inventoryAPI.getPurchaseOrderById(selectedPO.id);
+        const updatedPO = await inventoryAPI.getPurchaseOrderById(
+          selectedPO.id,
+        );
         setSelectedPO(updatedPO);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.error || "Failed to update purchase order");
+      toast.error(
+        err.response?.data?.error || "Failed to update purchase order",
+      );
       throw err;
     }
   };
@@ -393,7 +414,7 @@ const PurchaseOrdersPage: React.FC = () => {
 
     return (
       <span
-        className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[status] || "bg-gray-100 text-gray-800"}`}
+        className={`rounded-full px-3 py-1 text-xs font-medium ${statusColors[status] || "bg-gray-100 text-gray-800"}`}
       >
         {status.replace(/_/g, " ")}
       </span>
@@ -401,21 +422,28 @@ const PurchaseOrdersPage: React.FC = () => {
   };
 
   const getTotalAmount = () => {
-    return poItems.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+    return poItems.reduce(
+      (sum, item) => sum + item.quantity * item.unitPrice,
+      0,
+    );
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Purchase Orders</h1>
-            <p className="text-gray-600 mt-2">Manage purchase orders and receiving</p>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Purchase Orders
+            </h1>
+            <p className="mt-2 text-gray-600">
+              Manage purchase orders and receiving
+            </p>
           </div>
           {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-medium"
+              className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700"
             >
               + Create Purchase Order
             </button>
@@ -424,47 +452,61 @@ const PurchaseOrdersPage: React.FC = () => {
       </div>
 
       {error && (
-        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">⚠️ {error}</div>
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+          ⚠️ {error}
+        </div>
       )}
 
       {/* Stats */}
       {stats && (user?.role === "ADMIN" || user?.role === "MANAGER") && (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-6">
+        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-5">
+          <div className="rounded-lg bg-white p-6 shadow">
             <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
-            <p className="mt-2 text-3xl font-bold text-gray-900">{stats.totalOrders}</p>
+            <p className="mt-2 text-3xl font-bold text-gray-900">
+              {stats.totalOrders}
+            </p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="rounded-lg bg-white p-6 shadow">
             <h3 className="text-sm font-medium text-gray-500">Pending</h3>
-            <p className="mt-2 text-3xl font-bold text-yellow-600">{stats.pendingOrders}</p>
+            <p className="mt-2 text-3xl font-bold text-yellow-600">
+              {stats.pendingOrders}
+            </p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="rounded-lg bg-white p-6 shadow">
             <h3 className="text-sm font-medium text-gray-500">Partial</h3>
-            <p className="mt-2 text-3xl font-bold text-blue-600">{stats.partiallyReceivedOrders}</p>
+            <p className="mt-2 text-3xl font-bold text-blue-600">
+              {stats.partiallyReceivedOrders}
+            </p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="rounded-lg bg-white p-6 shadow">
             <h3 className="text-sm font-medium text-gray-500">Received</h3>
-            <p className="mt-2 text-3xl font-bold text-green-600">{stats.receivedOrders}</p>
+            <p className="mt-2 text-3xl font-bold text-green-600">
+              {stats.receivedOrders}
+            </p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="rounded-lg bg-white p-6 shadow">
             <h3 className="text-sm font-medium text-gray-500">Total Value</h3>
-            <p className="mt-2 text-3xl font-bold text-gray-900">{formatCurrency(stats.totalValue, settings)}</p>
+            <p className="mt-2 text-3xl font-bold text-gray-900">
+              {formatCurrency(stats.totalValue, settings)}
+            </p>
           </div>
         </div>
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="mb-6 rounded-lg bg-white p-4 shadow">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Status
+            </label>
             <select
               value={statusFilter}
               onChange={(e) => {
                 setStatusFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Statuses</option>
               <option value="PENDING">Pending</option>
@@ -474,14 +516,16 @@ const PurchaseOrdersPage: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Supplier
+            </label>
             <select
               value={supplierFilter}
               onChange={(e) => {
                 setSupplierFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Suppliers</option>
               {suppliers.map((supplier) => (
@@ -498,7 +542,7 @@ const PurchaseOrdersPage: React.FC = () => {
                 setSupplierFilter("");
                 setPage(1);
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-50"
             >
               Clear Filters
             </button>
@@ -507,15 +551,18 @@ const PurchaseOrdersPage: React.FC = () => {
       </div>
 
       {/* Purchase Orders Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="overflow-hidden rounded-lg bg-white shadow">
         {loading && purchaseOrders.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="py-12 text-center">
+            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           </div>
         ) : purchaseOrders.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No purchase orders found</p>
-            <button onClick={() => setShowCreateModal(true)} className="mt-4 text-blue-600 hover:text-blue-700">
+          <div className="py-12 text-center">
+            <p className="text-lg text-gray-500">No purchase orders found</p>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="mt-4 text-blue-600 hover:text-blue-700"
+            >
               Create your first purchase order
             </button>
           </div>
@@ -524,48 +571,84 @@ const PurchaseOrdersPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">PO #</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Supplier</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expected Date</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total Amount</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                      PO #
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                      Supplier
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                      Order Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                      Expected Date
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                      Total Amount
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium uppercase text-gray-500">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {purchaseOrders.map((po) => (
                     <tr key={po.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{po.poNumber}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{po.supplier?.name}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{formatDate(po.orderDate)}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                        {po.poNumber}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {po.supplier?.name}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {formatDate(po.orderDate)}
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
                         {po.expectedDate ? formatDate(po.expectedDate) : "-"}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
+                      <td className="px-6 py-4 text-right text-sm font-medium text-gray-900">
                         {formatCurrency(po.totalAmount, settings)}
                       </td>
-                      <td className="px-6 py-4 text-center">{getStatusBadge(po.status)}</td>
-                      <td className="px-6 py-4 text-right text-sm space-x-2">
-                        <button onClick={() => handleViewPO(po)} className="text-blue-600 hover:text-blue-900">
+                      <td className="px-6 py-4 text-center">
+                        {getStatusBadge(po.status)}
+                      </td>
+                      <td className="space-x-2 px-6 py-4 text-right text-sm">
+                        <button
+                          onClick={() => handleViewPO(po)}
+                          className="text-blue-600 hover:text-blue-900"
+                        >
                           View
                         </button>
                         {po.status === "PENDING" && (
-                          <button onClick={() => handleEditPO(po)} className="text-indigo-600 hover:text-indigo-900">
+                          <button
+                            onClick={() => handleEditPO(po)}
+                            className="text-indigo-600 hover:text-indigo-900"
+                          >
                             Edit
                           </button>
                         )}
-                        {(po.status === "PENDING" || po.status === "PARTIAL") && (
-                          <button onClick={() => handleReceivePO(po)} className="text-green-600 hover:text-green-900">
+                        {(po.status === "PENDING" ||
+                          po.status === "PARTIAL") && (
+                          <button
+                            onClick={() => handleReceivePO(po)}
+                            className="text-green-600 hover:text-green-900"
+                          >
                             Receive
                           </button>
                         )}
-                        {po.status !== "RECEIVED" && po.status !== "CANCELLED" && (
-                          <button onClick={() => handleCancelPO(po.id)} className="text-red-600 hover:text-red-900">
-                            Cancel
-                          </button>
-                        )}
+                        {po.status !== "RECEIVED" &&
+                          po.status !== "CANCELLED" && (
+                            <button
+                              onClick={() => handleCancelPO(po.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Cancel
+                            </button>
+                          )}
                       </td>
                     </tr>
                   ))}
@@ -575,11 +658,11 @@ const PurchaseOrdersPage: React.FC = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
+              <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-6 py-4">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Previous
                 </button>
@@ -589,7 +672,7 @@ const PurchaseOrdersPage: React.FC = () => {
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Next
                 </button>
@@ -601,34 +684,48 @@ const PurchaseOrdersPage: React.FC = () => {
 
       {/* Create PO Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-xl font-semibold text-gray-900">Create Purchase Order</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white shadow-xl">
+            <div className="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
+              <h3 className="text-xl font-semibold text-gray-900">
+                Create Purchase Order
+              </h3>
               <button
                 type="button"
                 onClick={() => {
                   setShowCreateModal(false);
                   resetForm();
                 }}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 transition-colors hover:text-gray-600"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
 
             <form onSubmit={handleCreatePO} className="px-6 py-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
                     Supplier <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={formData.supplierId}
-                    onChange={(e) => setFormData({ ...formData, supplierId: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) =>
+                      setFormData({ ...formData, supplierId: e.target.value })
+                    }
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     required
                   >
                     <option value="">Select Supplier</option>
@@ -641,35 +738,45 @@ const PurchaseOrdersPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
                     Order Date <span className="text-red-500">*</span>
                   </label>
                   <Input
                     type="date"
                     value={formData.orderDate}
-                    onChange={(e) => setFormData({ ...formData, orderDate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, orderDate: e.target.value })
+                    }
                     fullWidth
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Expected Date</label>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Expected Date
+                  </label>
                   <Input
                     type="date"
                     value={formData.expectedDate}
-                    onChange={(e) => setFormData({ ...formData, expectedDate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, expectedDate: e.target.value })
+                    }
                     fullWidth
                   />
                 </div>
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Notes
+                </label>
                 <textarea
                   value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onChange={(e) =>
+                    setFormData({ ...formData, notes: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                   rows={3}
                   placeholder="Additional notes..."
                 />
@@ -677,22 +784,28 @@ const PurchaseOrdersPage: React.FC = () => {
 
               {/* Add Items Section */}
               <div className="mb-6 border-t pt-6">
-                <h4 className="font-semibold text-gray-900 mb-4">Add Items</h4>
+                <h4 className="mb-4 font-semibold text-gray-900">Add Items</h4>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Product</label>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                      Product
+                    </label>
                     <select
                       value={currentItem.productId}
                       onChange={(e) => {
-                        const product = products.find((p) => p.id === parseInt(e.target.value));
+                        const product = products.find(
+                          (p) => p.id === parseInt(e.target.value),
+                        );
                         setCurrentItem({
                           ...currentItem,
                           productId: e.target.value,
-                          unitPrice: product?.purchasePrice ? product.purchasePrice.toString() : "",
+                          unitPrice: product?.purchasePrice
+                            ? product.purchasePrice.toString()
+                            : "",
                         });
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Select Product</option>
                       {products.map((product) => (
@@ -704,24 +817,38 @@ const PurchaseOrdersPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                      Quantity
+                    </label>
                     <Input
                       type="number"
                       min={1}
                       value={currentItem.quantity}
-                      onChange={(e) => setCurrentItem({ ...currentItem, quantity: e.target.value })}
+                      onChange={(e) =>
+                        setCurrentItem({
+                          ...currentItem,
+                          quantity: e.target.value,
+                        })
+                      }
                       fullWidth
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Unit Price</label>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                      Unit Price
+                    </label>
                     <Input
                       type="number"
                       step={0.01}
                       min={0}
                       value={currentItem.unitPrice}
-                      onChange={(e) => setCurrentItem({ ...currentItem, unitPrice: e.target.value })}
+                      onChange={(e) =>
+                        setCurrentItem({
+                          ...currentItem,
+                          unitPrice: e.target.value,
+                        })
+                      }
                       fullWidth
                     />
                   </div>
@@ -730,7 +857,7 @@ const PurchaseOrdersPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleAddItem}
-                  className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                  className="w-full rounded-lg bg-green-600 px-4 py-2 text-white transition hover:bg-green-700"
                 >
                   + Add Item
                 </button>
@@ -739,36 +866,55 @@ const PurchaseOrdersPage: React.FC = () => {
               {/* Items List */}
               {poItems.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="font-semibold text-gray-900 mb-4">Order Items ({poItems.length})</h4>
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <h4 className="mb-4 font-semibold text-gray-900">
+                    Order Items ({poItems.length})
+                  </h4>
+                  <div className="overflow-hidden rounded-lg border border-gray-200">
                     <table className="w-full">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Product</th>
-                          <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Qty</th>
-                          <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Unit Price</th>
-                          <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Total</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
+                            Product
+                          </th>
+                          <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
+                            Qty
+                          </th>
+                          <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
+                            Unit Price
+                          </th>
+                          <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
+                            Total
+                          </th>
                           <th className="px-4 py-2 text-xs font-medium text-gray-500"></th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {poItems.map((item, index) => {
-                          const product = products.find((p) => p.id === item.productId);
+                          const product = products.find(
+                            (p) => p.id === item.productId,
+                          );
                           return (
                             <tr key={index}>
-                              <td className="px-4 py-2 text-sm text-gray-900">{product?.name}</td>
-                              <td className="px-4 py-2 text-sm text-gray-900 text-right">{item.quantity}</td>
-                              <td className="px-4 py-2 text-sm text-gray-900 text-right">
+                              <td className="px-4 py-2 text-sm text-gray-900">
+                                {product?.name}
+                              </td>
+                              <td className="px-4 py-2 text-right text-sm text-gray-900">
+                                {item.quantity}
+                              </td>
+                              <td className="px-4 py-2 text-right text-sm text-gray-900">
                                 {formatCurrency(item.unitPrice, settings)}
                               </td>
-                              <td className="px-4 py-2 text-sm text-gray-900 text-right font-medium">
-                                {formatCurrency(item.quantity * item.unitPrice, settings)}
+                              <td className="px-4 py-2 text-right text-sm font-medium text-gray-900">
+                                {formatCurrency(
+                                  item.quantity * item.unitPrice,
+                                  settings,
+                                )}
                               </td>
                               <td className="px-4 py-2 text-right">
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveItem(index)}
-                                  className="text-red-600 hover:text-red-900 text-sm"
+                                  className="text-sm text-red-600 hover:text-red-900"
                                 >
                                   Remove
                                 </button>
@@ -777,10 +923,13 @@ const PurchaseOrdersPage: React.FC = () => {
                           );
                         })}
                         <tr className="bg-gray-50">
-                          <td colSpan={3} className="px-4 py-2 text-sm font-semibold text-gray-900 text-right">
+                          <td
+                            colSpan={3}
+                            className="px-4 py-2 text-right text-sm font-semibold text-gray-900"
+                          >
                             Total Amount:
                           </td>
-                          <td className="px-4 py-2 text-sm font-bold text-gray-900 text-right">
+                          <td className="px-4 py-2 text-right text-sm font-bold text-gray-900">
                             {formatCurrency(getTotalAmount(), settings)}
                           </td>
                           <td></td>
@@ -795,7 +944,7 @@ const PurchaseOrdersPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading || poItems.length === 0}
-                  className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  className="flex-1 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {loading ? "Creating..." : "Create Purchase Order"}
                 </button>
@@ -806,7 +955,7 @@ const PurchaseOrdersPage: React.FC = () => {
                     resetForm();
                   }}
                   disabled={loading}
-                  className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                  className="rounded-lg border border-gray-300 px-6 py-3 transition hover:bg-gray-50"
                 >
                   Cancel
                 </button>
@@ -818,19 +967,31 @@ const PurchaseOrdersPage: React.FC = () => {
 
       {/* View PO Modal */}
       {showViewModal && selectedPO && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white px-6 py-4 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold text-gray-900">Purchase Order {selectedPO.poNumber}</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white shadow-xl">
+            <div className="sticky top-0 border-b border-gray-200 bg-white px-6 py-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Purchase Order {selectedPO.poNumber}
+                </h3>
                 <div className="flex items-center gap-3">
                   {getStatusBadge(selectedPO.status)}
                   <button
                     onClick={() => setShowViewModal(false)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    className="text-gray-400 transition-colors hover:text-gray-600"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      className="h-6 w-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -839,42 +1000,68 @@ const PurchaseOrdersPage: React.FC = () => {
 
             <div className="px-6 py-4">
               {/* PO Details */}
-              <div className="grid grid-cols-2 gap-6 mb-6">
+              <div className="mb-6 grid grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500">Supplier</h4>
-                  <p className="mt-1 text-sm text-gray-900">{selectedPO.supplier?.name}</p>
+                  <h4 className="text-sm font-medium text-gray-500">
+                    Supplier
+                  </h4>
+                  <p className="mt-1 text-sm text-gray-900">
+                    {selectedPO.supplier?.name}
+                  </p>
                   {selectedPO.supplier?.contactPerson && (
-                    <p className="text-sm text-gray-600">Contact: {selectedPO.supplier.contactPerson}</p>
+                    <p className="text-sm text-gray-600">
+                      Contact: {selectedPO.supplier.contactPerson}
+                    </p>
                   )}
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500">Order Date</h4>
-                  <p className="mt-1 text-sm text-gray-900">{formatDate(selectedPO.orderDate)}</p>
+                  <h4 className="text-sm font-medium text-gray-500">
+                    Order Date
+                  </h4>
+                  <p className="mt-1 text-sm text-gray-900">
+                    {formatDate(selectedPO.orderDate)}
+                  </p>
                   {selectedPO.expectedDate && (
-                    <p className="text-sm text-gray-600">Expected: {formatDate(selectedPO.expectedDate)}</p>
+                    <p className="text-sm text-gray-600">
+                      Expected: {formatDate(selectedPO.expectedDate)}
+                    </p>
                   )}
                 </div>
               </div>
 
               {selectedPO.notes && (
                 <div className="mb-6">
-                  <h4 className="text-sm font-medium text-gray-500 mb-2">Notes</h4>
-                  <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded">{selectedPO.notes}</p>
+                  <h4 className="mb-2 text-sm font-medium text-gray-500">
+                    Notes
+                  </h4>
+                  <p className="rounded bg-gray-50 p-3 text-sm text-gray-900">
+                    {selectedPO.notes}
+                  </p>
                 </div>
               )}
 
               {/* Items */}
               <div className="mb-6">
-                <h4 className="font-semibold text-gray-900 mb-4">Items</h4>
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <h4 className="mb-4 font-semibold text-gray-900">Items</h4>
+                <div className="overflow-hidden rounded-lg border border-gray-200">
                   <table className="w-full">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Product</th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Ordered</th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Received</th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Unit Price</th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Total</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
+                          Product
+                        </th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
+                          Ordered
+                        </th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
+                          Received
+                        </th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
+                          Unit Price
+                        </th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
+                          Total
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -882,23 +1069,35 @@ const PurchaseOrdersPage: React.FC = () => {
                         <tr key={item.id}>
                           <td className="px-4 py-2 text-sm text-gray-900">
                             {item.product?.name}
-                            {item.variant && <span className="text-gray-500"> - {item.variant.name}</span>}
+                            {item.variant && (
+                              <span className="text-gray-500">
+                                {" "}
+                                - {item.variant.name}
+                              </span>
+                            )}
                           </td>
-                          <td className="px-4 py-2 text-sm text-gray-900 text-right">{item.quantity}</td>
-                          <td className="px-4 py-2 text-sm text-gray-900 text-right">{item.receivedQuantity}</td>
-                          <td className="px-4 py-2 text-sm text-gray-900 text-right">
+                          <td className="px-4 py-2 text-right text-sm text-gray-900">
+                            {item.quantity}
+                          </td>
+                          <td className="px-4 py-2 text-right text-sm text-gray-900">
+                            {item.receivedQuantity}
+                          </td>
+                          <td className="px-4 py-2 text-right text-sm text-gray-900">
                             {formatCurrency(item.unitCost, settings)}
                           </td>
-                          <td className="px-4 py-2 text-sm text-gray-900 text-right font-medium">
+                          <td className="px-4 py-2 text-right text-sm font-medium text-gray-900">
                             {formatCurrency(item.totalCost, settings)}
                           </td>
                         </tr>
                       ))}
                       <tr className="bg-gray-50">
-                        <td colSpan={4} className="px-4 py-2 text-sm font-semibold text-gray-900 text-right">
+                        <td
+                          colSpan={4}
+                          className="px-4 py-2 text-right text-sm font-semibold text-gray-900"
+                        >
                           Total Amount:
                         </td>
-                        <td className="px-4 py-2 text-sm font-bold text-gray-900 text-right">
+                        <td className="px-4 py-2 text-right text-sm font-bold text-gray-900">
                           {formatCurrency(selectedPO.totalAmount, settings)}
                         </td>
                       </tr>
@@ -914,33 +1113,35 @@ const PurchaseOrdersPage: React.FC = () => {
                       setShowViewModal(false);
                       handleEditPO(selectedPO);
                     }}
-                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                    className="rounded-lg bg-indigo-600 px-6 py-2 text-white transition hover:bg-indigo-700"
                   >
                     Edit Order
                   </button>
                 )}
-                {(selectedPO.status === "PENDING" || selectedPO.status === "PARTIAL") && (
+                {(selectedPO.status === "PENDING" ||
+                  selectedPO.status === "PARTIAL") && (
                   <button
                     onClick={() => {
                       setShowViewModal(false);
                       handleReceivePO(selectedPO);
                     }}
-                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                    className="rounded-lg bg-green-600 px-6 py-2 text-white transition hover:bg-green-700"
                   >
                     Receive Items
                   </button>
                 )}
-                {selectedPO.status !== "RECEIVED" && selectedPO.status !== "CANCELLED" && (
-                  <button
-                    onClick={() => handleCancelPO(selectedPO.id)}
-                    className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                  >
-                    Cancel Order
-                  </button>
-                )}
+                {selectedPO.status !== "RECEIVED" &&
+                  selectedPO.status !== "CANCELLED" && (
+                    <button
+                      onClick={() => handleCancelPO(selectedPO.id)}
+                      className="rounded-lg bg-red-600 px-6 py-2 text-white transition hover:bg-red-700"
+                    >
+                      Cancel Order
+                    </button>
+                  )}
                 <button
                   onClick={() => setShowViewModal(false)}
-                  className="flex-1 px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                  className="flex-1 rounded-lg border border-gray-300 px-6 py-2 transition hover:bg-gray-50"
                 >
                   Close
                 </button>

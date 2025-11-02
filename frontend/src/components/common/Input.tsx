@@ -37,10 +37,10 @@ export const Input: React.FC<InputProps> = ({
       {label && (
         <label
           htmlFor={inputId}
-          className={`block text-sm font-medium mb-1 ${hasError ? "text-red-700" : "text-gray-700"}`}
+          className={`mb-1 block text-sm font-medium ${hasError ? "text-red-700" : "text-gray-700"}`}
         >
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="ml-1 text-red-500">*</span>}
         </label>
       )}
       <input
@@ -48,7 +48,13 @@ export const Input: React.FC<InputProps> = ({
         className={inputClassName}
         required={required}
         aria-invalid={hasError}
-        aria-describedby={hasError ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined}
+        aria-describedby={
+          hasError
+            ? `${inputId}-error`
+            : helperText
+              ? `${inputId}-helper`
+              : undefined
+        }
         {...props}
       />
       {hasError && (
@@ -65,7 +71,8 @@ export const Input: React.FC<InputProps> = ({
   );
 };
 
-interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextAreaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   helperText?: string;
@@ -83,7 +90,8 @@ export const TextArea: React.FC<TextAreaProps> = ({
   rows = 3,
   ...props
 }) => {
-  const textAreaId = id || `textarea-${label?.toLowerCase().replace(/\s+/g, "-")}`;
+  const textAreaId =
+    id || `textarea-${label?.toLowerCase().replace(/\s+/g, "-")}`;
   const widthStyle = fullWidth ? "w-full" : "";
   const hasError = Boolean(error);
 
@@ -103,10 +111,10 @@ export const TextArea: React.FC<TextAreaProps> = ({
       {label && (
         <label
           htmlFor={textAreaId}
-          className={`block text-sm font-medium mb-1 ${hasError ? "text-red-700" : "text-gray-700"}`}
+          className={`mb-1 block text-sm font-medium ${hasError ? "text-red-700" : "text-gray-700"}`}
         >
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="ml-1 text-red-500">*</span>}
         </label>
       )}
       <textarea
@@ -115,7 +123,13 @@ export const TextArea: React.FC<TextAreaProps> = ({
         rows={rows}
         required={required}
         aria-invalid={hasError}
-        aria-describedby={hasError ? `${textAreaId}-error` : helperText ? `${textAreaId}-helper` : undefined}
+        aria-describedby={
+          hasError
+            ? `${textAreaId}-error`
+            : helperText
+              ? `${textAreaId}-helper`
+              : undefined
+        }
         {...props}
       />
       {hasError && (
@@ -171,10 +185,10 @@ export const Select: React.FC<SelectProps> = ({
       {label && (
         <label
           htmlFor={selectId}
-          className={`block text-sm font-medium mb-1 ${hasError ? "text-red-700" : "text-gray-700"}`}
+          className={`mb-1 block text-sm font-medium ${hasError ? "text-red-700" : "text-gray-700"}`}
         >
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="ml-1 text-red-500">*</span>}
         </label>
       )}
       <select
@@ -182,7 +196,13 @@ export const Select: React.FC<SelectProps> = ({
         className={selectClassName}
         required={required}
         aria-invalid={hasError}
-        aria-describedby={hasError ? `${selectId}-error` : helperText ? `${selectId}-helper` : undefined}
+        aria-describedby={
+          hasError
+            ? `${selectId}-error`
+            : helperText
+              ? `${selectId}-helper`
+              : undefined
+        }
         {...props}
       >
         {options.map((option) => (

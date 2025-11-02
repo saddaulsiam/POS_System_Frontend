@@ -18,7 +18,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   categories,
 }) => {
   return (
-    <div className="flex gap-2 w-full md:w-auto">
+    <div className="flex w-full gap-2 md:w-auto">
       <SearchBar
         value={search}
         onChange={setSearch}
@@ -26,7 +26,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         className="w-full md:w-64"
       />
       <select
-        className="border rounded px-3 py-2"
+        className="rounded border px-3 py-2"
         value={categoryFilter}
         onChange={(e) => setCategoryFilter(e.target.value)}
       >

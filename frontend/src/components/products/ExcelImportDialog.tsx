@@ -21,7 +21,11 @@ interface ImportResult {
   }>;
 }
 
-export const ExcelImportDialog: React.FC<ExcelImportDialogProps> = ({ isOpen, onClose, onSuccess }) => {
+export const ExcelImportDialog: React.FC<ExcelImportDialogProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+}) => {
   const [file, setFile] = useState<File | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
@@ -66,16 +70,22 @@ export const ExcelImportDialog: React.FC<ExcelImportDialogProps> = ({ isOpen, on
       setImportResult(result);
 
       if (result.imported > 0) {
-        toast.success(`Successfully imported ${result.imported} product${result.imported !== 1 ? "s" : ""}`);
+        toast.success(
+          `Successfully imported ${result.imported} product${result.imported !== 1 ? "s" : ""}`,
+        );
         onSuccess();
       }
 
       if (result.duplicates > 0) {
-        toast.error(`${result.duplicates} duplicate SKU${result.duplicates !== 1 ? "s" : ""} skipped`);
+        toast.error(
+          `${result.duplicates} duplicate SKU${result.duplicates !== 1 ? "s" : ""} skipped`,
+        );
       }
 
       if (result.invalid > 0) {
-        toast.error(`${result.invalid} invalid row${result.invalid !== 1 ? "s" : ""}`);
+        toast.error(
+          `${result.invalid} invalid row${result.invalid !== 1 ? "s" : ""}`,
+        );
       }
     } catch (error: any) {
       console.error("Import error:", error);
@@ -120,19 +130,30 @@ export const ExcelImportDialog: React.FC<ExcelImportDialogProps> = ({ isOpen, on
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl relative max-h-[90vh] overflow-y-auto">
-        <button className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl" onClick={handleClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
+        <button
+          className="absolute right-4 top-4 text-xl text-gray-500 hover:text-gray-700"
+          onClick={handleClose}
+        >
           ×
         </button>
 
-        <h2 className="text-2xl font-bold mb-2 text-gray-800">Import Products from Excel</h2>
-        <p className="text-sm text-gray-600 mb-6">Upload an Excel file to bulk import products into your system</p>
+        <h2 className="mb-2 text-2xl font-bold text-gray-800">
+          Import Products from Excel
+        </h2>
+        <p className="mb-6 text-sm text-gray-600">
+          Upload an Excel file to bulk import products into your system
+        </p>
 
         {/* Instructions */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <h3 className="font-semibold text-blue-900 mb-2 flex items-center">
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <h3 className="mb-2 flex items-center font-semibold text-blue-900">
+            <svg
+              className="mr-2 h-5 w-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
               <path
                 fillRule="evenodd"
                 d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
@@ -141,7 +162,7 @@ export const ExcelImportDialog: React.FC<ExcelImportDialogProps> = ({ isOpen, on
             </svg>
             How to import products:
           </h3>
-          <ol className="list-decimal list-inside text-sm text-blue-800 space-y-1">
+          <ol className="list-inside list-decimal space-y-1 text-sm text-blue-800">
             <li>Download the Excel template below</li>
             <li>Fill in your product information</li>
             <li>Save the file and upload it here</li>
@@ -151,8 +172,17 @@ export const ExcelImportDialog: React.FC<ExcelImportDialogProps> = ({ isOpen, on
 
         {/* Download Template */}
         <div className="mb-6">
-          <Button variant="secondary" onClick={handleDownloadTemplate} className="w-full">
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <Button
+            variant="secondary"
+            onClick={handleDownloadTemplate}
+            className="w-full"
+          >
+            <svg
+              className="mr-2 h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -166,26 +196,43 @@ export const ExcelImportDialog: React.FC<ExcelImportDialogProps> = ({ isOpen, on
 
         {/* File Upload */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Select Excel File</label>
+          <label className="mb-2 block text-sm font-medium text-gray-700">
+            Select Excel File
+          </label>
           <div className="flex items-center space-x-2">
             <input
               ref={fileInputRef}
               type="file"
               accept=".xlsx,.xls"
               onChange={handleFileChange}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
             />
             {file && (
-              <button onClick={handleReset} className="text-gray-500 hover:text-gray-700" title="Clear selection">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <button
+                onClick={handleReset}
+                className="text-gray-500 hover:text-gray-700"
+                title="Clear selection"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             )}
           </div>
           {file && (
             <p className="mt-2 text-sm text-gray-600">
-              Selected: <span className="font-semibold">{file.name}</span> ({(file.size / 1024).toFixed(2)} KB)
+              Selected: <span className="font-semibold">{file.name}</span> (
+              {(file.size / 1024).toFixed(2)} KB)
             </p>
           )}
         </div>
@@ -193,58 +240,78 @@ export const ExcelImportDialog: React.FC<ExcelImportDialogProps> = ({ isOpen, on
         {/* Import Result */}
         {importResult && (
           <div className="mb-6 space-y-3">
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Import Results</h3>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <h3 className="mb-3 font-semibold text-gray-900">
+                Import Results
+              </h3>
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{importResult.imported}</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {importResult.imported}
+                  </div>
                   <div className="text-xs text-gray-600">Imported</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-yellow-600">{importResult.duplicates}</div>
+                  <div className="text-2xl font-bold text-yellow-600">
+                    {importResult.duplicates}
+                  </div>
                   <div className="text-xs text-gray-600">Duplicates</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-red-600">{importResult.invalid}</div>
+                  <div className="text-2xl font-bold text-red-600">
+                    {importResult.invalid}
+                  </div>
                   <div className="text-xs text-gray-600">Invalid</div>
                 </div>
               </div>
             </div>
 
             {/* Error Details */}
-            {importResult.invalidDetails && importResult.invalidDetails.length > 0 && (
-              <div>
-                <button
-                  onClick={() => setShowErrors(!showErrors)}
-                  className="flex items-center text-sm text-blue-600 hover:text-blue-800"
-                >
-                  <svg
-                    className={`w-4 h-4 mr-1 transition-transform ${showErrors ? "transform rotate-90" : ""}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+            {importResult.invalidDetails &&
+              importResult.invalidDetails.length > 0 && (
+                <div>
+                  <button
+                    onClick={() => setShowErrors(!showErrors)}
+                    className="flex items-center text-sm text-blue-600 hover:text-blue-800"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                  {showErrors ? "Hide" : "Show"} error details ({importResult.invalidDetails.length} rows)
-                </button>
+                    <svg
+                      className={`mr-1 h-4 w-4 transition-transform ${showErrors ? "rotate-90 transform" : ""}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                    {showErrors ? "Hide" : "Show"} error details (
+                    {importResult.invalidDetails.length} rows)
+                  </button>
 
-                {showErrors && (
-                  <div className="mt-2 bg-red-50 border border-red-200 rounded-lg p-4 max-h-60 overflow-y-auto">
-                    {importResult.invalidDetails.map((detail, index) => (
-                      <div key={index} className="mb-3 pb-3 border-b border-red-100 last:border-0 last:pb-0 last:mb-0">
-                        <div className="font-semibold text-red-900 text-sm">Row {detail.row}:</div>
-                        <ul className="mt-1 text-xs text-red-700 list-disc list-inside">
-                          {detail.errors.map((error, i) => (
-                            <li key={i}>{error}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+                  {showErrors && (
+                    <div className="mt-2 max-h-60 overflow-y-auto rounded-lg border border-red-200 bg-red-50 p-4">
+                      {importResult.invalidDetails.map((detail, index) => (
+                        <div
+                          key={index}
+                          className="mb-3 border-b border-red-100 pb-3 last:mb-0 last:border-0 last:pb-0"
+                        >
+                          <div className="text-sm font-semibold text-red-900">
+                            Row {detail.row}:
+                          </div>
+                          <ul className="mt-1 list-inside list-disc text-xs text-red-700">
+                            {detail.errors.map((error, i) => (
+                              <li key={i}>{error}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
           </div>
         )}
 
@@ -254,11 +321,26 @@ export const ExcelImportDialog: React.FC<ExcelImportDialogProps> = ({ isOpen, on
             {importResult ? "Close" : "Cancel"}
           </Button>
           {!importResult && (
-            <Button variant="primary" onClick={handleImport} disabled={!file || isImporting}>
+            <Button
+              variant="primary"
+              onClick={handleImport}
+              disabled={!file || isImporting}
+            >
               {isImporting ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <svg
+                    className="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
                     <path
                       className="opacity-75"
                       fill="currentColor"
@@ -269,7 +351,12 @@ export const ExcelImportDialog: React.FC<ExcelImportDialogProps> = ({ isOpen, on
                 </>
               ) : (
                 <>
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="mr-2 h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"

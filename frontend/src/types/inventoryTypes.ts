@@ -1,8 +1,18 @@
 import { Employee } from "./employeeTypes";
 import { Product } from "./productTypes";
 
-export type StockMovementType = "SALE" | "PURCHASE" | "ADJUSTMENT" | "RETURN" | "DAMAGED" | "EXPIRED";
-export type AlertType = "LOW_STOCK" | "OUT_OF_STOCK" | "EXPIRING_SOON" | "DAMAGED";
+export type StockMovementType =
+  | "SALE"
+  | "PURCHASE"
+  | "ADJUSTMENT"
+  | "RETURN"
+  | "DAMAGED"
+  | "EXPIRED";
+export type AlertType =
+  | "LOW_STOCK"
+  | "OUT_OF_STOCK"
+  | "EXPIRING_SOON"
+  | "DAMAGED";
 
 export interface StockMovement {
   id: number;

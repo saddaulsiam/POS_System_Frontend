@@ -12,11 +12,17 @@ interface RewardsGalleryProps {
   onRewardRedeemed?: () => void;
 }
 
-const RewardsGallery: React.FC<RewardsGalleryProps> = ({ customerId, customerPoints, onRewardRedeemed }) => {
+const RewardsGallery: React.FC<RewardsGalleryProps> = ({
+  customerId,
+  customerPoints,
+  onRewardRedeemed,
+}) => {
   const [rewards, setRewards] = useState<LoyaltyReward[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedReward, setSelectedReward] = useState<LoyaltyReward | null>(null);
+  const [selectedReward, setSelectedReward] = useState<LoyaltyReward | null>(
+    null,
+  );
   const [redeeming, setRedeeming] = useState(false);
   const { settings } = useSettings();
 
@@ -95,8 +101,8 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({ customerId, customerPoi
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center justify-center h-64">
+      <div className="rounded-lg bg-white p-6 shadow">
+        <div className="flex h-64 items-center justify-center">
           <div className="text-gray-500">Loading rewards...</div>
         </div>
       </div>
@@ -105,10 +111,13 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({ customerId, customerPoi
 
   if (error) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex flex-col items-center justify-center h-64 text-red-500">
+      <div className="rounded-lg bg-white p-6 shadow">
+        <div className="flex h-64 flex-col items-center justify-center text-red-500">
           <p className="mb-4">{error}</p>
-          <button onClick={fetchRewards} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          <button
+            onClick={fetchRewards}
+            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          >
             Retry
           </button>
         </div>
@@ -117,20 +126,25 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({ customerId, customerPoi
   }
 
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="rounded-lg bg-white shadow">
       <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-800">Your Rewards</h2>
           <div className="text-sm text-gray-600">
-            Available Points: <span className="font-bold text-blue-600">{customerPoints.toLocaleString()}</span>
+            Available Points:{" "}
+            <span className="font-bold text-blue-600">
+              {customerPoints.toLocaleString()}
+            </span>
           </div>
         </div>
 
         {/* Available Rewards */}
         {availableRewards.length > 0 ? (
           <>
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Available to Use</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            <h3 className="mb-4 text-lg font-semibold text-gray-700">
+              Available to Use
+            </h3>
+            <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {availableRewards.map((reward) => {
                 const Icon = getRewardIcon(reward.rewardType);
                 const gradient = getRewardColor(reward.rewardType);
@@ -138,30 +152,41 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({ customerId, customerPoi
                 return (
                   <div
                     key={reward.id}
-                    className="relative overflow-hidden rounded-lg border-2 border-gray-200 hover:border-blue-400 transition-all hover:shadow-lg"
+                    className="relative overflow-hidden rounded-lg border-2 border-gray-200 transition-all hover:border-blue-400 hover:shadow-lg"
                   >
                     {/* Gradient Header */}
-                    <div className={`bg-gradient-to-r ${gradient} p-4 text-white`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <Icon className="w-8 h-8" />
-                        <span className="text-xs font-medium bg-white bg-opacity-20 px-2 py-1 rounded">
+                    <div
+                      className={`bg-gradient-to-r ${gradient} p-4 text-white`}
+                    >
+                      <div className="mb-2 flex items-center justify-between">
+                        <Icon className="h-8 w-8" />
+                        <span className="rounded bg-white bg-opacity-20 px-2 py-1 text-xs font-medium">
                           {reward.pointsCost} pts
                         </span>
                       </div>
-                      <h4 className="text-lg font-bold">{formatRewardValue(reward)}</h4>
+                      <h4 className="text-lg font-bold">
+                        {formatRewardValue(reward)}
+                      </h4>
                     </div>
 
                     {/* Content */}
                     <div className="p-4">
-                      <p className="text-sm text-gray-600 mb-4">{reward.description}</p>
+                      <p className="mb-4 text-sm text-gray-600">
+                        {reward.description}
+                      </p>
 
                       <div className="flex items-center justify-between">
                         <div className="text-xs text-gray-500">
-                          {reward.expiresAt && <span>Expires: {new Date(reward.expiresAt).toLocaleDateString()}</span>}
+                          {reward.expiresAt && (
+                            <span>
+                              Expires:{" "}
+                              {new Date(reward.expiresAt).toLocaleDateString()}
+                            </span>
+                          )}
                         </div>
                         <button
                           onClick={() => setSelectedReward(reward)}
-                          className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition-colors"
+                          className="rounded bg-blue-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
                         >
                           Use Now
                         </button>
@@ -173,37 +198,50 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({ customerId, customerPoi
             </div>
           </>
         ) : (
-          <div className="text-center py-12 bg-gray-50 rounded-lg mb-8">
-            <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 text-lg font-medium mb-2">No rewards available yet</p>
-            <p className="text-gray-500 text-sm">Keep earning points to unlock exciting rewards!</p>
+          <div className="mb-8 rounded-lg bg-gray-50 py-12 text-center">
+            <Gift className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+            <p className="mb-2 text-lg font-medium text-gray-600">
+              No rewards available yet
+            </p>
+            <p className="text-sm text-gray-500">
+              Keep earning points to unlock exciting rewards!
+            </p>
           </div>
         )}
 
         {/* Used Rewards */}
         {usedRewards.length > 0 && (
           <>
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Used Rewards</h3>
-            <div className="space-y-2 mb-6">
+            <h3 className="mb-4 text-lg font-semibold text-gray-700">
+              Used Rewards
+            </h3>
+            <div className="mb-6 space-y-2">
               {usedRewards.map((reward) => (
                 <div
                   key={reward.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200"
+                  className="flex items-center justify-between rounded border border-gray-200 bg-gray-50 p-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gray-200 rounded">
+                    <div className="rounded bg-gray-200 p-2">
                       {React.createElement(getRewardIcon(reward.rewardType), {
                         className: "w-5 h-5 text-gray-600",
                       })}
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-700">{reward.description}</div>
+                      <div className="text-sm font-medium text-gray-700">
+                        {reward.description}
+                      </div>
                       <div className="text-xs text-gray-500">
-                        Used: {reward.redeemedAt ? new Date(reward.redeemedAt).toLocaleDateString() : "-"}
+                        Used:{" "}
+                        {reward.redeemedAt
+                          ? new Date(reward.redeemedAt).toLocaleDateString()
+                          : "-"}
                       </div>
                     </div>
                   </div>
-                  <span className="text-xs text-gray-500 font-medium">USED</span>
+                  <span className="text-xs font-medium text-gray-500">
+                    USED
+                  </span>
                 </div>
               ))}
             </div>
@@ -213,27 +251,36 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({ customerId, customerPoi
         {/* Expired Rewards */}
         {expiredRewards.length > 0 && (
           <>
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Expired Rewards</h3>
+            <h3 className="mb-4 text-lg font-semibold text-gray-700">
+              Expired Rewards
+            </h3>
             <div className="space-y-2">
               {expiredRewards.map((reward) => (
                 <div
                   key={reward.id}
-                  className="flex items-center justify-between p-3 bg-red-50 rounded border border-red-200 opacity-60"
+                  className="flex items-center justify-between rounded border border-red-200 bg-red-50 p-3 opacity-60"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-red-200 rounded">
+                    <div className="rounded bg-red-200 p-2">
                       {React.createElement(getRewardIcon(reward.rewardType), {
                         className: "w-5 h-5 text-red-600",
                       })}
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-700">{reward.description}</div>
+                      <div className="text-sm font-medium text-gray-700">
+                        {reward.description}
+                      </div>
                       <div className="text-xs text-red-600">
-                        Expired: {reward.expiresAt ? new Date(reward.expiresAt).toLocaleDateString() : "-"}
+                        Expired:{" "}
+                        {reward.expiresAt
+                          ? new Date(reward.expiresAt).toLocaleDateString()
+                          : "-"}
                       </div>
                     </div>
                   </div>
-                  <span className="text-xs text-red-600 font-medium">EXPIRED</span>
+                  <span className="text-xs font-medium text-red-600">
+                    EXPIRED
+                  </span>
                 </div>
               ))}
             </div>
@@ -243,41 +290,47 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({ customerId, customerPoi
 
       {/* Confirmation Modal */}
       {selectedReward && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
               <h3 className="text-xl font-bold text-gray-800">Use Reward</h3>
               <button
                 onClick={() => setSelectedReward(null)}
                 className="text-gray-400 hover:text-gray-600"
                 disabled={redeeming}
               >
-                <X className="w-6 h-6" />
+                <X className="h-6 w-6" />
               </button>
             </div>
 
             <div
-              className={`bg-gradient-to-r ${getRewardColor(selectedReward.rewardType)} p-6 rounded-lg mb-4 text-white`}
+              className={`bg-gradient-to-r ${getRewardColor(selectedReward.rewardType)} mb-4 rounded-lg p-6 text-white`}
             >
-              <div className="flex items-center gap-3 mb-3">
+              <div className="mb-3 flex items-center gap-3">
                 {React.createElement(getRewardIcon(selectedReward.rewardType), {
                   className: "w-10 h-10",
                 })}
                 <div>
-                  <div className="text-2xl font-bold">{formatRewardValue(selectedReward)}</div>
-                  <div className="text-sm opacity-90">{selectedReward.pointsCost} points</div>
+                  <div className="text-2xl font-bold">
+                    {formatRewardValue(selectedReward)}
+                  </div>
+                  <div className="text-sm opacity-90">
+                    {selectedReward.pointsCost} points
+                  </div>
                 </div>
               </div>
               <p className="text-sm opacity-90">{selectedReward.description}</p>
             </div>
 
             <div className="mb-6">
-              <p className="text-sm text-gray-600 mb-2">
-                Are you sure you want to use this reward? This action cannot be undone.
+              <p className="mb-2 text-sm text-gray-600">
+                Are you sure you want to use this reward? This action cannot be
+                undone.
               </p>
               {selectedReward.expiresAt && (
                 <p className="text-xs text-red-600">
-                  Expires: {new Date(selectedReward.expiresAt).toLocaleDateString()}
+                  Expires:{" "}
+                  {new Date(selectedReward.expiresAt).toLocaleDateString()}
                 </p>
               )}
             </div>
@@ -286,14 +339,14 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({ customerId, customerPoi
               <button
                 onClick={() => setSelectedReward(null)}
                 disabled={redeeming}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 disabled:opacity-50"
+                className="flex-1 rounded border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleUseReward(selectedReward)}
                 disabled={redeeming}
-                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                className="flex-1 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:opacity-50"
               >
                 {redeeming ? "Using..." : "Confirm Use"}
               </button>

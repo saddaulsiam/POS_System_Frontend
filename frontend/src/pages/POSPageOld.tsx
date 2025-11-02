@@ -24,9 +24,22 @@ import {
   receiptsAPI,
   salesAPI,
 } from "../services";
-import { CartItem, Category, CreateCustomerRequest, Customer, ParkedSale, Product, ProductVariant } from "../types";
+import {
+  CartItem,
+  Category,
+  CreateCustomerRequest,
+  Customer,
+  ParkedSale,
+  Product,
+  ProductVariant,
+} from "../types";
 import { formatCurrency } from "../utils/currencyUtils";
-import { calculateChange, calculateSubtotal, calculateTax, calculateTotal } from "../utils/posUtils";
+import {
+  calculateChange,
+  calculateSubtotal,
+  calculateTax,
+  calculateTotal,
+} from "../utils/posUtils";
 
 const POSPage: React.FC = () => {
   const { user, logout } = useAuth();
@@ -62,7 +75,8 @@ const POSPage: React.FC = () => {
 
   // Variant selection state
   const [showVariantSelector, setShowVariantSelector] = useState(false);
-  const [selectedProductForVariant, setSelectedProductForVariant] = useState<Product | null>(null);
+  const [selectedProductForVariant, setSelectedProductForVariant] =
+    useState<Product | null>(null);
 
   useEffect(() => {
     loadCategories();
@@ -178,7 +192,9 @@ const POSPage: React.FC = () => {
       return;
     }
 
-    const existingItem = cart.find((item) => item.product.id === product.id && !item.variant);
+    const existingItem = cart.find(
+      (item) => item.product.id === product.id && !item.variant,
+    );
 
     if (existingItem) {
       if (existingItem.quantity >= product.stockQuantity) {
@@ -194,8 +210,8 @@ const POSPage: React.FC = () => {
                 quantity: item.quantity + 1,
                 subtotal: (item.quantity + 1) * item.price,
               }
-            : item
-        )
+            : item,
+        ),
       );
     } else {
       const newItem: CartItem = {
@@ -221,7 +237,10 @@ const POSPage: React.FC = () => {
     }
 
     // Check if this specific variant is already in cart
-    const existingItem = cart.find((item) => item.product.id === parentProduct.id && item.variant?.id === variant.id);
+    const existingItem = cart.find(
+      (item) =>
+        item.product.id === parentProduct.id && item.variant?.id === variant.id,
+    );
 
     if (existingItem) {
       if (existingItem.quantity >= (variant.stockQuantity || 0)) {
@@ -231,14 +250,15 @@ const POSPage: React.FC = () => {
 
       setCart(
         cart.map((item) =>
-          item.product.id === parentProduct.id && item.variant?.id === variant.id
+          item.product.id === parentProduct.id &&
+          item.variant?.id === variant.id
             ? {
                 ...item,
                 quantity: item.quantity + 1,
                 subtotal: (item.quantity + 1) * item.price,
               }
-            : item
-        )
+            : item,
+        ),
       );
     } else {
       const newItem: CartItem = {
@@ -254,19 +274,27 @@ const POSPage: React.FC = () => {
     toast.success(`${parentProduct.name} - ${variant.name} added to cart`);
   };
 
-  const updateCartItemQuantity = (productId: number, quantity: number, variantId?: number) => {
+  const updateCartItemQuantity = (
+    productId: number,
+    quantity: number,
+    variantId?: number,
+  ) => {
     if (quantity <= 0) {
       removeFromCart(productId, variantId);
       return;
     }
 
     const item = cart.find(
-      (item) => item.product.id === productId && (variantId ? item.variant?.id === variantId : !item.variant)
+      (item) =>
+        item.product.id === productId &&
+        (variantId ? item.variant?.id === variantId : !item.variant),
     );
 
     if (!item) return;
 
-    const maxStock = item.variant ? item.variant.stockQuantity || 0 : item.product.stockQuantity;
+    const maxStock = item.variant
+      ? item.variant.stockQuantity || 0
+      : item.product.stockQuantity;
     if (quantity > maxStock) {
       toast.error("Not enough stock available");
       return;
@@ -274,22 +302,27 @@ const POSPage: React.FC = () => {
 
     setCart(
       cart.map((item) =>
-        item.product.id === productId && (variantId ? item.variant?.id === variantId : !item.variant)
+        item.product.id === productId &&
+        (variantId ? item.variant?.id === variantId : !item.variant)
           ? {
               ...item,
               quantity,
               subtotal: quantity * item.price,
             }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
   const removeFromCart = (productId: number, variantId?: number) => {
     setCart(
       cart.filter(
-        (item) => !(item.product.id === productId && (variantId ? item.variant?.id === variantId : !item.variant))
-      )
+        (item) =>
+          !(
+            item.product.id === productId &&
+            (variantId ? item.variant?.id === variantId : !item.variant)
+          ),
+      ),
     );
   };
 
@@ -455,7 +488,9 @@ const POSPage: React.FC = () => {
   const handlePointsRedeemed = (discountAmount: number, points: number) => {
     setLoyaltyDiscount(discountAmount);
     setShowRedeemPointsDialog(false);
-    toast.success(`Applied ${formatCurrency(discountAmount, settings)} loyalty discount using ${points} points!`);
+    toast.success(
+      `Applied ${formatCurrency(discountAmount, settings)} loyalty discount using ${points} points!`,
+    );
   };
 
   const handleConfirmSplitPayment = async (splits: any[]) => {
@@ -548,7 +583,9 @@ const POSPage: React.FC = () => {
           console.log("[DEBUG] Thermal receipt content", thermalContent);
           const printWindow = window.open("", "_blank", "width=400,height=600");
           if (printWindow) {
-            printWindow.document.write(`<pre style='font-size:16px; font-family:monospace;'>${thermalContent}</pre>`);
+            printWindow.document.write(
+              `<pre style='font-size:16px; font-family:monospace;'>${thermalContent}</pre>`,
+            );
             printWindow.document.close();
             setTimeout(() => {
               printWindow.print();
@@ -615,8 +652,8 @@ const POSPage: React.FC = () => {
           toast.error(
             `Insufficient cash. Need ${formatCurrency(finalTotal, settings)}, received ${formatCurrency(
               cashAmount,
-              settings
-            )}`
+              settings,
+            )}`,
           );
           setIsProcessingPayment(false);
           return;
@@ -681,11 +718,16 @@ const POSPage: React.FC = () => {
           // Replace hardcoded $ with dynamic currency symbol from settings
           const currencySymbol = settings?.currencySymbol || "$";
           // Regex: replace $ before numbers with currencySymbol
-          thermalContent = thermalContent.replace(/\$(\d+[.,]?\d*)/g, `${currencySymbol}$1`);
+          thermalContent = thermalContent.replace(
+            /\$(\d+[.,]?\d*)/g,
+            `${currencySymbol}$1`,
+          );
           console.log({ thermalContent });
           const printWindow = window.open("", "_blank", "width=400,height=600");
           if (printWindow) {
-            printWindow.document.write(`<pre style='font-size:16px; font-family:monospace;'>${thermalContent}</pre>`);
+            printWindow.document.write(
+              `<pre style='font-size:16px; font-family:monospace;'>${thermalContent}</pre>`,
+            );
             printWindow.document.close();
             setTimeout(() => {
               printWindow.print();
@@ -714,7 +756,10 @@ const POSPage: React.FC = () => {
       // Show meaningful error message
       let errorMessage = "Failed to process payment";
 
-      if (error.response?.data?.errors && error.response.data.errors.length > 0) {
+      if (
+        error.response?.data?.errors &&
+        error.response.data.errors.length > 0
+      ) {
         // Backend validation errors
         const firstError = error.response.data.errors[0];
         errorMessage = firstError.msg || errorMessage;
@@ -737,37 +782,44 @@ const POSPage: React.FC = () => {
   const tax = calculateTax(cart);
   const total = calculateTotal(cart);
   const finalTotal = total - loyaltyDiscount;
-  const changeAmount = calculateChange(parseFloat(cashReceived) || 0, finalTotal);
+  const changeAmount = calculateChange(
+    parseFloat(cashReceived) || 0,
+    finalTotal,
+  );
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="flex h-screen flex-col bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="px-4 flex items-center justify-between h-16">
+      <header className="border-b border-gray-200 bg-white shadow-sm">
+        <div className="flex h-16 items-center justify-between px-4">
           {/* Left: Store Logo and Name */}
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
               <span className="text-2xl">🛒</span>
             </div>
-            <span className="text-xl font-bold text-gray-900 tracking-tight">
+            <span className="text-xl font-bold tracking-tight text-gray-900">
               {settings?.storeName || "POS System"}
             </span>
-            <span className="ml-2 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">{user?.role}</span>
+            <span className="ml-2 rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+              {user?.role}
+            </span>
           </div>
           {/* Right: User Info and Actions */}
           <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-700 hidden sm:inline">Welcome, {user?.name}</span>
+            <span className="hidden text-sm text-gray-700 sm:inline">
+              Welcome, {user?.name}
+            </span>
             {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
               <Link
                 to="/admin"
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium px-3 py-1 rounded transition-colors"
+                className="rounded px-3 py-1 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800"
               >
                 Admin Panel
               </Link>
             )}
             <button
               onClick={logout}
-              className="text-sm text-red-600 hover:text-white hover:bg-red-600 font-medium px-3 py-1 rounded transition-colors border border-red-200"
+              className="rounded border border-red-200 px-3 py-1 text-sm font-medium text-red-600 transition-colors hover:bg-red-600 hover:text-white"
             >
               Logout
             </button>
@@ -775,9 +827,9 @@ const POSPage: React.FC = () => {
         </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         {/* Left Panel - Product Scanning & Categories */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden">
           {/* Barcode Scanner - conditionally shown */}
           {settings?.enableBarcodeScanner && (
             <POSBarcodeScanner
@@ -806,7 +858,7 @@ const POSPage: React.FC = () => {
         </div>
 
         {/* Right Panel - Shopping Cart */}
-        <div className="w-96 bg-white border-l border-gray-200 flex flex-col">
+        <div className="flex w-96 flex-col border-l border-gray-200 bg-white">
           {/* Customer Info - conditionally shown */}
           {settings?.enableCustomerSearch && (
             <POSCustomerSearch

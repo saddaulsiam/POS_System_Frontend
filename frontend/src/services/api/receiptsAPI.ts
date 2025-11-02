@@ -1,7 +1,10 @@
 import api from "../api";
 
 export const receiptsAPI = {
-  generate: async (saleId: number, format: "PDF" | "HTML" | "THERMAL" = "PDF"): Promise<Blob> => {
+  generate: async (
+    saleId: number,
+    format: "PDF" | "HTML" | "THERMAL" = "PDF",
+  ): Promise<Blob> => {
     const response = await api.get(`/receipts/${saleId}/generate`, {
       params: { format },
       responseType: format === "HTML" ? "text" : "blob",
@@ -18,7 +21,12 @@ export const receiptsAPI = {
     });
     return response.data;
   },
-  send: async (data: { saleId: number; customerEmail: string; customerName?: string; includePDF?: boolean }) => {
+  send: async (data: {
+    saleId: number;
+    customerEmail: string;
+    customerName?: string;
+    includePDF?: boolean;
+  }) => {
     const response = await api.post("/receipts/send-email", data);
     return response.data;
   },
@@ -29,7 +37,11 @@ export const receiptsAPI = {
     });
     return response.data;
   },
-  bulkSend: async (data: { saleIds: number[]; customerEmail: string; customerName?: string }) => {
+  bulkSend: async (data: {
+    saleIds: number[];
+    customerEmail: string;
+    customerName?: string;
+  }) => {
     const response = await api.post("/receipts/bulk-send", data);
     return response.data;
   },

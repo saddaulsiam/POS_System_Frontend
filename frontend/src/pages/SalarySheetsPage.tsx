@@ -6,7 +6,10 @@ import SalarySheetForm from "../components/salarySheet/SalarySheetForm";
 import SalarySheetsTable from "../components/salarySheet/SalarySheetsTable";
 import { useSalarySheets } from "../hooks/useSalarySheets";
 import { salarySheetsAPI } from "../services/api/salarySheetsAPI";
-import { generateAllSalarySlipsHTML, generateSalarySlipHTML } from "../utils/SalarySlipGenerator";
+import {
+  generateAllSalarySlipsHTML,
+  generateSalarySlipHTML,
+} from "../utils/SalarySlipGenerator";
 
 const months = [
   "January",
@@ -37,16 +40,28 @@ const SalarySheetsPage: React.FC = () => {
     bonus: "",
     deduction: "",
   });
-  const { salarySheets, loading, employees, empLoading, empError, fetchSalarySheets } = useSalarySheets();
+  const {
+    salarySheets,
+    loading,
+    employees,
+    empLoading,
+    empError,
+    fetchSalarySheets,
+  } = useSalarySheets();
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleFormChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     if (name === "employeeId") {
       const selectedEmp = employees.find((emp) => emp.id === Number(value));
       setForm((prev) => ({
         ...prev,
         employeeId: value,
-        baseSalary: selectedEmp && typeof selectedEmp.salary === "number" ? selectedEmp.salary.toString() : "",
+        baseSalary:
+          selectedEmp && typeof selectedEmp.salary === "number"
+            ? selectedEmp.salary.toString()
+            : "",
       }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
@@ -78,7 +93,14 @@ const SalarySheetsPage: React.FC = () => {
 
   const openCreateModal = () => {
     setEditingSheet(null);
-    setForm({ employeeId: "", month: "", year: "", baseSalary: "", bonus: "", deduction: "" });
+    setForm({
+      employeeId: "",
+      month: "",
+      year: "",
+      baseSalary: "",
+      bonus: "",
+      deduction: "",
+    });
     setShowModal(true);
   };
 
@@ -96,7 +118,8 @@ const SalarySheetsPage: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this salary sheet?")) return;
+    if (!window.confirm("Are you sure you want to delete this salary sheet?"))
+      return;
     try {
       await salarySheetsAPI.delete(id);
       fetchSalarySheets(month, year);
@@ -123,12 +146,14 @@ const SalarySheetsPage: React.FC = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Salary Sheets</h1>
-      <div className="flex gap-4 mb-4 no-print">
+      <h1 className="mb-4 text-2xl font-bold">Salary Sheets</h1>
+      <div className="no-print mb-4 flex gap-4">
         <select
-          className="border rounded px-2 py-1"
+          className="rounded border px-2 py-1"
           value={month}
-          onChange={(e) => setMonth(e.target.value ? Number(e.target.value) : "")}
+          onChange={(e) =>
+            setMonth(e.target.value ? Number(e.target.value) : "")
+          }
         >
           <option value="">All Months</option>
           {months.map((m, idx) => (
@@ -138,9 +163,11 @@ const SalarySheetsPage: React.FC = () => {
           ))}
         </select>
         <select
-          className="border rounded px-2 py-1 w-24"
+          className="w-24 rounded border px-2 py-1"
           value={year}
-          onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}
+          onChange={(e) =>
+            setYear(e.target.value ? Number(e.target.value) : "")
+          }
         >
           <option value="">All Years</option>
           {Array.from({ length: 6 }, (_, i) => {
@@ -154,47 +181,77 @@ const SalarySheetsPage: React.FC = () => {
         </select>
 
         <button
-          className="bg-green-600 text-white px-4 py-1 rounded flex items-center"
+          className="flex items-center rounded bg-green-600 px-4 py-1 text-white"
           onClick={openCreateModal}
           type="button"
         >
-          <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          <svg
+            className="mr-1 h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4v16m8-8H4"
+            />
           </svg>
           Add Salary Sheet
         </button>
         <button
-          className="flex items-center bg-orange-600 text-white px-4 py-1 rounded"
+          className="flex items-center rounded bg-orange-600 px-4 py-1 text-white"
           type="button"
           onClick={async () => {
             if (!month || !year) {
-              toast.error("Select month and year to generate and print salary sheets.");
+              toast.error(
+                "Select month and year to generate and print salary sheets.",
+              );
               return;
             }
             try {
-              await salarySheetsAPI.bulkGenerate({ month: Number(month), year: Number(year) });
+              await salarySheetsAPI.bulkGenerate({
+                month: Number(month),
+                year: Number(year),
+              });
               await fetchSalarySheets(month, year);
               toast.success("Salary sheets generated successfully.");
             } catch (err: any) {
               let backendMsg = undefined;
-              if (err?.response?.data?.error) backendMsg = err.response.data.error;
-              else if (err?.response?.data?.message) backendMsg = err.response.data.message;
+              if (err?.response?.data?.error)
+                backendMsg = err.response.data.error;
+              else if (err?.response?.data?.message)
+                backendMsg = err.response.data.message;
               if (backendMsg) {
                 toast.dismiss();
                 toast.error(backendMsg, { id: "salary-bulk-generate-error" });
-              } else if (err.message && !err.message.startsWith("Request failed with status code")) {
+              } else if (
+                err.message &&
+                !err.message.startsWith("Request failed with status code")
+              ) {
                 toast.error(err.message, { id: "salary-bulk-generate-error" });
               }
             }
           }}
         >
-          <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          <svg
+            className="mr-1 h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4v16m8-8H4"
+            />
           </svg>
           Generate Salary Sheets
         </button>
         <button
-          className="flex items-center bg-gray-800 text-white px-4 py-1 rounded"
+          className="flex items-center rounded bg-gray-800 px-4 py-1 text-white"
           type="button"
           onClick={() => {
             if (!salarySheets.length) {
@@ -211,7 +268,12 @@ const SalarySheetsPage: React.FC = () => {
             }
           }}
         >
-          <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            className="mr-1 h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"

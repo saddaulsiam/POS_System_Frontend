@@ -44,19 +44,32 @@ export const POSPaymentModal: React.FC<POSPaymentModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-md mx-4">
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="mx-4 w-full max-w-md rounded-lg bg-white">
+        <div className="flex items-center justify-between border-b border-gray-200 p-6">
           <h3 className="text-lg font-medium text-gray-900">Process Payment</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <button
+            onClick={onClose}
+            className="text-gray-400 transition-colors hover:text-gray-600"
+          >
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
 
-        <div className="p-6 space-y-4">
-          <div className="bg-gray-50 p-3 rounded-lg text-base">
+        <div className="space-y-4 p-6">
+          <div className="rounded-lg bg-gray-50 p-3 text-base">
             <div className="flex justify-between">
               <span>Subtotal:</span>
               <span>{formatCurrency(subtotal, settings)}</span>
@@ -76,31 +89,39 @@ export const POSPaymentModal: React.FC<POSPaymentModalProps> = ({
             {offerDiscount > 0 && (
               <div className="flex justify-between text-blue-700">
                 {/* <span>Offer Discount{offerTitle ? ` (${offerTitle})` : ""}:</span> */}
-                <span>🏷️ Special Offer Discount ({customer?.loyaltyTier}):</span>
+                <span>
+                  🏷️ Special Offer Discount ({customer?.loyaltyTier}):
+                </span>
                 <span>-{formatCurrency(offerDiscount, settings)}</span>
               </div>
             )}
-            <div className="flex justify-between font-medium text-lg border-t border-gray-200 pt-2 mt-2">
+            <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 text-lg font-medium">
               <span>Total:</span>
               <span>{formatCurrency(total, settings)}</span>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Payment Method
+            </label>
             <div className="flex space-x-2">
               <button
                 onClick={() => onPaymentMethodChange("CASH")}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium ${
-                  paymentMethod === "CASH" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${
+                  paymentMethod === "CASH"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
                 Cash
               </button>
               <button
                 onClick={() => onPaymentMethodChange("CARD")}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium ${
-                  paymentMethod === "CARD" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${
+                  paymentMethod === "CARD"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
                 Card
@@ -123,21 +144,26 @@ export const POSPaymentModal: React.FC<POSPaymentModalProps> = ({
           {cashReceived && (
             <div className="mt-2 text-sm">
               <span className="text-gray-600">Change: </span>
-              <span className="font-medium">{formatCurrency(changeAmount, settings)}</span>
+              <span className="font-medium">
+                {formatCurrency(changeAmount, settings)}
+              </span>
             </div>
           )}
 
           <div className="flex space-x-3 pt-4">
             <button
               onClick={onClose}
-              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               onClick={onConfirm}
-              disabled={isProcessing || (paymentMethod === "CASH" && parseFloat(cashReceived) < total)}
-              className="flex-1 py-2 px-4 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={
+                isProcessing ||
+                (paymentMethod === "CASH" && parseFloat(cashReceived) < total)
+              }
+              className="flex-1 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isProcessing ? "Processing..." : "Complete Sale"}
             </button>

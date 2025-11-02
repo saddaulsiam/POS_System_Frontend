@@ -12,7 +12,9 @@ interface SalarySheetFormProps {
   };
   employees: Employee[];
   months: string[];
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
   editingSheet: boolean;
@@ -30,13 +32,13 @@ const SalarySheetForm: React.FC<SalarySheetFormProps> = ({
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-1">Employee</label>
+        <label className="mb-1 block text-sm font-medium">Employee</label>
         <select
           name="employeeId"
           value={form.employeeId}
           onChange={onChange}
           required
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded border px-3 py-2"
         >
           <option value="">Select employee</option>
           {employees.map((emp) => (
@@ -48,13 +50,13 @@ const SalarySheetForm: React.FC<SalarySheetFormProps> = ({
       </div>
       <div className="flex gap-2">
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">Year</label>
+          <label className="mb-1 block text-sm font-medium">Year</label>
           <select
             name="year"
             value={form.year}
             onChange={onChange}
             required
-            className="w-full border rounded px-3 py-2"
+            className="w-full rounded border px-3 py-2"
           >
             <option value="">Select year</option>
             {Array.from({ length: 6 }, (_, i) => {
@@ -74,7 +76,8 @@ const SalarySheetForm: React.FC<SalarySheetFormProps> = ({
                 nextMonth = 1;
                 nextYear = currentYear + 1;
               }
-              const enableYear = year === currentYear || year === prevYear || year === nextYear;
+              const enableYear =
+                year === currentYear || year === prevYear || year === nextYear;
               return (
                 <option key={year} value={year} disabled={!enableYear}>
                   {year}
@@ -84,13 +87,13 @@ const SalarySheetForm: React.FC<SalarySheetFormProps> = ({
           </select>
         </div>
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">Month</label>
+          <label className="mb-1 block text-sm font-medium">Month</label>
           <select
             name="month"
             value={form.month}
             onChange={onChange}
             required
-            className="w-full border rounded px-3 py-2"
+            className="w-full rounded border px-3 py-2"
           >
             <option value="">Select month</option>
             {(() => {
@@ -113,7 +116,8 @@ const SalarySheetForm: React.FC<SalarySheetFormProps> = ({
                 const mNum = idx + 1;
                 let isDisabled = true;
                 if (
-                  (Number(form.year) === currentYear && mNum === currentMonth) ||
+                  (Number(form.year) === currentYear &&
+                    mNum === currentMonth) ||
                   (Number(form.year) === prevYear && mNum === prevMonth) ||
                   (Number(form.year) === nextYear && mNum === nextMonth)
                 ) {
@@ -131,42 +135,49 @@ const SalarySheetForm: React.FC<SalarySheetFormProps> = ({
       </div>
       <div className="flex gap-2">
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">Base Salary</label>
+          <label className="mb-1 block text-sm font-medium">Base Salary</label>
           <input
             type="number"
             name="baseSalary"
             value={form.baseSalary}
             onChange={onChange}
             required
-            className="w-full border rounded px-3 py-2"
+            className="w-full rounded border px-3 py-2"
           />
         </div>
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">Bonus</label>
+          <label className="mb-1 block text-sm font-medium">Bonus</label>
           <input
             type="number"
             name="bonus"
             value={form.bonus}
             onChange={onChange}
-            className="w-full border rounded px-3 py-2"
+            className="w-full rounded border px-3 py-2"
           />
         </div>
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">Deduction</label>
+          <label className="mb-1 block text-sm font-medium">Deduction</label>
           <input
             type="number"
             name="deduction"
             value={form.deduction}
             onChange={onChange}
-            className="w-full border rounded px-3 py-2"
+            className="w-full rounded border px-3 py-2"
           />
         </div>
       </div>
       <div className="flex justify-end gap-2">
-        <button type="button" className="bg-gray-300 text-gray-700 px-4 py-2 rounded" onClick={onCancel}>
+        <button
+          type="button"
+          className="rounded bg-gray-300 px-4 py-2 text-gray-700"
+          onClick={onCancel}
+        >
           Cancel
         </button>
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+        <button
+          type="submit"
+          className="rounded bg-blue-600 px-4 py-2 text-white"
+        >
           {editingSheet ? "Update" : "Create"}
         </button>
       </div>

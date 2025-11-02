@@ -6,9 +6,12 @@ interface CustomerSearchProps {
   onSearchChange: (value: string) => void;
 }
 
-export const CustomerSearch: React.FC<CustomerSearchProps> = ({ searchTerm, onSearchChange }) => {
+export const CustomerSearch: React.FC<CustomerSearchProps> = ({
+  searchTerm,
+  onSearchChange,
+}) => {
   return (
-    <div className="bg-white rounded-lg shadow mb-6 p-4">
+    <div className="mb-6 rounded-lg bg-white p-4 shadow">
       <SearchBar
         value={searchTerm}
         onChange={onSearchChange}

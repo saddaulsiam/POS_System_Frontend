@@ -12,19 +12,25 @@ export const DailySalesCard: React.FC<DailySalesCardProps> = ({ daily }) => {
   const { settings } = useSettings();
 
   return (
-    <div className="bg-white shadow-lg rounded-xl p-8 mb-10 border border-blue-100">
-      <div className="flex justify-between items-center mb-4">
+    <div className="mb-10 rounded-xl border border-blue-100 bg-white p-8 shadow-lg">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="text-2xl font-bold text-blue-800">
-          Today's Sales <span className="text-base text-gray-500">({daily.date})</span>
+          Today's Sales{" "}
+          <span className="text-base text-gray-500">({daily.date})</span>
         </h2>
         <div className="flex gap-2">
           <button
-            className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold"
+            className="rounded bg-blue-600 px-3 py-1 text-sm font-semibold text-white hover:bg-blue-700"
             onClick={() =>
               exportTableToPDF({
                 title: `Daily Sales - ${daily.date}`,
                 columns: ["Product", "Sold"],
-                data: daily.topProducts.slice(0, 5).map((p) => [p.product?.name || `#${p.productId}`, p._sum.quantity]),
+                data: daily.topProducts
+                  .slice(0, 5)
+                  .map((p) => [
+                    p.product?.name || `#${p.productId}`,
+                    p._sum.quantity,
+                  ]),
                 filename: `daily-sales-${daily.date}.pdf`,
               })
             }
@@ -32,11 +38,16 @@ export const DailySalesCard: React.FC<DailySalesCardProps> = ({ daily }) => {
             Download PDF
           </button>
           <button
-            className="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 text-sm font-semibold"
+            className="rounded bg-green-600 px-3 py-1 text-sm font-semibold text-white hover:bg-green-700"
             onClick={() =>
               exportTableToCSV({
                 columns: ["Product", "Sold"],
-                data: daily.topProducts.slice(0, 5).map((p) => [p.product?.name || `#${p.productId}`, p._sum.quantity]),
+                data: daily.topProducts
+                  .slice(0, 5)
+                  .map((p) => [
+                    p.product?.name || `#${p.productId}`,
+                    p._sum.quantity,
+                  ]),
                 sheetName: `Daily Sales ${daily.date}`,
               })
             }
@@ -47,25 +58,27 @@ export const DailySalesCard: React.FC<DailySalesCardProps> = ({ daily }) => {
       </div>
 
       {/* Summary Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-6">
-        <div className="bg-blue-50 rounded-lg p-4 text-center">
-          <div className="text-gray-500 text-xs">Total Sales</div>
+      <div className="mb-6 grid grid-cols-2 gap-8 md:grid-cols-4">
+        <div className="rounded-lg bg-blue-50 p-4 text-center">
+          <div className="text-xs text-gray-500">Total Sales</div>
           <div className="text-2xl font-bold text-blue-900">
             {formatCurrency(daily.summary.totalSales, settings || undefined)}
           </div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-4 text-center">
-          <div className="text-gray-500 text-xs">Transactions</div>
-          <div className="text-2xl font-bold text-blue-900">{daily.summary.totalTransactions}</div>
+        <div className="rounded-lg bg-blue-50 p-4 text-center">
+          <div className="text-xs text-gray-500">Transactions</div>
+          <div className="text-2xl font-bold text-blue-900">
+            {daily.summary.totalTransactions}
+          </div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-4 text-center">
-          <div className="text-gray-500 text-xs">Tax</div>
+        <div className="rounded-lg bg-blue-50 p-4 text-center">
+          <div className="text-xs text-gray-500">Tax</div>
           <div className="text-2xl font-bold text-blue-900">
             {formatCurrency(daily.summary.totalTax, settings || undefined)}
           </div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-4 text-center">
-          <div className="text-gray-500 text-xs">Discount</div>
+        <div className="rounded-lg bg-blue-50 p-4 text-center">
+          <div className="text-xs text-gray-500">Discount</div>
           <div className="text-2xl font-bold text-blue-900">
             {formatCurrency(daily.summary.totalDiscount, settings || undefined)}
           </div>
@@ -73,12 +86,12 @@ export const DailySalesCard: React.FC<DailySalesCardProps> = ({ daily }) => {
       </div>
 
       {/* Top Products and Payment Methods */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <div>
-          <h3 className="font-semibold mb-2 text-blue-700">Top Products</h3>
+          <h3 className="mb-2 font-semibold text-blue-700">Top Products</h3>
           <ul className="divide-y">
             {daily.topProducts.slice(0, 5).map((p) => (
-              <li key={p.productId} className="py-1 flex justify-between">
+              <li key={p.productId} className="flex justify-between py-1">
                 <span>{p.product?.name || `#${p.productId}`}</span>
                 <span className="text-gray-700">{p._sum.quantity} sold</span>
               </li>
@@ -86,12 +99,16 @@ export const DailySalesCard: React.FC<DailySalesCardProps> = ({ daily }) => {
           </ul>
         </div>
         <div>
-          <h3 className="font-semibold mb-2 text-blue-700">Sales by Payment Method</h3>
+          <h3 className="mb-2 font-semibold text-blue-700">
+            Sales by Payment Method
+          </h3>
           <ul className="divide-y">
             {daily.salesByPaymentMethod.map((pm) => (
-              <li key={pm.paymentMethod} className="py-1 flex justify-between">
+              <li key={pm.paymentMethod} className="flex justify-between py-1">
                 <span>{pm.paymentMethod}</span>
-                <span className="text-gray-700">{formatCurrency(pm._sum.finalAmount)}</span>
+                <span className="text-gray-700">
+                  {formatCurrency(pm._sum.finalAmount)}
+                </span>
               </li>
             ))}
           </ul>

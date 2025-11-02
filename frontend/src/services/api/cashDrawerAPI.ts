@@ -28,11 +28,18 @@ export const cashDrawerAPI = {
     const response = await api.post("/cash-drawer/open", data);
     return response.data;
   },
-  close: async (id: number, data: { closingBalance: number; actualCash?: number; notes?: string }) => {
+  close: async (
+    id: number,
+    data: { closingBalance: number; actualCash?: number; notes?: string },
+  ) => {
     const response = await api.post(`/cash-drawer/close/${id}`, data);
     return response.data;
   },
-  getStats: async (params?: { startDate?: string; endDate?: string; employeeId?: number }) => {
+  getStats: async (params?: {
+    startDate?: string;
+    endDate?: string;
+    employeeId?: number;
+  }) => {
     const response = await api.get("/cash-drawer/stats/summary", { params });
     return response.data;
   },
