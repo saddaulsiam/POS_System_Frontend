@@ -115,27 +115,6 @@ const AuditLogsPage: FC = () => {
             value={filters.entity}
             onChange={handleFilterChange}
           />
-          <button
-            className="btn btn-primary btn-sm flex items-center gap-1"
-            type="submit"
-          >
-            <span aria-label="search">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </span>
-            Search
-          </button>
         </form>
         <div className="overflow-x-auto rounded bg-white shadow">
           <table className="min-w-full text-sm">
