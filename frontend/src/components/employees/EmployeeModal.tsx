@@ -215,6 +215,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                   value={formData.email}
                   onChange={handleInputChange}
                   fullWidth
+                  required
                   placeholder="Email address"
                   className="bg-white"
                 />
@@ -225,6 +226,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                   value={formData.phone}
                   onChange={handleInputChange}
                   fullWidth
+                  required
                   placeholder="Phone number"
                   className="bg-white"
                 />
@@ -269,6 +271,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                     value={formData.joinedDate}
                     onChange={handleInputChange}
                     fullWidth
+                    required
                     className="bg-white"
                   />
                   <Input
@@ -280,6 +283,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                     min={0}
                     step={0.01}
                     fullWidth
+                    required
                     placeholder="Salary (optional)"
                     className="bg-white"
                   />
