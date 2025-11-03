@@ -9,6 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import router from "./routes/index.ts";
 import { startScheduler, stopScheduler } from "./scripts/scheduler.js";
+import { createDefaultEmployees, initOnStartup } from "./scripts/seedSupperEmployees.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -83,6 +84,9 @@ app.listen(PORT, async () => {
 
   // Start birthday rewards automation
   startScheduler();
+
+  // Perform any startup initialization (creates default employees, etc.)
+  await initOnStartup();
 });
 
 export default app;

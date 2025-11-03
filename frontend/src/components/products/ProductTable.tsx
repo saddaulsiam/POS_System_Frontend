@@ -104,7 +104,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     if (!imagePath) return undefined;
     if (imagePath.startsWith("http")) return imagePath;
     // Change this to your backend URL if different
-    const backendUrl = process.env.REACT_APP_BACKEND_URL;
+    const backendUrl = process.env.VITE_BACKEND_URL;
     return backendUrl + imagePath;
   };
 
