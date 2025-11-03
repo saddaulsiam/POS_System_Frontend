@@ -141,7 +141,7 @@ grocery stores, retail shops, and small businesses.
 4. **Access the application:**
    - POS Interface: http://localhost:3000
    - Admin Dashboard: http://localhost:3000/admin
-   - API Server: http://localhost:5000
+   - API Server: https://pos-system-1sd9.onrender.com
    - Database Studio: http://localhost:5555 (run `npm run db:studio`)
 
 ### Default Credentials
@@ -432,7 +432,7 @@ grocery stores, retail shops, and small businesses.
 ### Base URL
 
 ```
-http://localhost:5000/api
+https://pos-system-1sd9.onrender.com/api
 ```
 
 ### Authentication
@@ -519,7 +519,7 @@ Authorization: Bearer <your_jwt_token>
 **Login:**
 
 ```bash
-curl -X POST http://localhost:5000/api/auth/login \
+curl -X POST https://pos-system-1sd9.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","pin":"1234"}'
 ```
@@ -541,14 +541,14 @@ Response:
 **Get Products:**
 
 ```bash
-curl http://localhost:5000/api/products?page=1&limit=20 \
+curl https://pos-system-1sd9.onrender.com/api/products?page=1&limit=20 \
   -H "Authorization: Bearer <token>"
 ```
 
 **Create Sale:**
 
 ```bash
-curl -X POST http://localhost:5000/api/sales \
+curl -X POST https://pos-system-1sd9.onrender.com/api/sales \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{

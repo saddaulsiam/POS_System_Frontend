@@ -24,7 +24,7 @@ app.use(
     origin: [
       process.env.FRONTEND_URL || "http://localhost:3000",
       "http://localhost:3000",
-      "http://localhost:5000",
+      "https://pos-system-1sd9.onrender.com",
       "file://",
     ],
     credentials: true,

@@ -9,9 +9,9 @@ const isElectron =
 // Use full backend URL in Electron/production, proxy in dev
 const api = axios.create({
   baseURL: isElectron
-    ? "http://localhost:5000/api"
+    ? process.env.REACT_APP_BACKEND_URL
     : process.env.NODE_ENV === "production"
-      ? "http://localhost:5000/api"
+      ? process.env.REACT_APP_BACKEND_URL
       : "/api",
   timeout: 10000,
 });

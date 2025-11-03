@@ -60,7 +60,7 @@ Write-Host ""
 Write-Host "2. Access the application:"
 Write-Host "   - POS Interface: http://localhost:3000"
 Write-Host "   - Admin Dashboard: http://localhost:3000/admin"
-Write-Host "   - API Server: http://localhost:5000"
+Write-Host "   - API Server: https://pos-system-1sd9.onrender.com"
 Write-Host "   - Database Studio: http://localhost:5555 (run 'npm run db:studio')"
 Write-Host ""
 Write-Host "🔐 Default login credentials:" -ForegroundColor Cyan
