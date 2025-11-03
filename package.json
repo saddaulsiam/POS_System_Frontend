@@ -15,8 +15,6 @@
     "files": [
       "main.js",
       "frontend/dist/**/*",
-      "backend/**/*",
-      "node_modules/**/*",
       "package.json"
     ],
     "directories": {
