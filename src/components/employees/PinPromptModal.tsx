@@ -54,6 +54,8 @@ const PinPromptModal: React.FC<PinPromptModalProps> = ({
           pattern="[0-9]*"
           maxLength={8}
           autoFocus
+          fullWidth
+          required
           helperText="PIN must be 4-8 digits"
           error={error || undefined}
         />

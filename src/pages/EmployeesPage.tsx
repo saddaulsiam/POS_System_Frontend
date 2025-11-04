@@ -150,12 +150,23 @@ const EmployeesPage: React.FC = () => {
 
   if (viewingEmployee) {
     return (
-      <EmployeeDetailsView
-        employee={viewingEmployee}
-        onBack={handleCloseDetails}
-        onEdit={handleEdit}
-        onResetPin={handleResetPin}
-      />
+      <>
+        <EmployeeDetailsView
+          employee={viewingEmployee}
+          onBack={handleCloseDetails}
+          onEdit={handleEdit}
+          onResetPin={handleResetPin}
+        />
+
+        <PinPromptModal
+          isOpen={showPinModal}
+          onClose={() => {
+            setShowPinModal(false);
+            setSelectedEmployeeForPin(null);
+          }}
+          onSubmit={handleSubmitPin}
+        />
+      </>
     );
   }
 
