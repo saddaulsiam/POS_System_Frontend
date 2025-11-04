@@ -103,9 +103,10 @@ const SalesPage: React.FC = () => {
   const loadEmployees = async () => {
     try {
       const data = await employeesAPI.getAll();
-      setEmployees(data || []);
+      setEmployees(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error loading employees:", error);
+      setEmployees([]); // Ensure it's always an array
     }
   };
 
