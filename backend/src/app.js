@@ -9,7 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import router from "./routes/index.ts";
 import { startScheduler, stopScheduler } from "./scripts/scheduler.js";
-import { createDefaultEmployees, initOnStartup } from "./scripts/seedSupperEmployees.js";
+import { initOnStartup } from "./scripts/seedDefaultEmployees.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
