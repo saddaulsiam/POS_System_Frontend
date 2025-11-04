@@ -84,7 +84,6 @@ app.listen(PORT, async () => {
 
   // Start birthday rewards automation
   startScheduler();
-
   // Perform any startup initialization (creates default employees, etc.)
   await initOnStartup();
 });

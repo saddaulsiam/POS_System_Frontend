@@ -1,12 +1,5 @@
-/**
- * seedSupperEmployees.js
- * Exposes createDefaultEmployees() which creates default admin/manager/cashiers
- * If executed directly (node seedSupperEmployees.js) it will run the function and exit.
- */
-
 import { PrismaClient } from "@prisma/client";
 import { fileURLToPath } from "url";
-import path from "path";
 import { hashPassword } from "../utils/helpers.js";
 
 const prisma = new PrismaClient();
@@ -14,7 +7,6 @@ const prisma = new PrismaClient();
 export async function createDefaultEmployees() {
   try {
     console.log("🔄 Checking/creating default employees...");
-
     const existing = await prisma.employee.count();
     if (existing > 0) {
       console.log(`ℹ️  ${existing} employee(s) already exist — skipping default employee creation.`);
