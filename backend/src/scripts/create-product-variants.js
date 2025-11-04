@@ -1,13 +1,7 @@
-/**
- * Create Test Product with Variants
- *
- * This script creates a test product with multiple variants for testing the POS variant selection feature.
- */
-
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-async function createTestProductWithVariants() {
+export async function createProductWithVariants() {
   try {
     console.log("🧪 Creating test product with variants...\n");
 
@@ -30,6 +24,7 @@ async function createTestProductWithVariants() {
     const product = await prisma.product.create({
       data: {
         name: "Premium Water Bottle",
+        image: "https://res.cloudinary.com/dtkl4ic8s/image/upload/v1762253769/pos/products/pqwcgpasm8cumjco4bhp.jpg",
         sku: "WATER-001",
         barcode: "8901234567890",
         description: "Premium filtered water in various sizes",
@@ -94,15 +89,6 @@ async function createTestProductWithVariants() {
       });
       console.log(`  ✅ ${variant.name} - ${variant.sku} (Stock: ${variant.stockQuantity})`);
     }
-
-    console.log("\n✨ Test product with variants created successfully!");
-    console.log("\n📋 Test Instructions:");
-    console.log("1. Go to POS page");
-    console.log("2. Search for 'Premium Water Bottle' or scan barcode '8901234567890'");
-    console.log("3. A modal should appear asking you to select a variant");
-    console.log("4. Choose any variant (500ml, 1L, 2L, or 5L)");
-    console.log("5. Verify the variant name appears in the cart");
-    console.log("6. Complete the sale and verify stock decreases for the specific variant");
   } catch (error) {
     console.error("❌ Error:", error);
   } finally {
@@ -110,4 +96,4 @@ async function createTestProductWithVariants() {
   }
 }
 
-createTestProductWithVariants();
+createProductWithVariants();
