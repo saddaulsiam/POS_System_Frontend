@@ -1,25 +1,12 @@
 import axios, { AxiosResponse } from "axios";
 import toast from "react-hot-toast";
 
-// Detect if running in Electron
-const isElectron =
-  typeof window !== "undefined" &&
-  typeof window.process === "object" &&
-  !!(window.process.versions && window.process.versions.electron);
+const envBackend = import.meta.env.VITE_BACKEND_URL;
 
-const envBackend =
-  (import.meta as any)?.env?.VITE_BACKEND_URL ||
-  "https://pos-system-1sd9.onrender.com/api";
+const baseURL = envBackend && envBackend !== "" ? envBackend : "/api";
 
-// Use full backend URL in Electron/production, proxy in dev
 const api = axios.create({
-  baseURL:
-    isElectron ||
-    (typeof window !== "undefined" && window.location?.protocol === "file:")
-      ? envBackend
-      : process.env.NODE_ENV === "production"
-        ? envBackend
-        : "/api",
+  baseURL,
   timeout: 10000,
 });
 
