@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { employeesAPI } from "../../services/api/employeesAPI";
 import { Employee } from "../../types";
 import { Button, Input, Modal } from "../common";
 import ImageUpload from "../common/ImageUpload";
-import { employeesAPI } from "../../services/api/employeesAPI";
 
 interface EmployeeFormData {
   name: string;
@@ -106,8 +106,17 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
+      let dataToSubmit: EmployeeFormData | Omit<EmployeeFormData, "pinCode">;
+
+      if (editingEmployee && !formData.pinCode.trim()) {
+        const { pinCode, ...dataWithoutPin } = formData;
+        dataToSubmit = dataWithoutPin;
+      } else {
+        dataToSubmit = formData;
+      }
+
       // Save employee (create or update)
-      await onSubmit(formData);
+      await onSubmit(dataToSubmit as EmployeeFormData);
       // If photo file selected, upload it
       if (photoFile && editingEmployee) {
         const res = await employeesAPI.uploadPhoto(
