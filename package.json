@@ -57,6 +57,7 @@
     "appId": "com.yourcompany.possystem",
     "files": [
       "main.js",
+      "preload.js",
       "dist/**/*",
       "node_modules/**/*"
     ],
