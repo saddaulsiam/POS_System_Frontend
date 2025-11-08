@@ -1,6 +1,6 @@
 import React from "react";
-import { Product, Category } from "../../types";
 import { useSettings } from "../../context/SettingsContext";
+import { Category, Product } from "../../types";
 import { formatCurrency } from "../../utils/currencyUtils";
 
 interface POSProductGridProps {
@@ -71,7 +71,7 @@ export const POSProductGrid: React.FC<POSProductGridProps> = ({
               ? categories.find((c) => c.id === selectedCategory)?.name
               : "All Products"}
           </h4>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {products.map((product) => (
               <button
                 key={product.id}
@@ -79,9 +79,9 @@ export const POSProductGrid: React.FC<POSProductGridProps> = ({
                 disabled={product.stockQuantity <= 0 && !product.hasVariants}
                 className="overflow-hidden rounded-xl border border-gray-200 bg-white p-0 text-left shadow transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <div className="flex h-28">
+                <div className="flex h-20 md:h-28">
                   {/* Product Image - Full Height on Left */}
-                  <div className="h-full w-28 flex-shrink-0 bg-gray-100 p-2.5">
+                  <div className="h-full w-20 flex-shrink-0 bg-gray-100 p-1.5 md:w-28 md:p-2.5">
                     {product.image ? (
                       <img
                         src={product.image}
@@ -93,14 +93,14 @@ export const POSProductGrid: React.FC<POSProductGridProps> = ({
                         }}
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-2xl text-gray-400">
+                      <div className="flex h-full w-full items-center justify-center text-xl text-gray-400 md:text-2xl">
                         📦
                       </div>
                     )}
                   </div>
 
                   {/* Product Info */}
-                  <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-3.5">
+                  <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-2.5 md:p-3.5">
                     <p
                       className="flex items-center gap-2 truncate text-sm font-medium text-gray-900"
                       title={product.name}
