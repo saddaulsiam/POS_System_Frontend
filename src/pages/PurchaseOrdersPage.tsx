@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import ReceiveItemsModal from "../components/inventory/ReceiveItemsModal";
 import EditPOModal from "../components/inventory/EditPOModal";
 import { formatCurrency } from "../utils/currencyUtils";
+import { PurchaseOrdersTableSkeleton } from "../components/common/PurchaseOrdersTableSkeleton";
 import {
   usePurchaseOrders,
   usePurchaseOrderStats,
@@ -457,9 +458,7 @@ const PurchaseOrdersPage: React.FC = () => {
       {/* Purchase Orders Table */}
       <div className="overflow-hidden rounded-lg bg-white shadow">
         {loading && purchaseOrders.length === 0 ? (
-          <div className="py-12 text-center">
-            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-          </div>
+          <PurchaseOrdersTableSkeleton />
         ) : purchaseOrders.length === 0 ? (
           <div className="py-12 text-center">
             <p className="text-lg text-gray-500">No purchase orders found</p>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Input } from "../components/common/Input";
+import { LoyaltyAdminPageSkeleton } from "../components/loyalty/LoyaltyAdminPageSkeleton";
 import {
   Gift,
   Trophy,
@@ -122,14 +123,7 @@ const LoyaltyAdminPage: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Loading loyalty data...</p>
-        </div>
-      </div>
-    );
+    return <LoyaltyAdminPageSkeleton />;
   }
 
   return (

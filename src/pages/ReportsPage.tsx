@@ -7,6 +7,7 @@ import { SalesRangeCard } from "../components/reports/SalesRangeCard";
 import { EmployeePerformanceCard } from "../components/reports/EmployeePerformanceCard";
 import { ProductPerformanceCard } from "../components/reports/ProductPerformanceCard";
 import { InventorySummaryCard } from "../components/reports/InventorySummaryCard";
+import { ReportsPageSkeleton } from "../components/reports/ReportsPageSkeleton";
 import {
   useDailySalesReport,
   useSalesRangeReport,
@@ -84,9 +85,7 @@ const ReportsPage: React.FC = () => {
 
         {/* Loading State */}
         {isLoading ? (
-          <div className="flex min-h-40 items-center justify-center">
-            <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-          </div>
+          <ReportsPageSkeleton />
         ) : (
           <>
             {/* Daily Sales Summary */}

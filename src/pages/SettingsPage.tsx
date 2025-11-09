@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { BackButton } from "../components/common";
+import { SettingsPageSkeleton } from "../components/settings/SettingsPageSkeleton";
 import AlertsTab from "../components/settings/AlertsTab";
 import FeaturesTab from "../components/settings/FeaturesTab";
 import FinanceTab from "../components/settings/FinanceTab";
@@ -193,11 +194,7 @@ const SettingsPage: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <SettingsPageSkeleton />;
   }
 
   if (!settings) {

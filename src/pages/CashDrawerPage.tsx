@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { RefreshButton } from "../components/common/RefreshButton";
 import { useAuth } from "../context/AuthContext";
+import { CashDrawerTableSkeleton } from "../components/common/CashDrawerTableSkeleton";
 import {
   useCurrentCashDrawer,
   useCashDrawers,
@@ -469,9 +470,7 @@ const CashDrawerPage: React.FC = () => {
           </div>
 
           {loading && drawerHistory.length === 0 ? (
-            <div className="py-8 text-center">
-              <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-            </div>
+            <CashDrawerTableSkeleton />
           ) : drawerHistory.length === 0 ? (
             <div className="py-8 text-center text-gray-500">
               No drawer history found

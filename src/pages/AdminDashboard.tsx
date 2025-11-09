@@ -9,6 +9,7 @@ import { AlertsSection } from "../components/dashboard/AlertsSection";
 import { useSettings } from "../context/SettingsContext";
 import { formatCurrency } from "../utils/currencyUtils";
 import { useDashboardStats } from "../services/queries/dashboardQueries";
+import { AdminDashboardSkeleton } from "../components/dashboard/AdminDashboardSkeleton";
 
 const quickActions = [
   {
@@ -171,10 +172,7 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {isLoading ? (
-          <div className="flex min-h-96 flex-col items-center justify-center">
-            <div className="mb-4 h-16 w-16 animate-spin rounded-full border-b-4 border-blue-600"></div>
-            <p className="text-lg text-gray-600">Loading dashboard data...</p>
-          </div>
+          <AdminDashboardSkeleton />
         ) : (
           <div className="space-y-8">
             {/* Key Metrics */}
