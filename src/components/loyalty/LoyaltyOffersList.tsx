@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Tag, Calendar, TrendingUp, X } from "lucide-react";
-import { useLoyaltyOffers } from "../../services/queries/loyaltyQueries";
+import { useLoyaltyOffers } from "../../services/queries";
 import type { LoyaltyTier } from "../../types";
 import { useSettings } from "../../context/SettingsContext";
 import { formatCurrency } from "../../utils/currencyUtils";

@@ -1,23 +1,23 @@
 import React, { useState } from "react";
-import { Sale } from "../types";
 import toast from "react-hot-toast";
-import { useAuth } from "../context/AuthContext";
-import { useSettings } from "../context/SettingsContext";
+import { Pagination } from "../components/sales/Pagination";
+import { SaleDetailsModal } from "../components/sales/SaleDetailsModal";
 import { SalesFilters } from "../components/sales/SalesFilters";
 import { SalesTable } from "../components/sales/SalesTable";
-import { SaleDetailsModal } from "../components/sales/SaleDetailsModal";
 import { VoidSaleModal } from "../components/sales/VoidSaleModal";
-import { Pagination } from "../components/sales/Pagination";
-import { getCustomerName, getEmployeeName } from "../utils/salesUtils";
+import { useAuth } from "../context/AuthContext";
+import { useSettings } from "../context/SettingsContext";
 import {
-  useSales,
+  useCustomers,
+  useEmployees,
+  useRefundSale,
   useSale,
   useSaleByReceiptId,
-  useRefundSale,
+  useSales,
   useVoidSale,
-} from "../services/queries/salesQueries";
-import { useCustomers } from "../services/queries/customersQueries";
-import { useEmployees } from "../services/queries/employeesQueries";
+} from "../services/queries";
+import { Sale } from "../types";
+import { getCustomerName, getEmployeeName } from "../utils/salesUtils";
 
 const SalesPage: React.FC = () => {
   const { user } = useAuth();

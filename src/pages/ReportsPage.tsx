@@ -14,7 +14,7 @@ import {
   useEmployeePerformanceReport,
   useProductPerformanceReport,
   useInventoryReport,
-} from "../services/queries/reportsQueries";
+} from "../services/queries";
 
 const ReportsPage: React.FC = () => {
   const [range, setRange] = useState<{ start: string; end: string }>({

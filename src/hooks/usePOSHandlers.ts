@@ -2,10 +2,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import { productsAPI, productVariantsAPI } from "../services";
-import { useCreateCustomer } from "../services/queries/customersQueries";
-import { useCreateParkedSale } from "../services/queries/parkedSalesQueries";
-import { useLookupVariant } from "../services/queries/productVariantsQueries";
-import { useCreateSale } from "../services/queries/salesQueries";
+import {
+  useCreateCustomer,
+  useCreateParkedSale,
+  useCreateSale,
+  useLookupVariant,
+} from "../services/queries";
 import type { CartItem, ParkedSale, Product } from "../types";
 import { formatCurrency } from "../utils/currencyUtils";
 

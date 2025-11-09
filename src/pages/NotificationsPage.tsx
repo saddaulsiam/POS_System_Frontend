@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "../components/common";
 import { NotificationsPageSkeleton } from "../components/common/NotificationsPageSkeleton";
-import {
-  useNotifications,
-  useMarkAsRead,
-} from "../services/queries/notificationsQueries";
+import { useMarkAsRead, useNotifications } from "../services/queries";
 
 const NotificationsPage: React.FC = () => {
   const [page, setPage] = useState(1);

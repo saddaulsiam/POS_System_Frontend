@@ -1,22 +1,22 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import { Input } from "../components/common/Input";
+import { PurchaseOrdersTableSkeleton } from "../components/common/PurchaseOrdersTableSkeleton";
+import EditPOModal from "../components/inventory/EditPOModal";
+import ReceiveItemsModal from "../components/inventory/ReceiveItemsModal";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
-import toast from "react-hot-toast";
-import ReceiveItemsModal from "../components/inventory/ReceiveItemsModal";
-import EditPOModal from "../components/inventory/EditPOModal";
-import { formatCurrency } from "../utils/currencyUtils";
-import { PurchaseOrdersTableSkeleton } from "../components/common/PurchaseOrdersTableSkeleton";
 import {
+  useCancelPurchaseOrder,
+  useCreatePurchaseOrder,
+  useProducts,
   usePurchaseOrders,
   usePurchaseOrderStats,
-  useCreatePurchaseOrder,
-  useUpdatePurchaseOrder,
   useReceivePurchaseOrder,
-  useCancelPurchaseOrder,
-} from "../services/queries/inventoryQueries";
-import { useSuppliers } from "../services/queries/commonQueries";
-import { useProducts } from "../services/queries/productsQueries";
+  useSuppliers,
+  useUpdatePurchaseOrder,
+} from "../services/queries";
+import { formatCurrency } from "../utils/currencyUtils";
 
 interface PurchaseOrder {
   id: number;

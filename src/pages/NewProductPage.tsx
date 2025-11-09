@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { Input } from "../components/common/Input";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/common";
-import { useCategories, useSuppliers } from "../services/queries/commonQueries";
+import { Input } from "../components/common/Input";
 import {
+  useCategories,
   useCreateProduct,
   useProductImageUpload,
-} from "../services/queries/productsQueries";
+  useSuppliers,
+} from "../services/queries";
 
 const NewProductPage: React.FC = () => {
   const navigate = useNavigate();

@@ -24,8 +24,7 @@ import {
   usePOSPayment,
 } from "../hooks";
 import { loyaltyAPI, receiptsAPI, salesAPI } from "../services";
-import { useCategories } from "../services/queries/commonQueries";
-import { useProducts } from "../services/queries/productsQueries";
+import { useCategories, useProducts } from "../services/queries";
 import { Product } from "../types";
 import { formatCurrency } from "../utils/currencyUtils";
 import {

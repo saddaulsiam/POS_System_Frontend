@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { Gift, Star, ShoppingBag, Sparkles, X } from "lucide-react";
-import {
-  useCustomerRewards,
-  useReward,
-} from "../../services/queries/loyaltyQueries";
+import { useCustomerRewards, useReward } from "../../services/queries";
 import toast from "react-hot-toast";
 import type { LoyaltyReward } from "../../types";
 import { useSettings } from "../../context/SettingsContext";

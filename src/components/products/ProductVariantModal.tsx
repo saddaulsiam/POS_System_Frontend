@@ -4,7 +4,7 @@ import { ProductVariant, Product } from "../../types";
 import {
   useCreateProductVariant,
   useUpdateProductVariant,
-} from "../../services/queries/productVariantsQueries";
+} from "../../services/queries";
 import { Button } from "../common";
 
 interface ProductVariantModalProps {

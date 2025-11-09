@@ -21,7 +21,7 @@ import {
   useUpdateOffer,
   useDeleteOffer,
   useUpdateTierConfig,
-} from "../services/queries/loyaltyQueries";
+} from "../services/queries";
 
 interface TierConfig {
   id?: number;

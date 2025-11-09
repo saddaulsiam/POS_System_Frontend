@@ -1,21 +1,21 @@
 import React, { useState } from "react";
-import {
-  Supplier,
-  CreateSupplierRequest,
-  UpdateSupplierRequest,
-} from "../types";
 import toast from "react-hot-toast";
+import { Button } from "../components/common";
+import { Pagination } from "../components/sales/Pagination";
+import { SupplierModal } from "../components/suppliers/SupplierModal";
 import { SupplierSearch } from "../components/suppliers/SupplierSearch";
 import { SuppliersTable } from "../components/suppliers/SuppliersTable";
-import { SupplierModal } from "../components/suppliers/SupplierModal";
-import { Pagination } from "../components/sales/Pagination";
-import { Button } from "../components/common";
 import {
-  useSuppliers,
   useCreateSupplier,
-  useUpdateSupplier,
   useDeleteSupplier,
-} from "../services/queries/commonQueries";
+  useSuppliers,
+  useUpdateSupplier,
+} from "../services/queries";
+import {
+  CreateSupplierRequest,
+  Supplier,
+  UpdateSupplierRequest,
+} from "../types";
 
 interface SupplierFormData {
   name: string;

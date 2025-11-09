@@ -15,7 +15,7 @@ import {
   useUpdateEmployee,
   useDeleteEmployee,
   useUpdateEmployeePin,
-} from "../services/queries/employeesQueries";
+} from "../services/queries";
 
 interface EmployeeFormData {
   name: string;

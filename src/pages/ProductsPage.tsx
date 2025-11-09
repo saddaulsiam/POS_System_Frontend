@@ -9,14 +9,15 @@ import { QuickSaleManager } from "../components/products/QuickSaleManager";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
 import { productsAPI } from "../services";
-import { useCategories, useSuppliers } from "../services/queries/commonQueries";
 import {
+  useCategories,
   useCreateProduct,
   useDeleteProduct,
   useProductImageUpload,
   useProducts,
+  useSuppliers,
   useUpdateProduct,
-} from "../services/queries/productsQueries";
+} from "../services/queries";
 import { Product } from "../types";
 import { printBarcodeLabel } from "../utils/productUtils";
 

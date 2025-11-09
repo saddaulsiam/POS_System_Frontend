@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ArrowUp, ArrowDown, Calendar, Filter, Download } from "lucide-react";
-import { useCustomerTransactions } from "../../services/queries/loyaltyQueries";
+import { useCustomerTransactions } from "../../services/queries";
 import type { PointsTransaction, PointsTransactionType } from "../../types";
 
 interface PointsHistoryTableProps {

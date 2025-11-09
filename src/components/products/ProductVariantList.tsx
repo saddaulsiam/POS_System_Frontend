@@ -4,7 +4,7 @@ import { ProductVariant, Product } from "../../types";
 import {
   useProductVariants,
   useDeleteProductVariant,
-} from "../../services/queries/productVariantsQueries";
+} from "../../services/queries";
 import { Button } from "../common";
 import { ProductVariantModal } from "./ProductVariantModal";
 import { useSettings } from "../../context/SettingsContext";

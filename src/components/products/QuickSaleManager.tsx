@@ -6,7 +6,7 @@ import {
   useCreateQuickSaleItem,
   useUpdateQuickSaleItem,
   useDeleteQuickSaleItem,
-} from "../../services/queries/quickSaleQueries";
+} from "../../services/queries";
 import { Button } from "../common";
 
 const COLOR_OPTIONS = [

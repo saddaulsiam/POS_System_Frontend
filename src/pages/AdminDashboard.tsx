@@ -8,7 +8,7 @@ import { QuickActionsGrid } from "../components/dashboard/QuickActionsGrid";
 import { AlertsSection } from "../components/dashboard/AlertsSection";
 import { useSettings } from "../context/SettingsContext";
 import { formatCurrency } from "../utils/currencyUtils";
-import { useDashboardStats } from "../services/queries/dashboardQueries";
+import { useDashboardStats } from "../services/queries";
 import { AdminDashboardSkeleton } from "../components/dashboard/AdminDashboardSkeleton";
 
 const quickActions = [

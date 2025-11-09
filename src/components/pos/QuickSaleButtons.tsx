@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useSettings } from "../../context/SettingsContext";
-import { useQuickSaleItems } from "../../services/queries/quickSaleQueries";
+import { useQuickSaleItems } from "../../services/queries";
 import { Product, QuickSaleItem } from "../../types";
 import { formatCurrency } from "../../utils/currencyUtils";
 import { Button } from "../common";

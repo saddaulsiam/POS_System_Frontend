@@ -4,10 +4,7 @@ import { useSettings } from "../../context/SettingsContext";
 import { ParkedSale } from "../../types";
 import { formatCurrency } from "../../utils/currencyUtils";
 import { Button } from "../common";
-import {
-  useParkedSales,
-  useDeleteParkedSale,
-} from "../../services/queries/parkedSalesQueries";
+import { useParkedSales, useDeleteParkedSale } from "../../services/queries";
 
 interface ParkedSalesListProps {
   isOpen: boolean;

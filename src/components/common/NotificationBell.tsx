@@ -1,9 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  useNotifications,
-  useMarkAsRead,
-} from "../../services/queries/notificationsQueries";
+import { useNotifications, useMarkAsRead } from "../../services/queries";
 
 const NotificationBell: React.FC = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);

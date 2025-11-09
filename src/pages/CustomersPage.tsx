@@ -21,7 +21,7 @@ import {
   useCreateCustomer,
   useUpdateCustomer,
   useDeleteCustomer,
-} from "../services/queries/customersQueries";
+} from "../services/queries";
 
 interface CustomerFormData {
   name: string;

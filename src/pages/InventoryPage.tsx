@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import { Product } from "../types";
 import toast from "react-hot-toast";
 import { InventorySearch } from "../components/inventory/InventorySearch";
 import { InventoryTable } from "../components/inventory/InventoryTable";
 import { StockAdjustModal } from "../components/inventory/StockAdjustModal";
 import { StockHistoryModal } from "../components/inventory/StockHistoryModal";
-import { useInventoryReport } from "../services/queries/reportsQueries";
 import {
+  useInventoryReport,
   useStockMovements,
   useUpdateStock,
-} from "../services/queries/inventoryQueries";
+} from "../services/queries";
+import { Product } from "../types";
 
 type AllowedMovementType =
   | "PURCHASE"

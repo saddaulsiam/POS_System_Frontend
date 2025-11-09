@@ -1,6 +1,6 @@
 import React from "react";
 import { Trophy, Award, Star, Zap, TrendingUp } from "lucide-react";
-import { useTierConfig } from "../../services/queries/loyaltyQueries";
+import { useTierConfig } from "../../services/queries";
 import type { LoyaltyTier } from "../../types";
 
 interface LoyaltyTierConfig {

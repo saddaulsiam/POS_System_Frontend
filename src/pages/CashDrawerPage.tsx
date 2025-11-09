@@ -8,7 +8,7 @@ import {
   useCashDrawerReconciliation,
   useOpenCashDrawer,
   useCloseCashDrawer,
-} from "../services/queries/cashDrawerQueries";
+} from "../services/queries";
 
 const CashDrawerPage: React.FC = () => {
   const { user } = useAuth();

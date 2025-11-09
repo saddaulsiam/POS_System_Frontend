@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Product, ProductVariant } from "../../types";
-import { useProductVariants } from "../../services/queries/productVariantsQueries";
+import { useProductVariants } from "../../services/queries";
 import { useSettings } from "../../context/SettingsContext";
 import { formatCurrency } from "../../utils/currencyUtils";
 import { Modal } from "../common";

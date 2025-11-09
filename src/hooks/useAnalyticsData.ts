@@ -4,7 +4,7 @@ import {
   useSalesTrend,
   useTopProducts,
   useCategoryBreakdown,
-} from "../services/queries/analyticsQueries";
+} from "../services/queries";
 import type { Period } from "../types/analyticsTypes";
 
 export function useAnalyticsData() {

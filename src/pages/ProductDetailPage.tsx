@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { BackButton } from "../components/common";
 import { ProductVariantList } from "../components/products";
 import { useSettings } from "../context/SettingsContext";
-import { useProduct } from "../services/queries/productsQueries";
+import { useProduct } from "../services/queries";
 import { formatCurrency } from "../utils/currencyUtils";
 
 const ProductDetailPage: React.FC = () => {

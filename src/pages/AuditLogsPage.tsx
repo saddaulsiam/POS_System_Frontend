@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import { Modal } from "../components/common/Modal";
-import { useAuditLogs } from "../services/queries/auditLogsQueries";
+import { useAuditLogs } from "../services/queries";
 import { AuditLogsTableSkeleton } from "../components/common/AuditLogsTableSkeleton";
 
 interface AuditLog {

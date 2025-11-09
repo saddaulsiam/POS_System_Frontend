@@ -1,21 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { BackButton } from "../components/common";
-import { SettingsPageSkeleton } from "../components/settings/SettingsPageSkeleton";
-import AlertsTab from "../components/settings/AlertsTab";
-import FeaturesTab from "../components/settings/FeaturesTab";
-import FinanceTab from "../components/settings/FinanceTab";
-import ProfileTab from "../components/settings/ProfileTab";
-import ReceiptTab from "../components/settings/ReceiptTab";
-import SettingsTabs from "../components/settings/SettingsTabs";
-import SystemSettingsTab from "../components/settings/SystemTab";
+import {
+  AlertsTab,
+  FeaturesTab,
+  FinanceTab,
+  ProfileTab,
+  ReceiptTab,
+  SettingsPageSkeleton,
+  SettingsTabs,
+  SystemSettingsTab,
+} from "../components/settings";
 import { useAuth } from "../context/AuthContext";
-import { authAPI, posSettingsAPI } from "../services";
+import { authAPI } from "../services";
+import { usePOSSettings, useUpdatePOSSettings } from "../services/queries";
 import type { POSSettings } from "../types/POSSettings";
 
 const SettingsPage: React.FC = () => {
-  const [settings, setSettings] = useState<POSSettings | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Use React Query for settings
+  const { data: settings, isLoading, error, refetch } = usePOSSettings();
+  const updateSettingsMutation = useUpdatePOSSettings();
+
   const [saving, setSaving] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
@@ -52,7 +57,7 @@ const SettingsPage: React.FC = () => {
     setPinMsg("");
     try {
       await authAPI.changePin({ currentPin, newPin });
-      setPinMsg(""); // Clear error message
+      setPinMsg("");
       setCurrentPin("");
       setNewPin("");
       toast.success("PIN changed successfully.");
@@ -63,30 +68,12 @@ const SettingsPage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
-    try {
-      setLoading(true);
-      const data = await posSettingsAPI.get();
-      setSettings(data);
-    } catch (error) {
-      console.error("Error loading settings:", error);
-      toast.error("Failed to load settings");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleToggle = async (field: keyof POSSettings, value: boolean) => {
     if (!settings) return;
 
     try {
       setSaving(true);
-      const updatedSettings = await posSettingsAPI.update({ [field]: value });
-      setSettings(updatedSettings);
+      await updateSettingsMutation.mutateAsync({ [field]: value });
       toast.success("Settings updated successfully");
     } catch (error) {
       console.error("Error updating settings:", error);
@@ -106,10 +93,9 @@ const SettingsPage: React.FC = () => {
 
     try {
       setSaving(true);
-      const updatedSettings = await posSettingsAPI.update({
+      await updateSettingsMutation.mutateAsync({
         [field]: value || undefined,
       });
-      setSettings(updatedSettings);
       toast.success("Settings updated successfully");
     } catch (error) {
       console.error("Error updating settings:", error);
@@ -141,8 +127,7 @@ const SettingsPage: React.FC = () => {
 
     try {
       setSaving(true);
-      const updatedSettings = await posSettingsAPI.update({ [field]: value });
-      setSettings(updatedSettings);
+      await updateSettingsMutation.mutateAsync({ [field]: value });
       toast.success("Settings updated successfully");
     } catch (error) {
       console.error("Error updating settings:", error);
@@ -160,8 +145,7 @@ const SettingsPage: React.FC = () => {
 
     try {
       setSaving(true);
-      const updatedSettings = await posSettingsAPI.update({ [field]: value });
-      setSettings(updatedSettings);
+      await updateSettingsMutation.mutateAsync({ [field]: value });
       toast.success("Settings updated successfully");
     } catch (error) {
       console.error("Error updating settings:", error);
@@ -193,17 +177,17 @@ const SettingsPage: React.FC = () => {
     handleSelectChange(field as keyof POSSettings, value);
   };
 
-  if (loading) {
+  if (isLoading) {
     return <SettingsPageSkeleton />;
   }
 
-  if (!settings) {
+  if (!settings || error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-gray-600">Failed to load settings</p>
           <button
-            onClick={loadSettings}
+            onClick={() => refetch()}
             className="mt-4 text-blue-600 hover:text-blue-800"
           >
             Retry

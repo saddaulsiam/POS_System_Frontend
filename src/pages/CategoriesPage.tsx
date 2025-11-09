@@ -11,7 +11,7 @@ import {
   useCreateCategory,
   useDeleteCategory,
   useUpdateCategory,
-} from "../services/queries/commonQueries";
+} from "../services/queries";
 import { Category } from "../types";
 
 const CategoriesPage: FC = () => {

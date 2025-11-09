@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   useSalarySheets as useSalarySheetsQuery,
   useEmployeesForSalary,
-} from "../services/queries/salaryQueries";
+} from "../services/queries";
 import { SalarySheet } from "../services/api/salarySheetsAPI";
 
 export function useSalarySheets() {
