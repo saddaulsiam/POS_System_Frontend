@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ArrowUp, ArrowDown, Calendar, Filter, Download } from "lucide-react";
-import { loyaltyAPI } from "../../services";
+import { useCustomerTransactions } from "../../services/queries/loyaltyQueries";
 import type { PointsTransaction, PointsTransactionType } from "../../types";
 
 interface PointsHistoryTableProps {
@@ -13,31 +13,10 @@ type TypeFilter = "all" | PointsTransactionType;
 const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({
   customerId,
 }) => {
-  const [transactions, setTransactions] = useState<PointsTransaction[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: transactions = [], isLoading: loading } =
+    useCustomerTransactions(customerId);
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
-
-  useEffect(() => {
-    fetchTransactions();
-  }, [customerId]);
-
-  const fetchTransactions = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await loyaltyAPI.getTransactions(customerId);
-      console.log("Points History - Raw Data:", data);
-      console.log("Points History - Transaction Count:", data?.length || 0);
-      setTransactions(data || []);
-    } catch (err: any) {
-      setError(err.message || "Failed to load transaction history");
-      console.error("Error fetching transactions:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filteredTransactions = React.useMemo(() => {
     let filtered = [...transactions];
@@ -162,14 +141,17 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({
   };
 
   // Calculate summary statistics
-  const totalPoints = transactions.reduce((sum, t) => sum + t.points, 0);
+  const totalPoints = transactions.reduce(
+    (sum: number, t: PointsTransaction) => sum + t.points,
+    0,
+  );
   const earnedPoints = transactions
-    .filter((t) => t.points > 0)
-    .reduce((sum, t) => sum + t.points, 0);
+    .filter((t: PointsTransaction) => t.points > 0)
+    .reduce((sum: number, t: PointsTransaction) => sum + t.points, 0);
   const redeemedPoints = Math.abs(
     transactions
-      .filter((t) => t.points < 0)
-      .reduce((sum, t) => sum + t.points, 0),
+      .filter((t: PointsTransaction) => t.points < 0)
+      .reduce((sum: number, t: PointsTransaction) => sum + t.points, 0),
   );
 
   console.log("Points History - Summary Stats:", {
@@ -185,22 +167,6 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({
       <div className="rounded-lg bg-white p-6 shadow">
         <div className="flex h-64 items-center justify-center">
           <div className="text-gray-500">Loading transaction history...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-lg bg-white p-6 shadow">
-        <div className="flex h-64 flex-col items-center justify-center text-red-500">
-          <p className="mb-4">{error}</p>
-          <button
-            onClick={fetchTransactions}
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          >
-            Retry
-          </button>
         </div>
       </div>
     );

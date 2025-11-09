@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { reportsAPI, inventoryAPI } from "../services";
-import { Product, InventoryReport, StockMovement } from "../types";
+import React, { useState } from "react";
+import { Product } from "../types";
 import toast from "react-hot-toast";
 import { InventorySearch } from "../components/inventory/InventorySearch";
 import { InventoryTable } from "../components/inventory/InventoryTable";
 import { StockAdjustModal } from "../components/inventory/StockAdjustModal";
 import { StockHistoryModal } from "../components/inventory/StockHistoryModal";
+import { useInventoryReport } from "../services/queries/reportsQueries";
+import {
+  useStockMovements,
+  useUpdateStock,
+} from "../services/queries/inventoryQueries";
 
 type AllowedMovementType =
   | "PURCHASE"
@@ -15,29 +19,18 @@ type AllowedMovementType =
   | "EXPIRED";
 
 const InventoryPage: React.FC = () => {
-  const [report, setReport] = useState<InventoryReport | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showAdjustModal, setShowAdjustModal] = useState(false);
-  const [history, setHistory] = useState<StockMovement[]>([]);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    loadInventory();
-  }, []);
-
-  const loadInventory = async () => {
-    setIsLoading(true);
-    try {
-      const data = await reportsAPI.getInventory();
-      setReport(data);
-    } catch (e) {
-      toast.error("Failed to load inventory");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // React Query hooks
+  const { data: report, isLoading } = useInventoryReport();
+  const { data: stockMovementsData } = useStockMovements(selectedProduct?.id, {
+    limit: 20,
+  });
+  const history = stockMovementsData?.movements || [];
+  const updateStock = useUpdateStock();
 
   const handleAdjustStock = (product: Product) => {
     setSelectedProduct(product);
@@ -67,30 +60,20 @@ const InventoryPage: React.FC = () => {
     // ADJUSTMENT: use as entered (positive or negative)
 
     try {
-      await inventoryAPI.updateStock(selectedProduct.id, {
-        quantity,
-        movementType,
-        reason,
+      await updateStock.mutateAsync({
+        productId: selectedProduct.id,
+        data: { quantity, movementType, reason },
       });
       toast.success("Stock adjusted successfully");
       setShowAdjustModal(false);
-      loadInventory();
     } catch (e) {
       toast.error("Failed to adjust stock");
     }
   };
 
-  const handleViewHistory = async (product: Product) => {
+  const handleViewHistory = (product: Product) => {
     setSelectedProduct(product);
     setShowHistoryModal(true);
-    try {
-      const res = await inventoryAPI.getStockMovements(product.id, {
-        limit: 20,
-      });
-      setHistory(res.movements || []);
-    } catch (e) {
-      toast.error("Failed to load stock history");
-    }
   };
 
   const filteredProducts =
@@ -108,7 +91,7 @@ const InventoryPage: React.FC = () => {
         <InventorySearch
           search={search}
           onSearchChange={setSearch}
-          report={report}
+          report={report || null}
         />
 
         <div className="overflow-x-auto rounded-lg bg-white p-6 shadow">

@@ -1,6 +1,7 @@
 import React from "react";
 import { Product } from "../../types";
 import { Button, Badge } from "../common";
+import { InventoryTableSkeleton } from "./InventoryTableSkeleton";
 
 interface InventoryTableProps {
   products: Product[];
@@ -16,11 +17,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
   onViewHistory,
 }) => {
   if (isLoading) {
-    return (
-      <div className="flex min-h-40 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <InventoryTableSkeleton />;
   }
 
   if (products.length === 0) {

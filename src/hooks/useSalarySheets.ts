@@ -1,50 +1,47 @@
-import { useState, useEffect, useCallback } from "react";
-import { employeesAPI } from "../services/api/employeesAPI";
-import { salarySheetsAPI, SalarySheet } from "../services/api/salarySheetsAPI";
-import { Employee } from "../types/employeeTypes";
+import { useState } from "react";
+import {
+  useSalarySheets as useSalarySheetsQuery,
+  useEmployeesForSalary,
+} from "../services/queries/salaryQueries";
+import { SalarySheet } from "../services/api/salarySheetsAPI";
 
 export function useSalarySheets() {
-  const [salarySheets, setSalarySheets] = useState<SalarySheet[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [empLoading, setEmpLoading] = useState(false);
-  const [empError, setEmpError] = useState<string | null>(null);
+  // Month/year filters (UI state)
+  const [month, setMonth] = useState<number | "">("");
+  const [year, setYear] = useState<number | "">("");
 
-  const fetchEmployees = useCallback(async () => {
-    setEmpLoading(true);
-    setEmpError(null);
-    try {
-      const res = await employeesAPI.getAll({ limit: 1000 });
-      setEmployees(res.data);
-    } catch (err: any) {
-      setEmpError("Failed to load employees");
-    } finally {
-      setEmpLoading(false);
-    }
-  }, []);
+  // Fetch salary sheets with filters
+  const {
+    data: salarySheets = [],
+    isLoading: loading,
+    refetch: refetchSalarySheets,
+  } = useSalarySheetsQuery(month, year);
 
-  const fetchSalarySheets = useCallback(
-    async (month?: number | "", year?: number | "") => {
-      setLoading(true);
-      try {
-        const params: any = {};
-        if (month !== "" && month !== undefined) params.month = month;
-        if (year !== "" && year !== undefined) params.year = year;
-        if ("employeeId" in params) delete params.employeeId;
-        const res = await salarySheetsAPI.getAll(params);
-        setSalarySheets(res);
-      } catch (err: any) {
-        // error handled in page
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
+  // Fetch employees
+  const {
+    data: employees = [],
+    isLoading: empLoading,
+    error: empErrorObj,
+    refetch: fetchEmployees,
+  } = useEmployeesForSalary();
 
-  useEffect(() => {
-    fetchEmployees();
-  }, [fetchEmployees]);
+  const empError = empErrorObj ? "Failed to load employees" : null;
+
+  // For backward compatibility - allow setting sheets directly
+  const setSalarySheets = (
+    _sheets: SalarySheet[] | ((prev: SalarySheet[]) => SalarySheet[]),
+  ) => {
+    // Note: This won't actually work with React Query cache
+    // Consumers should use mutations instead
+    console.warn("setSalarySheets is deprecated - use mutations instead");
+  };
+
+  // For backward compatibility - allow manual loading state
+  const setLoading = (_value: boolean) => {
+    console.warn(
+      "setLoading is deprecated - React Query manages this automatically",
+    );
+  };
 
   return {
     salarySheets,
@@ -54,7 +51,19 @@ export function useSalarySheets() {
     employees,
     empLoading,
     empError,
-    fetchEmployees,
-    fetchSalarySheets,
+    fetchEmployees: () => fetchEmployees(),
+    fetchSalarySheets: (newMonth?: number | "", newYear?: number | "") => {
+      // Update filters if provided
+      if (newMonth !== undefined) setMonth(newMonth);
+      if (newYear !== undefined) setYear(newYear);
+      // Note: Refetch will happen automatically due to query key change
+      // But we can also trigger manual refetch
+      refetchSalarySheets();
+    },
+    // Expose filters for consumers that need them
+    month,
+    setMonth,
+    year,
+    setYear,
   };
 }

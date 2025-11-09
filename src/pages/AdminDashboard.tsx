@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import React from "react";
 import { useAuth } from "../context/AuthContext";
 import { BackButton, RefreshButton } from "../components/common";
 import { DashboardStatCard } from "../components/dashboard/DashboardStatCard";
@@ -9,7 +8,7 @@ import { QuickActionsGrid } from "../components/dashboard/QuickActionsGrid";
 import { AlertsSection } from "../components/dashboard/AlertsSection";
 import { useSettings } from "../context/SettingsContext";
 import { formatCurrency } from "../utils/currencyUtils";
-import { DashboardStats } from "../types/dashboardTypes";
+import { useDashboardStats } from "../services/queries/dashboardQueries";
 
 const quickActions = [
   {
@@ -81,7 +80,12 @@ const quickActions = [
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { settings } = useSettings();
-  const [stats, setStats] = useState<DashboardStats>({
+
+  // Fetch dashboard stats using React Query
+  const { data: stats, isLoading, refetch } = useDashboardStats();
+
+  // Use default values if data is not loaded yet
+  const dashboardData = stats || {
     todaySales: 0,
     yesterdaySales: 0,
     weekSales: 0,
@@ -99,160 +103,6 @@ const AdminDashboard: React.FC = () => {
     recentTransactions: [],
     salesByCategory: [],
     hourlySales: [],
-  });
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  const loadDashboardData = async () => {
-    setIsLoading(true);
-    try {
-      const { reportsAPI, customersAPI, analyticsAPI } = await import(
-        "../services"
-      );
-
-      // Helper to format date as YYYY-MM-DD
-      const formatDate = (date: Date) => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
-      };
-
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(today.getDate() - 1);
-      const weekAgo = new Date(today);
-      weekAgo.setDate(today.getDate() - 7);
-      const monthAgo = new Date(today);
-      monthAgo.setMonth(today.getMonth() - 1);
-
-      const [
-        todaySalesReport,
-        yesterdaySalesReport,
-        weekSalesReport,
-        monthSalesReport,
-        inventoryReport,
-        productPerformance,
-        customers,
-        weekCustomers,
-        todaySalesRange,
-        categoryBreakdown,
-      ] = await Promise.all([
-        reportsAPI.getSalesRange(formatDate(today), formatDate(today)),
-        reportsAPI.getDailySales(formatDate(yesterday)),
-        reportsAPI.getSalesRange(formatDate(weekAgo), formatDate(today)),
-        reportsAPI.getSalesRange(formatDate(monthAgo), formatDate(today)),
-        reportsAPI.getInventory(),
-        reportsAPI.getProductPerformance(
-          formatDate(weekAgo),
-          formatDate(today),
-          5,
-        ),
-        customersAPI.getAll({ page: 1, limit: 1 }),
-        customersAPI.getAll({ page: 1, limit: 100 }),
-        reportsAPI.getSalesRange(formatDate(today), formatDate(today)),
-        analyticsAPI.getCategoryBreakdown({
-          startDate: formatDate(weekAgo),
-          endDate: formatDate(today),
-        }),
-      ]);
-
-      // Defensive checks for required fields
-      if (
-        !todaySalesReport?.summary ||
-        !yesterdaySalesReport?.summary ||
-        !weekSalesReport?.summary ||
-        !monthSalesReport?.summary
-      ) {
-        throw new Error("One or more sales report summaries are missing");
-      }
-      if (!inventoryReport?.products) {
-        throw new Error("Inventory report is missing products");
-      }
-      if (!customers?.pagination) {
-        throw new Error("Customers API response is missing pagination");
-      }
-      if (!Array.isArray(weekCustomers.data)) {
-        throw new Error("weekCustomers.data is not an array");
-      }
-
-      // Calculate new customers this week
-      const newCustomersThisWeek = weekCustomers.data.filter((c: any) => {
-        const created = new Date(c.createdAt);
-        return created >= weekAgo && created <= today;
-      }).length;
-
-      // Map top selling products
-      const topSellingProducts = (productPerformance.products || []).map(
-        (p: any) => ({
-          id: p.product.id,
-          name: p.product.name,
-          totalSold: p.totalQuantitySold,
-          revenue: p.totalRevenue,
-        }),
-      );
-
-      // Map recent transactions
-      const recentTransactions: DashboardStats["recentTransactions"] = (
-        todaySalesRange.sales || []
-      )
-        .slice(0, 5)
-        .map((sale: any) => ({
-          id: sale.id,
-          total: sale.finalAmount || sale.total || 0,
-          createdAt: sale.createdAt,
-          customerName: sale.customer?.name,
-          itemCount: Array.isArray(sale.saleItems)
-            ? sale.saleItems.reduce(
-                (sum: number, item: any) => sum + (item.quantity || 0),
-                0,
-              )
-            : 0,
-        }));
-
-      setStats({
-        todaySales: todaySalesReport.summary.totalSales ?? 0,
-        yesterdaySales: yesterdaySalesReport.summary.totalSales ?? 0,
-        weekSales: weekSalesReport.summary.totalSales ?? 0,
-        monthSales: monthSalesReport.summary.totalSales ?? 0,
-        totalProducts: inventoryReport.totalProducts ?? 0,
-        activeProducts: Array.isArray(inventoryReport.products)
-          ? inventoryReport.products.filter((p: any) => p.isActive).length
-          : 0,
-        lowStockCount: inventoryReport.lowStockCount ?? 0,
-        outOfStockCount: inventoryReport.outOfStockCount ?? 0,
-        totalCustomers: customers.pagination.totalItems ?? 0,
-        newCustomersThisWeek,
-        todayTransactions: todaySalesReport.summary.totalTransactions ?? 0,
-        weekTransactions: weekSalesReport.summary.totalTransactions ?? 0,
-        averageOrderValue:
-          todaySalesReport.summary.totalSales &&
-          todaySalesReport.summary.totalTransactions
-            ? todaySalesReport.summary.totalSales /
-              todaySalesReport.summary.totalTransactions
-            : 0,
-        topSellingProducts,
-        recentTransactions,
-        salesByCategory: (categoryBreakdown.categories || []).map(
-          (cat: any) => ({
-            category: cat.name,
-            sales: cat.revenue,
-            percentage: cat.percentage,
-          }),
-        ),
-        hourlySales: [],
-      });
-    } catch (error: any) {
-      console.error("Failed to load dashboard data:", error);
-      toast.error(
-        "Failed to load dashboard data: " + (error?.message || error),
-      );
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const ChartCard = ({
@@ -334,34 +184,31 @@ const AdminDashboard: React.FC = () => {
                   <span className="text-3xl">📊</span>
                   <span>Key Metrics</span>
                 </h2>
-                <RefreshButton
-                  onClick={loadDashboardData}
-                  loading={isLoading}
-                />
+                <RefreshButton onClick={() => refetch()} loading={isLoading} />
               </div>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <DashboardStatCard
                   title="Today's Sales"
-                  value={formatCurrency(stats.todaySales, settings)}
+                  value={formatCurrency(dashboardData.todaySales, settings)}
                   change={{ value: 12.5, isPositive: true }}
                   icon="💰"
                   color="green"
                 />
                 <DashboardStatCard
                   title="Total Products"
-                  value={stats.totalProducts}
+                  value={dashboardData.totalProducts}
                   icon="📦"
                   color="blue"
                 />
                 <DashboardStatCard
                   title="Low Stock Items"
-                  value={stats.lowStockCount}
+                  value={dashboardData.lowStockCount}
                   icon="⚠️"
                   color="yellow"
                 />
                 <DashboardStatCard
                   title="Today's Orders"
-                  value={stats.todayTransactions}
+                  value={dashboardData.todayTransactions}
                   change={{ value: 8.2, isPositive: true }}
                   icon="🛒"
                   color="purple"
@@ -378,27 +225,30 @@ const AdminDashboard: React.FC = () => {
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <DashboardStatCard
                   title="Yesterday"
-                  value={formatCurrency(stats.yesterdaySales, settings)}
+                  value={formatCurrency(dashboardData.yesterdaySales, settings)}
                   icon="📅"
                   color="gray"
                 />
                 <DashboardStatCard
                   title="This Week"
-                  value={formatCurrency(stats.weekSales, settings)}
+                  value={formatCurrency(dashboardData.weekSales, settings)}
                   change={{ value: 15.3, isPositive: true }}
                   icon="📊"
                   color="blue"
                 />
                 <DashboardStatCard
                   title="This Month"
-                  value={formatCurrency(stats.monthSales, settings)}
+                  value={formatCurrency(dashboardData.monthSales, settings)}
                   change={{ value: 23.1, isPositive: true }}
                   icon="📈"
                   color="green"
                 />
                 <DashboardStatCard
                   title="Avg Order Value"
-                  value={formatCurrency(stats.averageOrderValue, settings)}
+                  value={formatCurrency(
+                    dashboardData.averageOrderValue,
+                    settings,
+                  )}
                   change={{ value: 5.7, isPositive: true }}
                   icon="💸"
                   color="purple"
@@ -415,21 +265,21 @@ const AdminDashboard: React.FC = () => {
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <DashboardStatCard
                   title="Total Customers"
-                  value={stats.totalCustomers}
+                  value={dashboardData.totalCustomers}
                   change={{ value: 4.2, isPositive: true }}
                   icon="👥"
                   color="indigo"
                 />
                 <DashboardStatCard
                   title="New This Week"
-                  value={stats.newCustomersThisWeek}
+                  value={dashboardData.newCustomersThisWeek}
                   change={{ value: 12.8, isPositive: true }}
                   icon="👋"
                   color="pink"
                 />
                 <DashboardStatCard
                   title="Active Products"
-                  value={`${stats.activeProducts}/${stats.totalProducts}`}
+                  value={`${dashboardData.activeProducts}/${dashboardData.totalProducts}`}
                   icon="✅"
                   color="green"
                 />
@@ -445,7 +295,7 @@ const AdminDashboard: React.FC = () => {
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <ChartCard title="Top Selling Products">
                   <SimpleBarChart
-                    data={stats.topSellingProducts.map((p) => ({
+                    data={dashboardData.topSellingProducts.map((p) => ({
                       label: p.name,
                       value: p.totalSold,
                     }))}
@@ -454,7 +304,7 @@ const AdminDashboard: React.FC = () => {
 
                 <ChartCard title="Sales by Category">
                   <SimpleBarChart
-                    data={stats.salesByCategory.map((c) => ({
+                    data={dashboardData.salesByCategory.map((c: any) => ({
                       label: c.category,
                       value: c.percentage,
                     }))}
@@ -471,7 +321,7 @@ const AdminDashboard: React.FC = () => {
               </h2>
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <RecentTransactionsList
-                  transactions={stats.recentTransactions}
+                  transactions={dashboardData.recentTransactions}
                 />
                 <QuickActionsGrid actions={quickActions} />
               </div>
@@ -479,8 +329,8 @@ const AdminDashboard: React.FC = () => {
 
             {/* Alerts and Notifications */}
             <AlertsSection
-              lowStockCount={stats.lowStockCount}
-              outOfStockCount={stats.outOfStockCount}
+              lowStockCount={dashboardData.lowStockCount}
+              outOfStockCount={dashboardData.outOfStockCount}
             />
 
             {/* Dashboard Footer - Quick Summary */}
@@ -491,22 +341,28 @@ const AdminDashboard: React.FC = () => {
                     Total Revenue (Month)
                   </p>
                   <p className="text-3xl font-bold">
-                    {formatCurrency(stats.monthSales, settings)}
+                    {formatCurrency(dashboardData.monthSales, settings)}
                   </p>
                 </div>
                 <div>
                   <p className="mb-1 text-sm text-blue-100">
                     Transactions (Week)
                   </p>
-                  <p className="text-3xl font-bold">{stats.weekTransactions}</p>
+                  <p className="text-3xl font-bold">
+                    {dashboardData.weekTransactions}
+                  </p>
                 </div>
                 <div>
                   <p className="mb-1 text-sm text-blue-100">Active Inventory</p>
-                  <p className="text-3xl font-bold">{stats.activeProducts}</p>
+                  <p className="text-3xl font-bold">
+                    {dashboardData.activeProducts}
+                  </p>
                 </div>
                 <div>
                   <p className="mb-1 text-sm text-blue-100">Total Customers</p>
-                  <p className="text-3xl font-bold">{stats.totalCustomers}</p>
+                  <p className="text-3xl font-bold">
+                    {dashboardData.totalCustomers}
+                  </p>
                 </div>
               </div>
             </div>

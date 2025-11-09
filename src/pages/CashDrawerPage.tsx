@@ -1,48 +1,39 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { RefreshButton } from "../components/common/RefreshButton";
 import { useAuth } from "../context/AuthContext";
-import { cashDrawerAPI } from "../services";
-
-interface CashDrawer {
-  id: number;
-  employeeId: number;
-  openingBalance: number;
-  closingBalance: number | null;
-  expectedBalance: number | null;
-  difference: number | null;
-  status: string;
-  openedAt: string;
-  closedAt: string | null;
-  employee: {
-    id: number;
-    name: string;
-    email: string;
-  };
-}
-
-interface DrawerReconciliation {
-  drawer: CashDrawer;
-  sales: number;
-  totalSales: number;
-  paymentBreakdown: {
-    cash: number;
-    card: number;
-    mobile: number;
-    other: number;
-  };
-  expectedCashBalance: number;
-  actualBalance: number | null;
-  difference: number | null;
-  recentTransactions: any[];
-}
+import {
+  useCurrentCashDrawer,
+  useCashDrawers,
+  useCashDrawerReconciliation,
+  useOpenCashDrawer,
+  useCloseCashDrawer,
+} from "../services/queries/cashDrawerQueries";
 
 const CashDrawerPage: React.FC = () => {
   const { user } = useAuth();
-  const [currentDrawer, setCurrentDrawer] = useState<CashDrawer | null>(null);
-  const [drawerHistory, setDrawerHistory] = useState<CashDrawer[]>([]);
-  const [reconciliation, setReconciliation] =
-    useState<DrawerReconciliation | null>(null);
-  const [loading, setLoading] = useState(false);
+
+  // History filters (must be declared before using in hooks)
+  const [page, setPage] = useState(1);
+
+  // React Query hooks
+  const { data: currentDrawerData, refetch: refetchCurrent } =
+    useCurrentCashDrawer();
+  const currentDrawer = currentDrawerData?.drawer || null;
+
+  const { data: reconciliation } = useCashDrawerReconciliation(
+    currentDrawer?.id,
+  );
+
+  const { data: historyData, isLoading: loading } = useCashDrawers({
+    page,
+    limit: 10,
+  });
+  const drawerHistory = historyData?.drawers || [];
+  const totalPages = historyData?.pagination?.totalPages || 1;
+
+  const openCashDrawer = useOpenCashDrawer();
+  const closeCashDrawer = useCloseCashDrawer();
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -56,64 +47,6 @@ const CashDrawerPage: React.FC = () => {
   const [closeNotes, setCloseNotes] = useState("");
   const [showCloseForm, setShowCloseForm] = useState(false);
 
-  // History filters
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-
-  useEffect(() => {
-    fetchCurrentDrawer();
-    if (user?.role === "ADMIN" || user?.role === "MANAGER") {
-      fetchDrawerHistory();
-    }
-  }, [page]);
-
-  const fetchCurrentDrawer = async () => {
-    try {
-      const response = await cashDrawerAPI.getCurrent();
-      console.log(response.drawer.openedAt);
-      if (response && response.drawer) {
-        setCurrentDrawer(response.drawer);
-        fetchReconciliation(response.drawer.id);
-      } else {
-        setCurrentDrawer(null);
-        setReconciliation(null);
-      }
-    } catch (err: any) {
-      console.error("Error fetching current drawer:", err);
-      setCurrentDrawer(null);
-      setReconciliation(null);
-    }
-  };
-
-  const fetchReconciliation = async (drawerId: number) => {
-    try {
-      const response = await cashDrawerAPI.getReconciliation(drawerId);
-      setReconciliation(response);
-    } catch (err: any) {
-      console.error("Error fetching reconciliation:", err);
-    }
-  };
-
-  const fetchDrawerHistory = async () => {
-    try {
-      setLoading(true);
-      const response = await cashDrawerAPI.getAll({ page: 1, limit: 10 });
-      if (response && response.cashDrawers && response.pagination) {
-        setDrawerHistory(response.cashDrawers);
-        setTotalPages(response.pagination.pages);
-        setPage(1);
-        setError("");
-      }
-    } catch (err: any) {
-      console.error("Error fetching drawer history:", err);
-      setDrawerHistory([]);
-      setTotalPages(1);
-      setError("Failed to fetch drawer history");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleOpenDrawer = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -125,19 +58,15 @@ const CashDrawerPage: React.FC = () => {
     }
 
     try {
-      setLoading(true);
-      const response = await cashDrawerAPI.open({
+      await openCashDrawer.mutateAsync({
         openingBalance: parseFloat(openingBalance),
       });
-      setCurrentDrawer(response);
       setSuccess("Cash drawer opened successfully");
       setShowOpenForm(false);
       setOpeningBalance("");
-      fetchReconciliation(response.id);
+      refetchCurrent();
     } catch (err: any) {
       setError(err.response?.error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -157,13 +86,15 @@ const CashDrawerPage: React.FC = () => {
     }
 
     try {
-      setLoading(true);
-      await cashDrawerAPI.close(currentDrawer.id, {
-        closingBalance: parseFloat(closingBalance),
-        actualCash: actualCash
-          ? parseFloat(actualCash)
-          : parseFloat(closingBalance),
-        notes: closeNotes,
+      await closeCashDrawer.mutateAsync({
+        id: currentDrawer.id,
+        data: {
+          closingBalance: parseFloat(closingBalance),
+          actualCash: actualCash
+            ? parseFloat(actualCash)
+            : parseFloat(closingBalance),
+          notes: closeNotes,
+        },
       });
 
       setSuccess("Cash drawer closed successfully");
@@ -171,13 +102,9 @@ const CashDrawerPage: React.FC = () => {
       setClosingBalance("");
       setActualCash("");
       setCloseNotes("");
-      setCurrentDrawer(null);
-      setReconciliation(null);
-      fetchDrawerHistory();
+      refetchCurrent();
     } catch (err: any) {
       setError(err.response?.data?.error || "Failed to close cash drawer");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -206,7 +133,7 @@ const CashDrawerPage: React.FC = () => {
           </div>
           <RefreshButton
             onClick={() => {
-              fetchCurrentDrawer();
+              refetchCurrent();
               setSuccess("");
               setError("");
             }}
@@ -508,7 +435,7 @@ const CashDrawerPage: React.FC = () => {
                 ) : (
                   reconciliation.recentTransactions
                     .slice(0, 3)
-                    .map((transaction) => (
+                    .map((transaction: any) => (
                       <div
                         key={transaction.receiptId}
                         className="flex justify-between text-sm"
@@ -579,7 +506,7 @@ const CashDrawerPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {drawerHistory.filter(Boolean).map((drawer) => (
+                    {drawerHistory.filter(Boolean).map((drawer: any) => (
                       <tr
                         key={drawer?.id ?? Math.random()}
                         className="hover:bg-gray-50"

@@ -1,40 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "../components/common";
-import LoadingSpinner from "../components/common/LoadingSpinner";
-import { notificationsAPI } from "../services";
+import { NotificationsPageSkeleton } from "../components/common/NotificationsPageSkeleton";
+import {
+  useNotifications,
+  useMarkAsRead,
+} from "../services/queries/notificationsQueries";
 
 const NotificationsPage: React.FC = () => {
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchNotifications(page);
-  }, [page]);
+  const { data, isLoading } = useNotifications({ page, limit: 10 });
+  const notifications = data?.data || [];
+  const totalPages = data?.pagination?.pages || 1;
 
-  const fetchNotifications = async (pageNum: number) => {
-    setLoading(true);
-    try {
-      const limit = 10;
-      const response = await notificationsAPI.getAll({ page: pageNum, limit });
-      setNotifications(response.data);
-      setTotalPages(response.pagination.pages);
-    } catch (err) {
-      setNotifications([]);
-      setTotalPages(1);
-    }
-    setLoading(false);
-  };
+  const markAsRead = useMarkAsRead();
 
   // Mark all as read handler
   const handleMarkAllAsRead = async () => {
     await Promise.all(
       notifications
         .filter((n: any) => !n.isRead)
-        .map((n: any) => notificationsAPI.markAsRead(n.id)),
+        .map((n: any) => markAsRead.mutateAsync(n.id)),
     );
-    fetchNotifications(page);
   };
 
   return (
@@ -54,8 +41,8 @@ const NotificationsPage: React.FC = () => {
           </Button>
         )}
       </div>
-      {loading ? (
-        <LoadingSpinner />
+      {isLoading ? (
+        <NotificationsPageSkeleton />
       ) : notifications.length === 0 ? (
         <div className="p-4 text-center text-gray-500">No notifications</div>
       ) : (
@@ -112,10 +99,7 @@ const NotificationsPage: React.FC = () => {
                     <Button
                       size="sm"
                       className="rounded-full bg-blue-600 px-3 py-1 text-xs text-white shadow hover:bg-blue-700"
-                      onClick={async () => {
-                        await notificationsAPI.markAsRead(n.id);
-                        fetchNotifications(page);
-                      }}
+                      onClick={() => markAsRead.mutate(n.id)}
                     >
                       Mark as Read
                     </Button>

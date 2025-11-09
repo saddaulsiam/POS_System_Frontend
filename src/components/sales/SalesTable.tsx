@@ -1,9 +1,9 @@
 import React from "react";
 import { Sale } from "../../types";
-import LoadingSpinner from "../common/LoadingSpinner";
 import { Badge } from "../common";
 import { useSettings } from "../../context/SettingsContext";
 import { formatCurrency } from "../../utils/currencyUtils";
+import { SalesTableSkeleton } from "./SalesTableSkeleton";
 
 interface SalesTableProps {
   sales: Sale[];
@@ -29,11 +29,7 @@ export const SalesTable: React.FC<SalesTableProps> = ({
   const { settings } = useSettings();
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <LoadingSpinner />
-      </div>
-    );
+    return <SalesTableSkeleton />;
   }
 
   return (

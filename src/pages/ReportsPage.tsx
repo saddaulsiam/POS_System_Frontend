@@ -1,11 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { reportsAPI } from "../services";
-import {
-  DailySalesReport,
-  EmployeePerformanceReport,
-  ProductPerformanceReport,
-  InventoryReport,
-} from "../types";
+import React, { useState } from "react";
 import { formatDate } from "../utils/reportUtils";
 import { RefreshButton } from "../components/common";
 import { DateRangeFilter } from "../components/reports/DateRangeFilter";
@@ -14,49 +7,61 @@ import { SalesRangeCard } from "../components/reports/SalesRangeCard";
 import { EmployeePerformanceCard } from "../components/reports/EmployeePerformanceCard";
 import { ProductPerformanceCard } from "../components/reports/ProductPerformanceCard";
 import { InventorySummaryCard } from "../components/reports/InventorySummaryCard";
+import {
+  useDailySalesReport,
+  useSalesRangeReport,
+  useEmployeePerformanceReport,
+  useProductPerformanceReport,
+  useInventoryReport,
+} from "../services/queries/reportsQueries";
 
 const ReportsPage: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [daily, setDaily] = useState<DailySalesReport | null>(null);
   const [range, setRange] = useState<{ start: string; end: string }>({
     start: formatDate(new Date(Date.now() - 6 * 24 * 60 * 60 * 1000)),
     end: formatDate(new Date()),
   });
-  const [salesRange, setSalesRange] = useState<any>(null);
-  const [employeePerf, setEmployeePerf] =
-    useState<EmployeePerformanceReport | null>(null);
-  const [productPerf, setProductPerf] =
-    useState<ProductPerformanceReport | null>(null);
-  const [inventory, setInventory] = useState<InventoryReport | null>(null);
 
-  const fetchReports = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const [d, r, emp, prod, inv] = await Promise.all([
-        reportsAPI.getDailySales(range.end),
-        reportsAPI.getSalesRange(range.start, range.end),
-        reportsAPI.getEmployeePerformance(range.start, range.end),
-        reportsAPI.getProductPerformance(range.start, range.end, 5),
-        reportsAPI.getInventory(),
-      ]);
-      setDaily(d);
-      setSalesRange(r);
-      setEmployeePerf(emp);
-      setProductPerf(prod);
-      setInventory(inv);
-    } catch (e: any) {
-      setError(e?.message || "Failed to load reports");
-    } finally {
-      setIsLoading(false);
-    }
+  // React Query hooks
+  const {
+    data: daily,
+    isLoading: loadingDaily,
+    refetch: refetchDaily,
+  } = useDailySalesReport(range.end);
+  const {
+    data: salesRange,
+    isLoading: loadingSalesRange,
+    refetch: refetchSalesRange,
+  } = useSalesRangeReport(range.start, range.end);
+  const {
+    data: employeePerf,
+    isLoading: loadingEmployee,
+    refetch: refetchEmployee,
+  } = useEmployeePerformanceReport(range.start, range.end);
+  const {
+    data: productPerf,
+    isLoading: loadingProduct,
+    refetch: refetchProduct,
+  } = useProductPerformanceReport(range.start, range.end, 5);
+  const {
+    data: inventory,
+    isLoading: loadingInventory,
+    refetch: refetchInventory,
+  } = useInventoryReport();
+
+  const isLoading =
+    loadingDaily ||
+    loadingSalesRange ||
+    loadingEmployee ||
+    loadingProduct ||
+    loadingInventory;
+
+  const fetchReports = () => {
+    refetchDaily();
+    refetchSalesRange();
+    refetchEmployee();
+    refetchProduct();
+    refetchInventory();
   };
-
-  useEffect(() => {
-    fetchReports();
-    // eslint-disable-next-line
-  }, [range.start, range.end]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,11 +86,6 @@ const ReportsPage: React.FC = () => {
         {isLoading ? (
           <div className="flex min-h-40 items-center justify-center">
             <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-          </div>
-        ) : error ? (
-          /* Error State */
-          <div className="mb-6 rounded bg-red-100 p-4 text-red-700">
-            {error}
           </div>
         ) : (
           <>

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useSettings } from "../../context/SettingsContext";
-import { quickSaleItemsAPI } from "../../services";
+import { useQuickSaleItems } from "../../services/queries/quickSaleQueries";
 import { Product, QuickSaleItem } from "../../types";
 import { formatCurrency } from "../../utils/currencyUtils";
 import { Button } from "../common";
@@ -14,28 +14,17 @@ interface QuickSaleButtonsProps {
 export const QuickSaleButtons: React.FC<QuickSaleButtonsProps> = ({
   onProductSelect,
 }) => {
-  const [quickItems, setQuickItems] = useState<QuickSaleItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showManageModal, setShowManageModal] = useState(false);
   const navigate = useNavigate();
   const { settings } = useSettings();
 
-  useEffect(() => {
-    loadQuickItems();
-  }, []);
+  // Fetch quick sale items using React Query
+  const { data: allQuickItems = [], isLoading: loading } = useQuickSaleItems();
 
-  const loadQuickItems = async () => {
-    try {
-      setLoading(true);
-      const data = await quickSaleItemsAPI.getAll();
-      setQuickItems(data.filter((item: QuickSaleItem) => item.isActive));
-    } catch (error) {
-      console.error("Error loading quick sale items:", error);
-      toast.error("Failed to load quick sale items");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Filter active items
+  const quickItems = allQuickItems.filter(
+    (item: QuickSaleItem) => item.isActive,
+  );
 
   const handleQuickItemClick = (item: QuickSaleItem) => {
     if (!item.product) return;
@@ -187,7 +176,7 @@ export const QuickSaleButtons: React.FC<QuickSaleButtonsProps> = ({
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {quickItems.map((item) => (
+        {quickItems.map((item: QuickSaleItem) => (
           <button
             key={item.id}
             onClick={() => handleQuickItemClick(item)}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "../components/common";
 import EmployeeDetailsView from "../components/employees/EmployeeDetailsView";
@@ -7,8 +7,15 @@ import { EmployeeSearch } from "../components/employees/EmployeeSearch";
 import { EmployeesTable } from "../components/employees/EmployeesTable";
 import PinPromptModal from "../components/employees/PinPromptModal";
 import { Pagination } from "../components/sales/Pagination";
-import { employeesAPI } from "../services";
 import { Employee } from "../types";
+import {
+  useEmployees,
+  useEmployee,
+  useCreateEmployee,
+  useUpdateEmployee,
+  useDeleteEmployee,
+  useUpdateEmployeePin,
+} from "../services/queries/employeesQueries";
 
 interface EmployeeFormData {
   name: string;
@@ -18,8 +25,6 @@ interface EmployeeFormData {
 }
 
 const EmployeesPage: React.FC = () => {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [viewingEmployee, setViewingEmployee] = useState<Employee | null>(null);
@@ -28,29 +33,21 @@ const EmployeesPage: React.FC = () => {
     useState<Employee | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    loadEmployees();
-    // eslint-disable-next-line
-  }, [searchTerm, currentPage]);
+  // React Query hooks
+  const { data: employeesData, isLoading } = useEmployees({
+    page: currentPage,
+    limit: 20,
+    search: searchTerm || undefined,
+  });
+  const employees = employeesData?.data || [];
+  const totalPages = employeesData?.pagination.totalPages || 1;
 
-  const loadEmployees = async () => {
-    setIsLoading(true);
-    try {
-      const response = await employeesAPI.getAll({
-        page: currentPage,
-        limit: 20,
-        search: searchTerm || undefined,
-      });
-      setEmployees(response.data);
-      setTotalPages(response.pagination.totalPages);
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Failed to load employees");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const createEmployee = useCreateEmployee();
+  const updateEmployee = useUpdateEmployee();
+  const deleteEmployee = useDeleteEmployee();
+  const updateEmployeePin = useUpdateEmployeePin();
+  const { data: viewedEmployeeDetails } = useEmployee(viewingEmployee?.id);
 
   const handleAdd = () => {
     setEditingEmployee(null);
@@ -71,14 +68,16 @@ const EmployeesPage: React.FC = () => {
     };
     try {
       if (editingEmployee) {
-        await employeesAPI.update(editingEmployee.id, safeFormData);
+        await updateEmployee.mutateAsync({
+          id: editingEmployee.id,
+          data: safeFormData,
+        });
         toast.success("Employee updated successfully");
       } else {
-        await employeesAPI.create(safeFormData);
+        await createEmployee.mutateAsync(safeFormData);
         toast.success("Employee created successfully");
       }
       setShowModal(false);
-      loadEmployees();
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Failed to save employee");
       throw error;
@@ -88,23 +87,16 @@ const EmployeesPage: React.FC = () => {
   const handleDelete = async (employee: Employee) => {
     if (!window.confirm(`Delete employee "${employee.name}"?`)) return;
     try {
-      await employeesAPI.delete(employee.id);
+      await deleteEmployee.mutateAsync(employee.id);
       toast.success("Employee deleted successfully");
-      loadEmployees();
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Failed to delete employee");
     }
   };
 
   // View details handler
-
-  const handleViewDetails = async (employee: Employee) => {
-    try {
-      const fullEmployee = await employeesAPI.getById(employee.id);
-      setViewingEmployee(fullEmployee);
-    } catch (error: any) {
-      toast.error("Failed to load employee details");
-    }
+  const handleViewDetails = (employee: Employee) => {
+    setViewingEmployee(employee);
   };
 
   const handleCloseDetails = () => {
@@ -130,29 +122,24 @@ const EmployeesPage: React.FC = () => {
       return;
     }
     try {
-      await employeesAPI.resetPin(selectedEmployeeForPin.id, newPin);
+      await updateEmployeePin.mutateAsync({
+        id: selectedEmployeeForPin.id,
+        pinCode: newPin,
+      });
       toast.success("PIN reset successfully");
       setShowPinModal(false);
       setSelectedEmployeeForPin(null);
-      // reload list or refresh view
-      loadEmployees();
-      if (viewingEmployee && viewingEmployee.id === selectedEmployeeForPin.id) {
-        // refresh details view
-        const fullEmployee = await employeesAPI.getById(
-          selectedEmployeeForPin.id,
-        );
-        setViewingEmployee(fullEmployee);
-      }
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Failed to reset PIN");
     }
   };
 
   if (viewingEmployee) {
+    const displayEmployee = viewedEmployeeDetails || viewingEmployee;
     return (
       <>
         <EmployeeDetailsView
-          employee={viewingEmployee}
+          employee={displayEmployee}
           onBack={handleCloseDetails}
           onEdit={handleEdit}
           onResetPin={handleResetPin}

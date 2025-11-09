@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "../common";
 import { Product } from "../../types";
-import { productsAPI } from "../../services";
+import { useProducts } from "../../services/queries/productsQueries";
 import { useSettings } from "../../context/SettingsContext";
 import { formatCurrency } from "../../utils/currencyUtils";
 
@@ -18,39 +18,30 @@ export const POSBarcodeScanner: React.FC<POSBarcodeScannerProps> = ({
   onSubmit,
   onProductSelect,
 }) => {
-  const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { settings } = useSettings();
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Fetch suggestions when user types
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (barcode.trim().length >= 2) {
-        try {
-          const response = await productsAPI.getAll({
-            search: barcode,
-            isActive: true,
-            limit: 5,
-          });
-          setSuggestions(response.data || []);
-          setShowSuggestions(true);
-        } catch (error) {
-          console.error("Error fetching suggestions:", error);
-          setSuggestions([]);
-        }
-      } else {
-        setSuggestions([]);
-        setShowSuggestions(false);
-      }
-      setSelectedIndex(-1);
-    };
+  // Fetch product suggestions using React Query
+  const { data: productsData } = useProducts({
+    search: barcode.trim().length >= 2 ? barcode : undefined,
+    isActive: true,
+    limit: 5,
+  });
 
-    const timeoutId = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(timeoutId);
-  }, [barcode]);
+  const suggestions = productsData?.data || [];
+
+  // Show/hide suggestions based on data
+  useEffect(() => {
+    if (barcode.trim().length >= 2 && suggestions.length > 0) {
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+    setSelectedIndex(-1);
+  }, [barcode, suggestions.length]);
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -109,7 +100,6 @@ export const POSBarcodeScanner: React.FC<POSBarcodeScannerProps> = ({
     if (onProductSelect) {
       onProductSelect(product);
       onBarcodeChange("");
-      setSuggestions([]);
       setShowSuggestions(false);
       setSelectedIndex(-1);
       inputRef.current?.focus();

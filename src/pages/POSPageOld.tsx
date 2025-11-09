@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { CustomerModal } from "../components/customers/CustomerModal";
@@ -16,7 +16,6 @@ import { VariantSelectorModal } from "../components/pos/VariantSelectorModal";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
 import {
-  categoriesAPI,
   customersAPI,
   parkedSalesAPI,
   productsAPI,
@@ -24,9 +23,10 @@ import {
   receiptsAPI,
   salesAPI,
 } from "../services";
-import {
+import { useCategories } from "../services/queries/commonQueries";
+import { useProducts } from "../services/queries/productsQueries";
+import type {
   CartItem,
-  Category,
   CreateCustomerRequest,
   Customer,
   ParkedSale,
@@ -57,10 +57,17 @@ const POSPage: React.FC = () => {
   const [customerNotFound, setCustomerNotFound] = useState(false);
   const [showCreateCustomerModal, setShowCreateCustomerModal] = useState(false);
 
-  // Products and categories state
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  // Products and categories state (React Query)
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const { data: categoriesResp } = useCategories();
+  const categories = categoriesResp || [];
+  const { data: productsResp, refetch: refetchProducts } = useProducts({
+    page: 1,
+    limit: 50,
+    categoryId: selectedCategory,
+    isActive: true,
+  });
+  const products = productsResp?.data || [];
 
   // Payment state
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
@@ -78,36 +85,12 @@ const POSPage: React.FC = () => {
   const [selectedProductForVariant, setSelectedProductForVariant] =
     useState<Product | null>(null);
 
-  useEffect(() => {
-    loadCategories();
-    loadProducts();
-  }, []);
-
-  const loadCategories = async () => {
-    try {
-      const data = await categoriesAPI.getAll();
-      setCategories(data);
-    } catch (error) {
-      console.error("Error loading categories:", error);
-    }
-  };
-
-  const loadProducts = async (categoryId?: number) => {
-    try {
-      const data = await productsAPI.getAll({
-        categoryId,
-        isActive: true,
-        limit: 50,
-      });
-      setProducts(data.data || []);
-    } catch (error) {
-      console.error("Error loading products:", error);
-    }
-  };
+  // Provide wrapper so existing handlers can call loadProducts(categoryId)
+  const loadProducts = (_categoryId?: number) => refetchProducts();
 
   const handleCategoryClick = (categoryId: number | null) => {
     setSelectedCategory(categoryId);
-    loadProducts(categoryId || undefined);
+    refetchProducts();
   };
 
   const handleBarcodeSubmit = async (e: React.FormEvent) => {
@@ -907,6 +890,7 @@ const POSPage: React.FC = () => {
         onCashReceivedChange={setCashReceived}
         onConfirm={processPayment}
         loyaltyDiscount={loyaltyDiscount}
+        customer={customer}
       />
 
       {/* Split Payment Modal */}

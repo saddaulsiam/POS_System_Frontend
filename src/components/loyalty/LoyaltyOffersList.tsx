@@ -1,9 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Tag, Calendar, TrendingUp, X } from "lucide-react";
-import { loyaltyAPI } from "../../services";
-import type { LoyaltyOffer, LoyaltyTier } from "../../types";
+import { useLoyaltyOffers } from "../../services/queries/loyaltyQueries";
+import type { LoyaltyTier } from "../../types";
 import { useSettings } from "../../context/SettingsContext";
 import { formatCurrency } from "../../utils/currencyUtils";
+
+interface LoyaltyOffer {
+  id: number;
+  title: string;
+  description?: string;
+  offerType: "PERCENTAGE" | "FIXED_AMOUNT" | "FREE_ITEM";
+  discountValue: number;
+  minimumPurchase?: number;
+  requiredTier?: LoyaltyTier;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+}
 
 interface LoyaltyOffersListProps {
   customerTier?: LoyaltyTier;
@@ -12,33 +25,11 @@ interface LoyaltyOffersListProps {
 const LoyaltyOffersList: React.FC<LoyaltyOffersListProps> = ({
   customerTier,
 }) => {
-  const [offers, setOffers] = useState<LoyaltyOffer[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: allOffers = [], isLoading: loading } = useLoyaltyOffers();
+  // Only show active offers
+  const offers = allOffers.filter((offer: LoyaltyOffer) => offer.isActive);
   const [selectedOffer, setSelectedOffer] = useState<LoyaltyOffer | null>(null);
   const { settings } = useSettings();
-
-  useEffect(() => {
-    fetchOffers();
-  }, []);
-
-  const fetchOffers = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await loyaltyAPI.getAllOffers();
-      // Only show active offers
-      const activeOffers = (data || []).filter(
-        (offer: LoyaltyOffer) => offer.isActive,
-      );
-      setOffers(activeOffers);
-    } catch (err: any) {
-      setError(err.message || "Failed to load offers");
-      console.error("Error fetching offers:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const isOfferEligible = (offer: LoyaltyOffer) => {
     if (!offer.requiredTier) return true;
@@ -103,22 +94,6 @@ const LoyaltyOffersList: React.FC<LoyaltyOffersListProps> = ({
     );
   }
 
-  if (error) {
-    return (
-      <div className="rounded-lg bg-white p-6 shadow">
-        <div className="flex h-64 flex-col items-center justify-center text-red-500">
-          <p className="mb-4">{error}</p>
-          <button
-            onClick={fetchOffers}
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="rounded-lg bg-white shadow">
       <div className="p-6">
@@ -141,7 +116,7 @@ const LoyaltyOffersList: React.FC<LoyaltyOffersListProps> = ({
           </div>
         ) : (
           <div className="space-y-4">
-            {offers.map((offer) => {
+            {offers.map((offer: LoyaltyOffer) => {
               const eligible = isOfferEligible(offer);
               const active = isOfferActive(offer);
               const daysRemaining = getDaysRemaining(offer.endDate);

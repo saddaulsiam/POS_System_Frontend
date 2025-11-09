@@ -23,14 +23,10 @@ import {
   usePOSHandlers,
   usePOSPayment,
 } from "../hooks";
-import {
-  categoriesAPI,
-  loyaltyAPI,
-  productsAPI,
-  receiptsAPI,
-  salesAPI,
-} from "../services";
-import { Category, Product } from "../types";
+import { loyaltyAPI, receiptsAPI, salesAPI } from "../services";
+import { useCategories } from "../services/queries/commonQueries";
+import { useProducts } from "../services/queries/productsQueries";
+import { Product } from "../types";
 import { formatCurrency } from "../utils/currencyUtils";
 import {
   calculateChange,
@@ -71,44 +67,25 @@ const POSPage: FC = () => {
     handleClearCustomer,
   } = usePOSCustomer();
 
-  // Products and categories state
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  // Products and categories state (use React Query)
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-
-  // Load categories and products
-  const loadCategories = async () => {
-    try {
-      const data = await categoriesAPI.getAll();
-      setCategories(data || []);
-    } catch (error) {
-      console.error("Error loading categories:", error);
-    }
-  };
-
-  const loadProducts = async (categoryId?: number) => {
-    try {
-      const data = await productsAPI.getAll({
-        categoryId,
-        isActive: true,
-        limit: 50,
-      });
-      setProducts(data.data || []);
-    } catch (error) {
-      console.error("Error loading products:", error);
-    }
+  const { data: categoriesResp } = useCategories();
+  const categories = categoriesResp || [];
+  const { data: productsResp, refetch: refetchProducts } = useProducts({
+    page: 1,
+    limit: 50,
+    categoryId: selectedCategory,
+    isActive: true,
+  });
+  const products = productsResp?.data || [];
+  const loadProducts = (_categoryId?: number) => {
+    return refetchProducts();
   };
 
   const handleCategoryClick = (categoryId: number | null) => {
     setSelectedCategory(categoryId);
-    loadProducts(categoryId || undefined);
+    refetchProducts();
   };
-
-  // Load categories and products on mount
-  useEffect(() => {
-    loadCategories();
-    loadProducts();
-  }, []);
 
   // Payment state (hook)
   const {

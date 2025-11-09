@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Gift, AlertCircle, X } from "lucide-react";
-import { loyaltyAPI } from "../../services";
+import { useRedeemPoints } from "../../services/queries/loyaltyQueries";
 import toast from "react-hot-toast";
 import type { RewardType } from "../../types";
 import { useSettings } from "../../context/SettingsContext";
@@ -38,7 +38,7 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
     null,
   );
   const [customPoints, setCustomPoints] = useState<string>("");
-  const [redeeming, setRedeeming] = useState(false);
+  const redeemPointsMutation = useRedeemPoints();
   const { settings } = useSettings();
 
   if (!isOpen) return null;
@@ -110,9 +110,7 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
     }
 
     try {
-      setRedeeming(true);
-
-      await loyaltyAPI.redeemPoints({
+      await redeemPointsMutation.mutateAsync({
         customerId,
         points: pointsToRedeem,
         rewardType,
@@ -127,9 +125,7 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
       onClose();
     } catch (err: any) {
       toast.error(err.message || "Failed to redeem points");
-      console.error("Error redeeming points:", err);
-    } finally {
-      setRedeeming(false);
+      console.error("Error redeemPointsMutation.isPending points:", err);
     }
   };
 
@@ -150,7 +146,7 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
           </div>
           <button
             onClick={onClose}
-            disabled={redeeming}
+            disabled={redeemPointsMutation.isPending}
             className="text-gray-400 hover:text-gray-600"
           >
             <X className="h-6 w-6" />
@@ -205,7 +201,7 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
                     setSelectedOption(option);
                     setCustomPoints("");
                   }}
-                  disabled={!canAfford || redeeming}
+                  disabled={!canAfford || redeemPointsMutation.isPending}
                   className={`relative rounded-lg border-2 p-4 text-left transition-all ${
                     isSelected
                       ? "border-blue-500 bg-blue-50"
@@ -267,7 +263,10 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
                     const pointsNeeded = Math.round(amount * pointsToMoneyRate);
                     const canAfford = availablePoints >= pointsNeeded;
                     const exceedsCart = amount > cartTotal && cartTotal > 0;
-                    const isDisabled = !canAfford || exceedsCart || redeeming;
+                    const isDisabled =
+                      !canAfford ||
+                      exceedsCart ||
+                      redeemPointsMutation.isPending;
 
                     return (
                       <button
@@ -309,9 +308,11 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
                       setCustomPoints(maxPoints.toString());
                       setSelectedOption(null);
                     }}
-                    disabled={availablePoints === 0 || redeeming}
+                    disabled={
+                      availablePoints === 0 || redeemPointsMutation.isPending
+                    }
                     className={`rounded-lg border-2 px-3 py-2 text-sm font-bold transition-all ${
-                      availablePoints === 0 || redeeming
+                      availablePoints === 0 || redeemPointsMutation.isPending
                         ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
                         : "border-green-500 bg-white text-green-700 hover:bg-green-500 hover:text-white"
                     }`}
@@ -332,7 +333,7 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
                   setCustomPoints(e.target.value);
                   setSelectedOption(null);
                 }}
-                disabled={redeeming}
+                disabled={redeemPointsMutation.isPending}
                 placeholder="e.g., 500"
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -373,7 +374,7 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
         <div className="flex gap-3 border-t border-gray-200 bg-gray-50 p-6">
           <button
             onClick={onClose}
-            disabled={redeeming}
+            disabled={redeemPointsMutation.isPending}
             className="flex-1 rounded-lg border border-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-100 disabled:opacity-50"
           >
             Cancel
@@ -381,7 +382,7 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
           <button
             onClick={handleRedeem}
             disabled={
-              redeeming ||
+              redeemPointsMutation.isPending ||
               (!selectedOption && !customPoints) ||
               (customPointsValue > 0 && customPointsValue > availablePoints) ||
               (!!selectedOption &&
@@ -389,7 +390,9 @@ const RedeemPointsDialog: React.FC<RedeemPointsDialogProps> = ({
             }
             className="flex-1 rounded-lg bg-blue-500 px-6 py-3 font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
           >
-            {redeeming ? "Redeeming..." : "Redeem Points"}
+            {redeemPointsMutation.isPending
+              ? "redeemPointsMutation.isPending..."
+              : "Redeem Points"}
           </button>
         </div>
       </div>

@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Gift, Star, ShoppingBag, Sparkles, X } from "lucide-react";
-import { loyaltyAPI } from "../../services";
+import {
+  useCustomerRewards,
+  useReward,
+} from "../../services/queries/loyaltyQueries";
 import toast from "react-hot-toast";
 import type { LoyaltyReward } from "../../types";
 import { useSettings } from "../../context/SettingsContext";
@@ -17,54 +20,31 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({
   customerPoints,
   onRewardRedeemed,
 }) => {
-  const [rewards, setRewards] = useState<LoyaltyReward[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: rewards = [], isLoading: loading } =
+    useCustomerRewards(customerId);
+  const useRewardMutation = useReward();
   const [selectedReward, setSelectedReward] = useState<LoyaltyReward | null>(
     null,
   );
-  const [redeeming, setRedeeming] = useState(false);
   const { settings } = useSettings();
 
-  useEffect(() => {
-    fetchRewards();
-  }, [customerId]);
-
-  const fetchRewards = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await loyaltyAPI.getRewards(customerId);
-      setRewards(data || []);
-    } catch (err: any) {
-      setError(err.message || "Failed to load rewards");
-      console.error("Error fetching rewards:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleUseReward = async (reward: LoyaltyReward) => {
-    if (redeeming) return;
+    if (useRewardMutation.isPending) return;
 
     try {
-      setRedeeming(true);
-      await loyaltyAPI.useReward(reward.id);
+      await useRewardMutation.mutateAsync(reward.id);
       toast.success(`Reward "${reward.description}" activated successfully!`);
       setSelectedReward(null);
-      fetchRewards();
       onRewardRedeemed?.();
     } catch (err: any) {
       toast.error(err.message || "Failed to use reward");
       console.error("Error using reward:", err);
-    } finally {
-      setRedeeming(false);
     }
   };
 
-  const availableRewards = rewards.filter((r) => !r.redeemedAt);
-  const usedRewards = rewards.filter((r) => r.redeemedAt);
-  const expiredRewards = rewards.filter((r) => {
+  const availableRewards = rewards.filter((r: LoyaltyReward) => !r.redeemedAt);
+  const usedRewards = rewards.filter((r: LoyaltyReward) => r.redeemedAt);
+  const expiredRewards = rewards.filter((r: LoyaltyReward) => {
     if (!r.expiresAt) return false;
     return new Date(r.expiresAt) < new Date() && !r.redeemedAt;
   });
@@ -109,22 +89,6 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({
     );
   }
 
-  if (error) {
-    return (
-      <div className="rounded-lg bg-white p-6 shadow">
-        <div className="flex h-64 flex-col items-center justify-center text-red-500">
-          <p className="mb-4">{error}</p>
-          <button
-            onClick={fetchRewards}
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="rounded-lg bg-white shadow">
       <div className="p-6">
@@ -145,7 +109,7 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({
               Available to Use
             </h3>
             <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {availableRewards.map((reward) => {
+              {availableRewards.map((reward: LoyaltyReward) => {
                 const Icon = getRewardIcon(reward.rewardType);
                 const gradient = getRewardColor(reward.rewardType);
 
@@ -216,7 +180,7 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({
               Used Rewards
             </h3>
             <div className="mb-6 space-y-2">
-              {usedRewards.map((reward) => (
+              {usedRewards.map((reward: LoyaltyReward) => (
                 <div
                   key={reward.id}
                   className="flex items-center justify-between rounded border border-gray-200 bg-gray-50 p-3"
@@ -255,7 +219,7 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({
               Expired Rewards
             </h3>
             <div className="space-y-2">
-              {expiredRewards.map((reward) => (
+              {expiredRewards.map((reward: LoyaltyReward) => (
                 <div
                   key={reward.id}
                   className="flex items-center justify-between rounded border border-red-200 bg-red-50 p-3 opacity-60"
@@ -297,7 +261,7 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({
               <button
                 onClick={() => setSelectedReward(null)}
                 className="text-gray-400 hover:text-gray-600"
-                disabled={redeeming}
+                disabled={useRewardMutation.isPending}
               >
                 <X className="h-6 w-6" />
               </button>
@@ -338,17 +302,17 @@ const RewardsGallery: React.FC<RewardsGalleryProps> = ({
             <div className="flex gap-3">
               <button
                 onClick={() => setSelectedReward(null)}
-                disabled={redeeming}
+                disabled={useRewardMutation.isPending}
                 className="flex-1 rounded border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleUseReward(selectedReward)}
-                disabled={redeeming}
+                disabled={useRewardMutation.isPending}
                 className="flex-1 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:opacity-50"
               >
-                {redeeming ? "Using..." : "Confirm Use"}
+                {useRewardMutation.isPending ? "Using..." : "Confirm Use"}
               </button>
             </div>
           </div>

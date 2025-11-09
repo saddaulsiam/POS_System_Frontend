@@ -1,32 +1,31 @@
-import React, { useState, useEffect } from "react";
-import { categoriesAPI } from "../services";
-import { Category } from "../types";
+import { FC, FormEvent, useState } from "react";
 import toast from "react-hot-toast";
-import { Button, Input, Modal } from "../components/common";
+import {
+  Button,
+  CategoryTableSkeleton,
+  Input,
+  Modal,
+} from "../components/common";
+import {
+  useCategories,
+  useCreateCategory,
+  useDeleteCategory,
+  useUpdateCategory,
+} from "../services/queries/commonQueries";
+import { Category } from "../types";
 
-const CategoriesPage: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+const CategoriesPage: FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formName, setFormName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    loadCategories();
-  }, []);
+  // React Query hooks
+  const { data: categories = [], isLoading } = useCategories();
+  const createCategory = useCreateCategory();
+  const updateCategory = useUpdateCategory();
+  const deleteCategory = useDeleteCategory();
 
-  const loadCategories = async () => {
-    setIsLoading(true);
-    try {
-      const data = await categoriesAPI.getAll();
-      setCategories(data);
-    } catch (error) {
-      toast.error("Failed to load categories");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const isSubmitting = createCategory.isPending || updateCategory.isPending;
 
   const handleAdd = () => {
     setEditingCategory(null);
@@ -43,37 +42,33 @@ const CategoriesPage: React.FC = () => {
   const handleDelete = async (category: Category) => {
     if (!window.confirm(`Delete category "${category.name}"?`)) return;
     try {
-      await categoriesAPI.delete(category.id);
+      await deleteCategory.mutateAsync(category.id);
       toast.success("Category deleted");
-      loadCategories();
     } catch (error) {
       toast.error("Failed to delete category");
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formName.trim()) {
       toast.error("Category name is required");
       return;
     }
-    setIsSubmitting(true);
     try {
       if (editingCategory) {
-        await categoriesAPI.update(editingCategory.id, {
-          name: formName.trim(),
+        await updateCategory.mutateAsync({
+          id: editingCategory.id,
+          data: { name: formName.trim() },
         });
         toast.success("Category updated");
       } else {
-        await categoriesAPI.create({ name: formName.trim() });
+        await createCategory.mutateAsync({ name: formName.trim() });
         toast.success("Category created");
       }
       setShowModal(false);
-      loadCategories();
     } catch (error) {
       toast.error("Failed to save category");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -91,9 +86,7 @@ const CategoriesPage: React.FC = () => {
 
         <div className="overflow-hidden rounded-lg bg-white shadow">
           {isLoading ? (
-            <div className="py-8 text-center text-gray-500">
-              Loading categories...
-            </div>
+            <CategoryTableSkeleton />
           ) : (
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">

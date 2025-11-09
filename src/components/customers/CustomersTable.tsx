@@ -1,5 +1,6 @@
 import React from "react";
 import { Customer } from "../../types";
+import { CustomersTableSkeleton } from "./CustomersTableSkeleton";
 import { Badge } from "../common";
 
 interface CustomersTableProps {
@@ -45,11 +46,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
   };
 
   if (isLoading) {
-    return (
-      <div className="py-8 text-center">
-        <div className="text-gray-500">Loading customers...</div>
-      </div>
-    );
+    return <CustomersTableSkeleton />;
   }
 
   return (

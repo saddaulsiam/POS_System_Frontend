@@ -4,6 +4,7 @@ import { useSettings } from "../../context/SettingsContext";
 import { Category, Product, Supplier } from "../../types";
 import { formatCurrency } from "../../utils/currencyUtils";
 import { Badge, Button } from "../common";
+import { ProductTableSkeleton } from "./ProductTableSkeleton";
 
 interface ProductTableProps {
   products: Product[];
@@ -40,20 +41,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   const { settings } = useSettings();
 
   if (isLoading) {
-    return (
-      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4">
-          <h2 className="text-xl font-semibold text-gray-800">Products List</h2>
-        </div>
-        <div className="flex flex-col items-center justify-center py-16">
-          <div className="relative">
-            <div className="h-16 w-16 rounded-full border-4 border-blue-200"></div>
-            <div className="absolute left-0 top-0 h-16 w-16 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          </div>
-          <p className="mt-4 font-medium text-gray-600">Loading products...</p>
-        </div>
-      </div>
-    );
+    return <ProductTableSkeleton />;
   }
 
   if (products.length === 0) {

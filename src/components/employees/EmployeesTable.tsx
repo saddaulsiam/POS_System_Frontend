@@ -1,5 +1,6 @@
 import React from "react";
 import { Employee } from "../../types";
+import { EmployeesTableSkeleton } from "./EmployeesTableSkeleton";
 import { Badge, Button } from "../common";
 
 interface EmployeesTableProps {
@@ -18,11 +19,7 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
   onViewDetails,
 }) => {
   if (isLoading) {
-    return (
-      <div className="py-8 text-center">
-        <div className="text-gray-500">Loading employees...</div>
-      </div>
-    );
+    return <EmployeesTableSkeleton />;
   }
 
   return (

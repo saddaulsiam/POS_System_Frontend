@@ -69,9 +69,13 @@ grocery stores, retail shops, and small businesses.
 
 - **React** with TypeScript for type safety
 - **Tailwind CSS** for responsive design
-- **React Query** for data fetching and caching
+- **TanStack Query (React Query)** for server-state management and caching
 - **React Router** for navigation
 - **Recharts** for data visualization
+- **Axios** for HTTP requests
+- **React Hot Toast** for notifications
+
+> 📘 **State Management**: This app uses **React Query v5** for all server-state (products, sales, customers, etc.). See `REACT_QUERY_GUIDE.md` for patterns and best practices.
 
 ### Backend
 
@@ -163,11 +167,9 @@ grocery stores, retail shops, and small businesses.
 ### For Cashiers - Processing Sales
 
 1. **Login** at http://localhost:3000
-
    - Enter your username and PIN
 
 2. **Process a Sale:**
-
    - Search products by name or scan barcode
    - Click products to add to cart
    - Adjust quantities as needed
@@ -185,11 +187,9 @@ grocery stores, retail shops, and small businesses.
 ### For Managers/Admin - Dashboard
 
 1. **Login** at http://localhost:3000/admin
-
    - Use admin credentials
 
 2. **Dashboard Overview:**
-
    - Today's sales metrics
    - Total customers and growth
    - Inventory status and alerts
@@ -197,7 +197,6 @@ grocery stores, retail shops, and small businesses.
    - Real-time analytics
 
 3. **Product Management:**
-
    - Navigate to **Admin → Products**
    - Add/Edit/Delete products
    - Set prices, costs, and stock levels
@@ -206,7 +205,6 @@ grocery stores, retail shops, and small businesses.
    - Create product variants (sizes, colors, flavors)
 
 4. **Customer Management:**
-
    - Navigate to **Admin → Customers**
    - Add/Edit customer profiles
    - View complete purchase history
@@ -214,7 +212,6 @@ grocery stores, retail shops, and small businesses.
    - Track birthday rewards
 
 5. **Inventory Control:**
-
    - Navigate to **Admin → Inventory**
    - View all stock levels
    - Adjust stock (add/remove/correct)
@@ -223,7 +220,6 @@ grocery stores, retail shops, and small businesses.
    - View stock movement history
 
 6. **Reports & Analytics:**
-
    - Navigate to **Admin → Reports** or **Analytics**
    - **Daily Sales Report** - Today's performance
    - **Sales Range Report** - Custom date periods
@@ -998,10 +994,78 @@ Built with:
 - [React](https://reactjs.org/) - UI Framework
 - [TypeScript](https://www.typescriptlang.org/) - Type safety
 - [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [TanStack Query](https://tanstack.com/query) - Server-state management
 - [Node.js](https://nodejs.org/) - Backend runtime
 - [Express](https://expressjs.com/) - Web framework
 - [Prisma](https://www.prisma.io/) - Database ORM
 - [Recharts](https://recharts.org/) - Charts
+
+---
+
+## 👨‍💻 For Developers
+
+### State Management Architecture
+
+This project uses **TanStack Query (React Query v5)** for all server-state management:
+
+- ✅ Automatic caching and background refetching
+- ✅ Optimistic updates for instant UI feedback
+- ✅ Automatic cache invalidation after mutations
+- ✅ Built-in loading and error states
+- ✅ React Query Devtools (dev mode)
+
+**📚 Documentation:**
+
+- **Full Guide**: See `REACT_QUERY_GUIDE.md` for comprehensive patterns and best practices
+- **Quick Reference**: See `REACT_QUERY_QUICK_REF.md` for common patterns and snippets
+
+**Query Hooks Location**: `src/services/queries/`
+
+```typescript
+// Example usage
+import {
+  useProducts,
+  useCreateProduct,
+} from "../services/queries/productsQueries";
+
+function ProductsPage() {
+  const { data, isLoading } = useProducts({ page: 1, limit: 20 });
+  const createProduct = useCreateProduct();
+
+  // Products list with automatic caching
+  const products = data?.data || [];
+
+  // Mutations with automatic cache invalidation
+  const handleCreate = async (formData) => {
+    await createProduct.mutateAsync(formData);
+  };
+}
+```
+
+### Development Workflow
+
+1. **Start dev servers**: `npm run dev` (runs frontend + backend)
+2. **Build for production**: `npm run build`
+3. **Run tests**: `npm test` (if tests configured)
+4. **Format code**: `npm run format` (Prettier)
+5. **Database studio**: `npm run db:studio` (Prisma Studio)
+
+### Adding New Features
+
+When adding server-state functionality:
+
+1. Create query hooks in `src/services/queries/[resource]Queries.ts`
+2. Use `useQuery` for reads, `useMutation` for writes
+3. Ensure mutations invalidate relevant cache keys
+4. Follow patterns in existing query files
+5. See `REACT_QUERY_GUIDE.md` for detailed examples
+
+### Key Files
+
+- `src/main.tsx` - QueryClient configuration and Devtools
+- `src/services/queries/` - All React Query hooks
+- `src/services/api/` - Axios API layer (used by queries)
+- `src/hooks/` - Custom business logic hooks (e.g., POS handlers)
 
 ---
 

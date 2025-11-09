@@ -1,64 +1,76 @@
-import { useState, useEffect, useCallback } from "react";
-import { analyticsAPI } from "../services";
-import toast from "react-hot-toast";
+import { useState, useMemo } from "react";
 import {
-  Period,
-  OverviewData,
-  SalesTrendData,
-  TopProduct,
-  CategoryData,
-} from "../types/analyticsTypes";
+  useAnalyticsOverview,
+  useSalesTrend,
+  useTopProducts,
+  useCategoryBreakdown,
+} from "../services/queries/analyticsQueries";
+import type { Period } from "../types/analyticsTypes";
 
 export function useAnalyticsData() {
   const [period, setPeriod] = useState<Period>("today");
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [overviewData, setOverviewData] = useState<OverviewData | null>(null);
-  const [salesTrend, setSalesTrend] = useState<SalesTrendData[]>([]);
-  const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
-  const [categories, setCategories] = useState<CategoryData[]>([]);
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
 
-  const fetchAnalytics = useCallback(async () => {
-    try {
-      setRefreshing(true);
-      const params =
-        period === "custom" && customStartDate && customEndDate
-          ? { startDate: customStartDate, endDate: customEndDate }
-          : { period };
-      const [overview, trend, products, categoryBreakdown] = await Promise.all([
-        analyticsAPI.getOverview(params),
-        analyticsAPI.getSalesTrend({
-          period,
-          groupBy: period === "today" ? "hour" : "day",
-        }),
-        analyticsAPI.getTopProducts({ ...params, limit: 10 }),
-        analyticsAPI.getCategoryBreakdown(params),
-      ]);
-      setOverviewData(overview);
-      setSalesTrend(trend.data || []);
-      setTopProducts(products.products || []);
-      setCategories(categoryBreakdown.categories || []);
-    } catch (error: any) {
-      console.error("Error fetching analytics:", error);
-      toast.error(error.response?.data?.error || "Failed to load analytics");
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+  // Build query params based on period
+  const queryParams = useMemo(() => {
+    if (period === "custom" && customStartDate && customEndDate) {
+      return { period, startDate: customStartDate, endDate: customEndDate };
     }
+    return { period };
   }, [period, customStartDate, customEndDate]);
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, [fetchAnalytics]);
+  // React Query hooks
+  const {
+    data: overviewData,
+    isLoading: overviewLoading,
+    refetch: refetchOverview,
+  } = useAnalyticsOverview(queryParams);
+
+  const {
+    data: salesTrendData,
+    isLoading: trendLoading,
+    refetch: refetchTrend,
+  } = useSalesTrend({
+    period,
+    groupBy: period === "today" ? "hour" : "day",
+  });
+
+  const {
+    data: topProductsData,
+    isLoading: productsLoading,
+    refetch: refetchProducts,
+  } = useTopProducts({ ...queryParams, limit: 10 });
+
+  const {
+    data: categoryData,
+    isLoading: categoryLoading,
+    refetch: refetchCategories,
+  } = useCategoryBreakdown(queryParams);
+
+  // Aggregate loading states
+  const loading = overviewLoading || trendLoading || productsLoading || categoryLoading;
+  const refreshing = false; // React Query handles this automatically
+
+  // Extract data from query results
+  const salesTrend = salesTrendData?.data || [];
+  const topProducts = topProductsData?.products || [];
+  const categories = categoryData?.categories || [];
+
+  // Refresh all queries
+  const refresh = () => {
+    refetchOverview();
+    refetchTrend();
+    refetchProducts();
+    refetchCategories();
+  };
 
   return {
     period,
     setPeriod,
     loading,
     refreshing,
-    overviewData,
+    overviewData: overviewData || null,
     salesTrend,
     topProducts,
     categories,
@@ -66,6 +78,7 @@ export function useAnalyticsData() {
     setCustomStartDate,
     customEndDate,
     setCustomEndDate,
-    fetchAnalytics,
+    fetchAnalytics: refresh, // Backward compatibility alias
+    refresh,
   };
 }

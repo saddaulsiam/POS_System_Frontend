@@ -1,12 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Input } from "../components/common/Input";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
-import { inventoryAPI, suppliersAPI, productsAPI } from "../services";
 import toast from "react-hot-toast";
 import ReceiveItemsModal from "../components/inventory/ReceiveItemsModal";
 import EditPOModal from "../components/inventory/EditPOModal";
 import { formatCurrency } from "../utils/currencyUtils";
+import {
+  usePurchaseOrders,
+  usePurchaseOrderStats,
+  useCreatePurchaseOrder,
+  useUpdatePurchaseOrder,
+  useReceivePurchaseOrder,
+  useCancelPurchaseOrder,
+} from "../services/queries/inventoryQueries";
+import { useSuppliers } from "../services/queries/commonQueries";
+import { useProducts } from "../services/queries/productsQueries";
 
 interface PurchaseOrder {
   id: number;
@@ -49,43 +58,35 @@ interface PurchaseOrderItem {
   };
 }
 
-interface Supplier {
-  id: number;
-  name: string;
-  contactPerson?: string;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  sku: string;
-  purchasePrice: number;
-}
-
-interface POStats {
-  totalOrders: number;
-  pendingOrders: number;
-  receivedOrders: number;
-  cancelledOrders: number;
-  partiallyReceivedOrders: number;
-  totalValue: number;
-}
-
 const PurchaseOrdersPage: React.FC = () => {
   const { user } = useAuth();
   const { settings } = useSettings();
-  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [stats, setStats] = useState<POStats | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   // Filters
   const [statusFilter, setStatusFilter] = useState("");
   const [supplierFilter, setSupplierFilter] = useState("");
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+
+  // React Query hooks
+  const { data: poData, isLoading: loading } = usePurchaseOrders({
+    page,
+    limit: 20,
+    status: statusFilter || undefined,
+    supplierId: supplierFilter ? parseInt(supplierFilter) : undefined,
+  });
+  const purchaseOrders = poData?.purchaseOrders || [];
+  const totalPages = poData?.pagination?.pages || 1;
+
+  const { data: suppliersData } = useSuppliers({ limit: 100 });
+  const suppliers = suppliersData?.data || [];
+  const { data: productsData } = useProducts({ limit: 500 });
+  const products = productsData?.data || [];
+  const { data: stats } = usePurchaseOrderStats();
+
+  const createPurchaseOrder = useCreatePurchaseOrder();
+  const updatePurchaseOrder = useUpdatePurchaseOrder();
+  const receivePurchaseOrder = useReceivePurchaseOrder();
+  const cancelPurchaseOrder = useCancelPurchaseOrder();
 
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -113,59 +114,6 @@ const PurchaseOrdersPage: React.FC = () => {
     quantity: "1",
     unitPrice: "",
   });
-
-  useEffect(() => {
-    fetchPurchaseOrders();
-    fetchSuppliers();
-    fetchProducts();
-    fetchStats();
-  }, [page, statusFilter, supplierFilter]);
-
-  const fetchPurchaseOrders = async () => {
-    try {
-      setLoading(true);
-      const response = await inventoryAPI.getAllPurchaseOrders({
-        page,
-        limit: 20,
-        status: statusFilter || undefined,
-        supplierId: supplierFilter ? parseInt(supplierFilter) : undefined,
-      });
-      setPurchaseOrders(response.purchaseOrders || []);
-      setTotalPages(response.pagination?.pages || 1);
-    } catch (err: any) {
-      console.error("Error fetching purchase orders:", err);
-      setError("Failed to fetch purchase orders");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchSuppliers = async () => {
-    try {
-      const response = await suppliersAPI.getAll({ limit: 100 });
-      setSuppliers(response.data || []);
-    } catch (err) {
-      console.error("Error fetching suppliers:", err);
-    }
-  };
-
-  const fetchProducts = async () => {
-    try {
-      const response = await productsAPI.getAll({ limit: 500 });
-      setProducts(response.data || []);
-    } catch (err) {
-      console.error("Error fetching products:", err);
-    }
-  };
-
-  const fetchStats = async () => {
-    try {
-      const response = await inventoryAPI.getPurchaseOrderStats();
-      setStats(response);
-    } catch (err) {
-      console.error("Error fetching stats:", err);
-    }
-  };
 
   const handleAddItem = () => {
     if (
@@ -213,8 +161,7 @@ const PurchaseOrdersPage: React.FC = () => {
     }
 
     try {
-      setLoading(true);
-      await inventoryAPI.createPurchaseOrder({
+      await createPurchaseOrder.mutateAsync({
         supplierId: parseInt(formData.supplierId),
         orderDate: formData.orderDate,
         expectedDate: formData.expectedDate || undefined,
@@ -225,15 +172,10 @@ const PurchaseOrdersPage: React.FC = () => {
       toast.success("Purchase order created successfully");
       setShowCreateModal(false);
       resetForm();
-      fetchPurchaseOrders();
-      fetchStats();
     } catch (err: any) {
-      console.error("Error creating purchase order:", err);
       toast.error(
         err.response?.data?.error || "Failed to create purchase order",
       );
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -243,10 +185,8 @@ const PurchaseOrdersPage: React.FC = () => {
     }
 
     try {
-      await inventoryAPI.cancelPurchaseOrder(id);
+      await cancelPurchaseOrder.mutateAsync(id);
       toast.success("Purchase order cancelled");
-      fetchPurchaseOrders();
-      fetchStats();
       if (showViewModal) {
         setShowViewModal(false);
       }
@@ -257,24 +197,14 @@ const PurchaseOrdersPage: React.FC = () => {
     }
   };
 
-  const handleViewPO = async (po: PurchaseOrder) => {
-    try {
-      const fullPO = await inventoryAPI.getPurchaseOrderById(po.id);
-      setSelectedPO(fullPO);
-      setShowViewModal(true);
-    } catch (err) {
-      toast.error("Failed to load purchase order details");
-    }
+  const handleViewPO = (po: PurchaseOrder) => {
+    setSelectedPO(po);
+    setShowViewModal(true);
   };
 
-  const handleReceivePO = async (po: PurchaseOrder) => {
-    try {
-      const fullPO = await inventoryAPI.getPurchaseOrderById(po.id);
-      setSelectedPO(fullPO);
-      setShowReceiveModal(true);
-    } catch (err) {
-      toast.error("Failed to load purchase order details");
-    }
+  const handleReceivePO = (po: PurchaseOrder) => {
+    setSelectedPO(po);
+    setShowReceiveModal(true);
   };
 
   const handleReceiveItems = async (
@@ -282,7 +212,10 @@ const PurchaseOrdersPage: React.FC = () => {
     items: Array<{ itemId: number; receivedQuantity: number }>,
   ) => {
     try {
-      const response = await inventoryAPI.receiveItems(poId, items);
+      const response = await receivePurchaseOrder.mutateAsync({
+        id: poId,
+        items,
+      });
       toast.success("Items received successfully");
 
       // Show warnings if any
@@ -333,29 +266,15 @@ const PurchaseOrdersPage: React.FC = () => {
       }
 
       setShowReceiveModal(false);
-      fetchPurchaseOrders();
-      fetchStats();
-      // Update view modal if open
-      if (showViewModal && selectedPO) {
-        const updatedPO = await inventoryAPI.getPurchaseOrderById(
-          selectedPO.id,
-        );
-        setSelectedPO(updatedPO);
-      }
     } catch (err: any) {
       toast.error(err.response?.data?.error || "Failed to receive items");
       throw err;
     }
   };
 
-  const handleEditPO = async (po: PurchaseOrder) => {
-    try {
-      const fullPO = await inventoryAPI.getPurchaseOrderById(po.id);
-      setSelectedPO(fullPO);
-      setShowEditModal(true);
-    } catch (err) {
-      toast.error("Failed to load purchase order details");
-    }
+  const handleEditPO = (po: PurchaseOrder) => {
+    setSelectedPO(po);
+    setShowEditModal(true);
   };
 
   const handleUpdatePO = async (
@@ -369,18 +288,9 @@ const PurchaseOrdersPage: React.FC = () => {
     },
   ) => {
     try {
-      await inventoryAPI.updatePurchaseOrder(poId, data);
+      await updatePurchaseOrder.mutateAsync({ id: poId, data });
       toast.success("Purchase order updated successfully");
       setShowEditModal(false);
-      fetchPurchaseOrders();
-      fetchStats();
-      // Update view modal if open
-      if (showViewModal && selectedPO) {
-        const updatedPO = await inventoryAPI.getPurchaseOrderById(
-          selectedPO.id,
-        );
-        setSelectedPO(updatedPO);
-      }
     } catch (err: any) {
       toast.error(
         err.response?.data?.error || "Failed to update purchase order",
@@ -450,12 +360,6 @@ const PurchaseOrdersPage: React.FC = () => {
           )}
         </div>
       </div>
-
-      {error && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
-          ⚠️ {error}
-        </div>
-      )}
 
       {/* Stats */}
       {stats && (user?.role === "ADMIN" || user?.role === "MANAGER") && (
@@ -596,7 +500,7 @@ const PurchaseOrdersPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {purchaseOrders.map((po) => (
+                  {purchaseOrders.map((po: PurchaseOrder) => (
                     <tr key={po.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">
                         {po.poNumber}

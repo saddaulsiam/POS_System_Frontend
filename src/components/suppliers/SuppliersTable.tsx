@@ -1,5 +1,6 @@
 import React from "react";
 import { Supplier } from "../../types";
+import { SuppliersTableSkeleton } from "./SuppliersTableSkeleton";
 
 interface SuppliersTableProps {
   suppliers: Supplier[];
@@ -15,11 +16,7 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
   onDelete,
 }) => {
   if (isLoading) {
-    return (
-      <div className="py-8 text-center">
-        <div className="text-gray-500">Loading suppliers...</div>
-      </div>
-    );
+    return <SuppliersTableSkeleton />;
   }
 
   return (

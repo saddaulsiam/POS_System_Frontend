@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Input } from "../components/common/Input";
-import { productsAPI, categoriesAPI, suppliersAPI } from "../services";
-import { Category, Supplier } from "../types";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/common";
+import { useCategories, useSuppliers } from "../services/queries/commonQueries";
+import {
+  useCreateProduct,
+  useProductImageUpload,
+} from "../services/queries/productsQueries";
 
 const NewProductPage: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [form, setForm] = useState({
@@ -25,32 +26,14 @@ const NewProductPage: React.FC = () => {
     isWeighted: false,
     taxRate: "0",
   });
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    loadCategories();
-    loadSuppliers();
-  }, []);
+  // React Query hooks
+  const { data: categories = [] } = useCategories();
+  const { data: suppliersData } = useSuppliers({ limit: 1000 });
+  const suppliers = suppliersData?.data || [];
 
-  const loadCategories = async () => {
-    try {
-      const cats = await categoriesAPI.getAll();
-      setCategories(cats);
-    } catch (error) {
-      setCategories([]);
-    }
-  };
-
-  const loadSuppliers = async () => {
-    try {
-      const response = await suppliersAPI.getAll({ limit: 1000 });
-      console.log("✅ Loaded suppliers:", response.data);
-      setSuppliers(response.data);
-    } catch (error) {
-      console.error("❌ Error loading suppliers:", error);
-      setSuppliers([]);
-    }
-  };
+  const createProduct = useCreateProduct();
+  const uploadImage = useProductImageUpload();
 
   const handleFormChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -84,7 +67,6 @@ const NewProductPage: React.FC = () => {
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
       const payload = {
         name: form.name,
@@ -99,14 +81,14 @@ const NewProductPage: React.FC = () => {
         isWeighted: form.isWeighted,
         taxRate: parseFloat(form.taxRate),
       };
-      const product = await productsAPI.create(payload);
+      const product = await createProduct.mutateAsync(payload);
 
       // Upload image if selected
       if (imageFile && product.id) {
         const formData = new FormData();
         formData.append("image", imageFile);
         try {
-          await productsAPI.uploadImage(product.id, formData);
+          await uploadImage.mutateAsync({ id: product.id, formData });
         } catch (error) {
           toast.error("Product created but image upload failed");
         }
@@ -115,9 +97,7 @@ const NewProductPage: React.FC = () => {
       toast.success("Product added successfully");
       navigate("/products");
     } catch (error: any) {
-      toast.error(error?.response?.data?.error || "Failed to add product");
-    } finally {
-      setIsSubmitting(false);
+      // Error already handled by mutation
     }
   };
 
@@ -343,9 +323,11 @@ const NewProductPage: React.FC = () => {
               variant="primary"
               fullWidth
               size="lg"
-              disabled={isSubmitting}
+              disabled={createProduct.isPending || uploadImage.isPending}
             >
-              {isSubmitting ? "Adding..." : "Add Product"}
+              {createProduct.isPending || uploadImage.isPending
+                ? "Adding..."
+                : "Add Product"}
             </Button>
           </div>
         </form>

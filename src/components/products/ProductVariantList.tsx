@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { ProductVariant, Product } from "../../types";
-import { productVariantsAPI } from "../../services";
+import {
+  useProductVariants,
+  useDeleteProductVariant,
+} from "../../services/queries/productVariantsQueries";
 import { Button } from "../common";
 import { ProductVariantModal } from "./ProductVariantModal";
 import { useSettings } from "../../context/SettingsContext";
@@ -14,34 +17,22 @@ interface ProductVariantListProps {
 export const ProductVariantList: React.FC<ProductVariantListProps> = ({
   product,
 }) => {
-  const [variants, setVariants] = useState<ProductVariant[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(
     null,
   );
-  const [deletingId, setDeletingId] = useState<number | null>(null);
   const { settings } = useSettings();
 
-  const fetchVariants = async () => {
-    try {
-      setLoading(true);
-      const response = await productVariantsAPI.getAll({
-        productId: product.id,
-      });
-      const variants = Array.isArray(response) ? response : response.data || [];
-      setVariants(variants);
-    } catch (error) {
-      console.error("Error fetching variants:", error);
-      toast.error("Failed to load product variants");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Fetch variants using React Query
+  const { data: variantsResponse, isLoading: loading } = useProductVariants({
+    productId: product.id,
+  });
+  const variants = Array.isArray(variantsResponse)
+    ? variantsResponse
+    : variantsResponse?.data || [];
 
-  useEffect(() => {
-    fetchVariants();
-  }, [product.id]);
+  // Delete mutation
+  const deleteVariant = useDeleteProductVariant();
 
   const handleAddVariant = () => {
     setEditingVariant(null);
@@ -59,15 +50,11 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({
     }
 
     try {
-      setDeletingId(id);
-      await productVariantsAPI.delete(id);
+      await deleteVariant.mutateAsync(id);
       toast.success("Variant deleted successfully");
-      fetchVariants();
     } catch (error: any) {
       console.error("Error deleting variant:", error);
       toast.error(error.response?.data?.error || "Failed to delete variant");
-    } finally {
-      setDeletingId(null);
     }
   };
 
@@ -77,7 +64,7 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({
   };
 
   const handleSuccess = () => {
-    fetchVariants();
+    // React Query will auto-refetch due to invalidation
   };
 
   if (loading) {
@@ -204,7 +191,7 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
-              {variants.map((variant) => (
+              {variants.map((variant: ProductVariant) => (
                 <tr key={variant.id} className="hover:bg-gray-50">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="text-sm font-medium text-gray-900">
@@ -271,10 +258,10 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({
                     </button>
                     <button
                       onClick={() => handleDeleteVariant(variant.id)}
-                      disabled={deletingId === variant.id}
+                      disabled={deleteVariant.isPending}
                       className="text-red-600 hover:text-red-900 disabled:opacity-50"
                     >
-                      {deletingId === variant.id ? "Deleting..." : "Delete"}
+                      {deleteVariant.isPending ? "Deleting..." : "Delete"}
                     </button>
                   </td>
                 </tr>
@@ -292,14 +279,18 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({
               <span className="font-semibold">{variants.length}</span> variant
               {variants.length !== 1 ? "s" : ""} •{" "}
               <span className="font-semibold">
-                {variants.filter((v) => v.isActive).length}
+                {variants.filter((v: ProductVariant) => v.isActive).length}
               </span>{" "}
               active
             </div>
             <div>
               Total Stock:{" "}
               <span className="font-semibold">
-                {variants.reduce((sum, v) => sum + (v.stockQuantity || 0), 0)}
+                {variants.reduce(
+                  (sum: number, v: ProductVariant) =>
+                    sum + (v.stockQuantity || 0),
+                  0,
+                )}
               </span>
             </div>
           </div>

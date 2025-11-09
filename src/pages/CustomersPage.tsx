@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { customersAPI } from "../services";
+import React, { useState } from "react";
 import {
   Customer,
   CreateCustomerRequest,
@@ -16,6 +15,13 @@ import {
   PointsHistoryTable,
   RewardsGallery,
 } from "../components/loyalty";
+import {
+  useCustomers,
+  useCustomer,
+  useCreateCustomer,
+  useUpdateCustomer,
+  useDeleteCustomer,
+} from "../services/queries/customersQueries";
 
 interface CustomerFormData {
   name: string;
@@ -26,45 +32,37 @@ interface CustomerFormData {
 }
 
 const CustomersPage: React.FC = () => {
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(null);
+  const [viewingCustomerId, setViewingCustomerId] = useState<number | null>(
+    null,
+  );
   const [activeTab, setActiveTab] = useState<"overview" | "loyalty">(
     "overview",
   );
 
-  useEffect(() => {
-    loadCustomers();
-    // eslint-disable-next-line
-  }, [currentPage, searchTerm]);
+  // React Query hooks
+  const {
+    data: customersResponse,
+    isLoading,
+    refetch: refetchCustomers,
+  } = useCustomers({
+    page: currentPage,
+    limit: 20,
+    search: searchTerm || undefined,
+  });
 
-  const loadCustomers = async () => {
-    setIsLoading(true);
-    try {
-      const response = await customersAPI.getAll({
-        page: currentPage,
-        limit: 20,
-        search: searchTerm || undefined,
-      });
-      setCustomers(response.data);
-      setTotalPages(response.pagination.totalPages);
-    } catch (error: any) {
-      if (error.response) {
-        console.error("API error:", error.response.status, error.response.data);
-        toast.error(error.response.data?.error || "Failed to load customers");
-      } else {
-        console.error("Error loading customers:", error);
-        toast.error("Failed to load customers");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data: viewingCustomer, refetch: refetchViewingCustomer } =
+    useCustomer(viewingCustomerId ?? undefined);
+
+  const createCustomer = useCreateCustomer();
+  const updateCustomer = useUpdateCustomer();
+  const deleteCustomer = useDeleteCustomer();
+
+  const customers: Customer[] = customersResponse?.data || [];
+  const totalPages = customersResponse?.pagination?.totalPages || 1;
 
   const handleAdd = () => {
     setEditingCustomer(null);
@@ -73,7 +71,7 @@ const CustomersPage: React.FC = () => {
 
   const handleEdit = (customer: Customer) => {
     setEditingCustomer(customer);
-    setViewingCustomer(null); // Close detail view when editing
+    setViewingCustomerId(null); // Close detail view when editing
     setShowModal(true);
   };
 
@@ -95,11 +93,14 @@ const CustomersPage: React.FC = () => {
       let updatedCustomerId: number | null = null;
 
       if (editingCustomer) {
-        await customersAPI.update(editingCustomer.id, customerData);
+        await updateCustomer.mutateAsync({
+          id: editingCustomer.id,
+          data: customerData,
+        });
         toast.success("Customer updated successfully");
         updatedCustomerId = editingCustomer.id;
       } else {
-        const newCustomer = await customersAPI.create(
+        const newCustomer = await createCustomer.mutateAsync(
           customerData as CreateCustomerRequest,
         );
         toast.success("Customer created successfully");
@@ -107,12 +108,10 @@ const CustomersPage: React.FC = () => {
       }
 
       setShowModal(false);
-      await loadCustomers();
 
-      // If we were editing from detail view, reload and return to detail view
-      if (updatedCustomerId) {
-        const updated = await customersAPI.getById(updatedCustomerId);
-        setViewingCustomer(updated);
+      // If we were editing from detail view, set the viewing customer ID
+      if (updatedCustomerId && viewingCustomerId) {
+        setViewingCustomerId(updatedCustomerId);
       }
     } catch (error: any) {
       console.error("Error saving customer:", error);
@@ -127,9 +126,8 @@ const CustomersPage: React.FC = () => {
     }
 
     try {
-      await customersAPI.delete(customer.id);
+      await deleteCustomer.mutateAsync(customer.id);
       toast.success("Customer deleted successfully");
-      loadCustomers();
     } catch (error: any) {
       console.error("Error deleting customer:", error);
       toast.error(error.response?.data?.error || "Failed to delete customer");
@@ -137,12 +135,12 @@ const CustomersPage: React.FC = () => {
   };
 
   const handleViewDetails = (customer: Customer) => {
-    setViewingCustomer(customer);
+    setViewingCustomerId(customer.id);
     setActiveTab("overview");
   };
 
   const handleCloseDetails = () => {
-    setViewingCustomer(null);
+    setViewingCustomerId(null);
     setActiveTab("overview");
   };
 
@@ -313,12 +311,8 @@ const CustomersPage: React.FC = () => {
                   <LoyaltyDashboard
                     customer={viewingCustomer}
                     onRefresh={() => {
-                      loadCustomers();
-                      // Refresh the viewing customer
-                      const updated = customers.find(
-                        (c) => c.id === viewingCustomer.id,
-                      );
-                      if (updated) setViewingCustomer(updated);
+                      refetchCustomers();
+                      refetchViewingCustomer();
                     }}
                   />
 
@@ -330,11 +324,8 @@ const CustomersPage: React.FC = () => {
                     customerId={viewingCustomer.id}
                     customerPoints={viewingCustomer.loyaltyPoints || 0}
                     onRewardRedeemed={() => {
-                      loadCustomers();
-                      const updated = customers.find(
-                        (c) => c.id === viewingCustomer.id,
-                      );
-                      if (updated) setViewingCustomer(updated);
+                      refetchCustomers();
+                      refetchViewingCustomer();
                     }}
                   />
                 </div>

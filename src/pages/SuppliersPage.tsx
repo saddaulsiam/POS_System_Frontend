@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { suppliersAPI } from "../services";
+import React, { useState } from "react";
 import {
   Supplier,
   CreateSupplierRequest,
@@ -11,6 +10,12 @@ import { SuppliersTable } from "../components/suppliers/SuppliersTable";
 import { SupplierModal } from "../components/suppliers/SupplierModal";
 import { Pagination } from "../components/sales/Pagination";
 import { Button } from "../components/common";
+import {
+  useSuppliers,
+  useCreateSupplier,
+  useUpdateSupplier,
+  useDeleteSupplier,
+} from "../services/queries/commonQueries";
 
 interface SupplierFormData {
   name: string;
@@ -21,36 +26,24 @@ interface SupplierFormData {
 }
 
 const SuppliersPage: React.FC = () => {
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    loadSuppliers();
-    // eslint-disable-next-line
-  }, [currentPage, searchTerm]);
+  // React Query hooks
+  const { data: suppliersResponse, isLoading } = useSuppliers({
+    page: currentPage,
+    limit: 20,
+    search: searchTerm || undefined,
+  });
 
-  const loadSuppliers = async () => {
-    setIsLoading(true);
-    try {
-      const response = await suppliersAPI.getAll({
-        page: currentPage,
-        limit: 20,
-        search: searchTerm || undefined,
-      });
-      setSuppliers(response.data);
-      setTotalPages(response.pagination.totalPages);
-    } catch (error: any) {
-      console.error("Error loading suppliers:", error);
-      toast.error(error.response?.data?.error || "Failed to load suppliers");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const createSupplier = useCreateSupplier();
+  const updateSupplier = useUpdateSupplier();
+  const deleteSupplier = useDeleteSupplier();
+
+  const suppliers: Supplier[] = suppliersResponse?.data || [];
+  const totalPages = suppliersResponse?.pagination?.totalPages || 1;
 
   const handleAdd = () => {
     setEditingSupplier(null);
@@ -78,17 +71,18 @@ const SuppliersPage: React.FC = () => {
       };
 
       if (editingSupplier) {
-        await suppliersAPI.update(editingSupplier.id, supplierData);
+        await updateSupplier.mutateAsync({
+          id: editingSupplier.id,
+          data: supplierData,
+        });
         toast.success("Supplier updated successfully");
       } else {
-        await suppliersAPI.create(supplierData as CreateSupplierRequest);
+        await createSupplier.mutateAsync(supplierData as CreateSupplierRequest);
         toast.success("Supplier created successfully");
       }
 
       setShowModal(false);
-      loadSuppliers();
     } catch (error: any) {
-      console.error("Error saving supplier:", error);
       toast.error(error.response?.data?.error || "Failed to save supplier");
       throw error; // Re-throw to keep modal open
     }
@@ -100,11 +94,9 @@ const SuppliersPage: React.FC = () => {
     }
 
     try {
-      await suppliersAPI.delete(supplier.id);
+      await deleteSupplier.mutateAsync(supplier.id);
       toast.success("Supplier deleted successfully");
-      loadSuppliers();
     } catch (error: any) {
-      console.error("Error deleting supplier:", error);
       toast.error(error.response?.data?.error || "Failed to delete supplier");
     }
   };

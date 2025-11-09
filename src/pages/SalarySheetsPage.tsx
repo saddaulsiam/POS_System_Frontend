@@ -1,9 +1,9 @@
 import React from "react";
 import toast from "react-hot-toast";
-import LoadingSpinner from "../components/common/LoadingSpinner";
 import { Modal } from "../components/common/Modal";
 import SalarySheetForm from "../components/salarySheet/SalarySheetForm";
 import SalarySheetsTable from "../components/salarySheet/SalarySheetsTable";
+import { SalarySheetsTableSkeleton } from "../components/salarySheet/SalarySheetsTableSkeleton";
 import { useSalarySheets } from "../hooks/useSalarySheets";
 import { salarySheetsAPI } from "../services/api/salarySheetsAPI";
 import {
@@ -142,7 +142,7 @@ const SalarySheetsPage: React.FC = () => {
     }
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <SalarySheetsTableSkeleton />;
 
   return (
     <div className="p-6">

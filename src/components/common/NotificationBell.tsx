@@ -1,16 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { notificationsAPI } from "../../services";
+import {
+  useNotifications,
+  useMarkAsRead,
+} from "../../services/queries/notificationsQueries";
 
 const NotificationBell: React.FC = () => {
-  const [notifications, setNotifications] = useState<any[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
+  // Fetch notifications using React Query
+  const { data: notificationsData, isLoading: loading } = useNotifications();
+  const notifications = notificationsData?.data || [];
+  const markAsRead = useMarkAsRead();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -28,17 +30,6 @@ const NotificationBell: React.FC = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownOpen]);
-
-  const fetchNotifications = async () => {
-    setLoading(true);
-    try {
-      const { data } = await notificationsAPI.getAll();
-      setNotifications(data);
-    } catch (err) {
-      setNotifications([]);
-    }
-    setLoading(false);
-  };
 
   const unreadCount = notifications.filter((n: any) => !n.isRead).length;
 
@@ -98,10 +89,7 @@ const NotificationBell: React.FC = () => {
                   {!n.isRead && (
                     <button
                       className="mt-2 rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700"
-                      onClick={async () => {
-                        await notificationsAPI.markAsRead(n.id);
-                        fetchNotifications();
-                      }}
+                      onClick={() => markAsRead.mutate(n.id)}
                     >
                       Mark as Read
                     </button>

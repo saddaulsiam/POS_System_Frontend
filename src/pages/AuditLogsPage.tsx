@@ -1,6 +1,7 @@
-import { FC, useEffect, useState } from "react";
-import api from "../services/api";
+import { FC, useState } from "react";
 import { Modal } from "../components/common/Modal";
+import { useAuditLogs } from "../services/queries/auditLogsQueries";
+import { AuditLogsTableSkeleton } from "../components/common/AuditLogsTableSkeleton";
 
 interface AuditLog {
   id: number;
@@ -21,9 +22,6 @@ interface AuditLog {
 }
 
 const AuditLogsPage: FC = () => {
-  const [logs, setLogs] = useState<AuditLog[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
   const [filters, setFilters] = useState({
@@ -36,28 +34,13 @@ const AuditLogsPage: FC = () => {
     log?: AuditLog;
   }>({ open: false });
 
-  const fetchLogs = async () => {
-    setLoading(true);
-    try {
-      const params: any = { page, limit };
-      if (filters.userId) params.userId = filters.userId;
-      if (filters.action) params.action = filters.action;
-      if (filters.entity) params.entity = filters.entity;
-      const res = await api.get("/audit-logs", { params });
-      setLogs(res.data.logs);
-      setTotal(res.data.total);
-    } catch (err) {
-      setLogs([]);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchLogs();
-    // eslint-disable-next-line
-  }, [page, filters]);
+  const { data, isLoading: loading } = useAuditLogs({
+    page,
+    limit,
+    ...filters,
+  });
+  const logs = data?.logs || [];
+  const total = data?.total || 0;
 
   const handleFilterChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -68,7 +51,7 @@ const AuditLogsPage: FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchLogs();
+    // Filters already trigger refetch via useQuery dependency
   };
 
   return (
@@ -134,11 +117,7 @@ const AuditLogsPage: FC = () => {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={10} className="p-4 text-center">
-                    Loading...
-                  </td>
-                </tr>
+                <AuditLogsTableSkeleton />
               ) : logs.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="p-4 text-center">
@@ -146,7 +125,7 @@ const AuditLogsPage: FC = () => {
                   </td>
                 </tr>
               ) : (
-                logs.map((log) => (
+                logs.map((log: AuditLog) => (
                   <tr
                     key={log.id}
                     className="border-b transition hover:bg-blue-50"

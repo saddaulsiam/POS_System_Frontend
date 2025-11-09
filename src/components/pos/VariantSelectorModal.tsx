@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { toast } from "react-hot-toast";
+import React, { useMemo } from "react";
 import { Product, ProductVariant } from "../../types";
-import { productVariantsAPI } from "../../services";
+import { useProductVariants } from "../../services/queries/productVariantsQueries";
 import { useSettings } from "../../context/SettingsContext";
 import { formatCurrency } from "../../utils/currencyUtils";
 import { Modal } from "../common";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 interface VariantSelectorModalProps {
   isOpen: boolean;
@@ -19,33 +19,22 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
   product,
   onSelectVariant,
 }) => {
-  const [variants, setVariants] = useState<ProductVariant[]>([]);
-  const [loading, setLoading] = useState(true);
   const { settings } = useSettings();
 
-  useEffect(() => {
-    if (isOpen && product.id) {
-      loadVariants();
-    }
-  }, [isOpen, product.id]);
+  // Fetch variants using React Query
+  const { data: variantsData, isLoading: loading } = useProductVariants(
+    isOpen && product.id ? { productId: product.id } : undefined,
+  );
 
-  const loadVariants = async () => {
-    try {
-      setLoading(true);
-      const data = await productVariantsAPI.getAll({ productId: product.id });
-      // Only show active variants with stock
-      const variantsArr = Array.isArray(data) ? data : data.data || [];
-      const activeVariants = variantsArr.filter(
-        (v: ProductVariant) => v.isActive && (v.stockQuantity || 0) > 0,
-      );
-      setVariants(activeVariants);
-    } catch (error) {
-      console.error("Error loading variants:", error);
-      toast.error("Failed to load product variants");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Filter active variants with stock
+  const variants = useMemo(() => {
+    const variantsArr = Array.isArray(variantsData)
+      ? variantsData
+      : variantsData?.data || [];
+    return variantsArr.filter(
+      (v: ProductVariant) => v.isActive && (v.stockQuantity || 0) > 0,
+    );
+  }, [variantsData]);
 
   const handleSelectVariant = (variant: ProductVariant) => {
     onSelectVariant(variant);
@@ -62,10 +51,8 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
       <div className="p-6">
         {loading ? (
           <div className="py-12 text-center">
-            <div className="mx-auto h-16 w-16 animate-spin rounded-full border-b-4 border-blue-600"></div>
-            <p className="mt-6 font-medium text-gray-600">
-              Loading variants...
-            </p>
+            <LoadingSpinner />
+            <p className="font-medium text-gray-600">Loading variants...</p>
           </div>
         ) : variants.length === 0 ? (
           <div className="py-12 text-center">
@@ -115,7 +102,7 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
             </div>
 
             <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-2">
-              {variants.map((variant) => (
+              {variants.map((variant: ProductVariant) => (
                 <button
                   key={variant.id}
                   onClick={() => handleSelectVariant(variant)}

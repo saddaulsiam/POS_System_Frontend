@@ -1,4 +1,3 @@
-import { RefreshCw } from "lucide-react";
 import React from "react";
 import { AnalyticsOverviewCards } from "../components/analytics/AnalyticsOverviewCards";
 import { AnalyticsPeriodSelector } from "../components/analytics/AnalyticsPeriodSelector";
@@ -9,6 +8,7 @@ import { RefreshButton } from "../components/common";
 import { useSettings } from "../context/SettingsContext";
 import { useAnalyticsData } from "../hooks/useAnalyticsData";
 import { formatCurrency } from "../utils/currencyUtils";
+import { AnalyticsPageSkeleton } from "../components/analytics/AnalyticsPageSkeleton";
 
 const AnalyticsPage: React.FC = () => {
   const { settings } = useSettings();
@@ -63,11 +63,7 @@ const AnalyticsPage: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <RefreshCw className="h-8 w-8 animate-spin text-blue-500" />
-      </div>
-    );
+    return <AnalyticsPageSkeleton />;
   }
 
   return (

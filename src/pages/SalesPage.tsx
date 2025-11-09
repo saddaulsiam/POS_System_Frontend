@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { salesAPI, customersAPI, employeesAPI } from "../services";
-import { Sale, Customer, Employee } from "../types";
+import React, { useState } from "react";
+import { Sale } from "../types";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
@@ -10,18 +9,22 @@ import { SaleDetailsModal } from "../components/sales/SaleDetailsModal";
 import { VoidSaleModal } from "../components/sales/VoidSaleModal";
 import { Pagination } from "../components/sales/Pagination";
 import { getCustomerName, getEmployeeName } from "../utils/salesUtils";
+import {
+  useSales,
+  useSale,
+  useSaleByReceiptId,
+  useRefundSale,
+  useVoidSale,
+} from "../services/queries/salesQueries";
+import { useCustomers } from "../services/queries/customersQueries";
+import { useEmployees } from "../services/queries/employeesQueries";
 
 const SalesPage: React.FC = () => {
   const { user } = useAuth();
   const { settings } = useSettings();
-  const [sales, setSales] = useState<Sale[]>([]);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
+  const [selectedSaleId, setSelectedSaleId] = useState<number | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showVoidModal, setShowVoidModal] = useState(false);
-  const [voidLoading, setVoidLoading] = useState(false);
 
   // Filters
   const [dateFrom, setDateFrom] = useState("");
@@ -29,96 +32,52 @@ const SalesPage: React.FC = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<number | "">("");
   const [selectedEmployee, setSelectedEmployee] = useState<number | "">("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
   const [receiptId, setReceiptId] = useState("");
 
-  useEffect(() => {
-    loadSales();
-  }, [
-    currentPage,
-    dateFrom,
-    dateTo,
-    selectedCustomer,
-    selectedEmployee,
-    receiptId,
-  ]);
-
-  useEffect(() => {
-    loadCustomers();
-    loadEmployees();
-  }, []);
-
-  const loadSales = async () => {
-    setIsLoading(true);
-    try {
-      let response;
-      if (receiptId.trim() !== "") {
-        // Search by receipt ID
-        const sale = await salesAPI.getByReceiptId(receiptId.trim());
-        response = { data: sale ? [sale] : [], pagination: { totalPages: 1 } };
-      } else {
-        response = await salesAPI.getAll({
+  // React Query hooks
+  const salesParams =
+    receiptId.trim() !== ""
+      ? undefined
+      : {
           page: currentPage,
           limit: 20,
           startDate: dateFrom || undefined,
           endDate: dateTo || undefined,
           customerId: selectedCustomer || undefined,
           employeeId: selectedEmployee || undefined,
-        });
-      }
-      const { data = [], pagination } = response || {};
-      setSales(data);
-      // Map backend keys to frontend state for pagination
-      let pages = 1;
-      let items = 0;
-      if (pagination) {
-        if ("pages" in pagination) pages = Number((pagination as any).pages);
-        else if ("totalPages" in pagination)
-          pages = Number((pagination as any).totalPages);
-        if ("total" in pagination) items = Number((pagination as any).total);
-        else if ("totalItems" in pagination)
-          items = Number((pagination as any).totalItems);
-      }
-      setTotalPages(pages);
-      setTotalItems(items);
-    } catch (error: any) {
-      console.error("Error loading sales:", error);
-      toast.error(error?.response?.data?.error || "Failed to load sales");
-      setSales([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        };
 
-  const loadCustomers = async () => {
-    try {
-      const response = await customersAPI.getAll({ limit: 100 });
-      setCustomers(response.data || []);
-    } catch (error) {
-      console.error("Error loading customers:", error);
-    }
-  };
+  const { data: salesResponse, isLoading: salesLoading } =
+    useSales(salesParams);
+  const { data: receiptSale, isLoading: receiptLoading } =
+    useSaleByReceiptId(receiptId);
+  const { data: selectedSale } = useSale(selectedSaleId ?? undefined);
+  const { data: customersResponse } = useCustomers({ limit: 100 });
+  const { data: employeesData } = useEmployees();
 
-  const loadEmployees = async () => {
-    try {
-      const data = await employeesAPI.getAll();
-      setEmployees(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error loading employees:", error);
-      setEmployees([]); // Ensure it's always an array
-    }
-  };
+  const refundSale = useRefundSale();
+  const voidSale = useVoidSale();
+
+  // Derive state
+  const isLoading = receiptId.trim() !== "" ? receiptLoading : salesLoading;
+  const sales =
+    receiptId.trim() !== "" && receiptSale
+      ? [receiptSale]
+      : salesResponse?.data || [];
+  const customers = customersResponse?.data || [];
+  const employees = Array.isArray(employeesData) ? employeesData : [];
+  const totalPages =
+    receiptId.trim() !== "" ? 1 : salesResponse?.pagination?.totalPages || 1;
+  const totalItems =
+    receiptId.trim() !== ""
+      ? receiptSale
+        ? 1
+        : 0
+      : salesResponse?.pagination?.totalItems || 0;
 
   const handleViewDetails = async (sale: Sale) => {
-    try {
-      const detailedSale = await salesAPI.getById(sale.id);
-      setSelectedSale(detailedSale);
-      setShowDetails(true);
-    } catch (error) {
-      console.error("Error loading sale details:", error);
-      toast.error("Failed to load sale details");
-    }
+    setSelectedSaleId(sale.id);
+    setShowDetails(true);
   };
 
   const handleRefund = async (sale: Sale) => {
@@ -138,9 +97,8 @@ const SalesPage: React.FC = () => {
         })),
         reason: "Customer return",
       };
-      await salesAPI.processRefund(sale.id, refundData);
+      await refundSale.mutateAsync({ id: sale.id, data: refundData });
       toast.success("Refund processed successfully");
-      loadSales();
     } catch (error: any) {
       console.error("Error processing refund:", error);
       toast.error(error?.response?.data?.error || "Failed to process refund");
@@ -148,7 +106,7 @@ const SalesPage: React.FC = () => {
   };
 
   const handleVoidSale = (sale: Sale) => {
-    setSelectedSale(sale);
+    setSelectedSaleId(sale.id);
     setShowVoidModal(true);
   };
 
@@ -157,24 +115,21 @@ const SalesPage: React.FC = () => {
     password: string,
     restoreStock: boolean,
   ) => {
-    if (!selectedSale) return;
+    if (!selectedSaleId) return;
 
     try {
-      setVoidLoading(true);
-      await salesAPI.voidSale(selectedSale.id, {
-        reason,
-        password,
-        restoreStock,
+      await voidSale.mutateAsync({
+        id: selectedSaleId,
+        data: { reason, password, restoreStock },
       });
-      toast.success(`Sale #${selectedSale.receiptId} has been voided`);
+      const receiptIdForToast =
+        sales.find((s) => s.id === selectedSaleId)?.receiptId || selectedSaleId;
+      toast.success(`Sale #${receiptIdForToast} has been voided`);
       setShowVoidModal(false);
-      setSelectedSale(null);
-      loadSales();
+      setSelectedSaleId(null);
     } catch (error: any) {
       console.error("Error voiding sale:", error);
       toast.error(error?.response?.data?.error || "Failed to void sale");
-    } finally {
-      setVoidLoading(false);
     }
   };
 
@@ -239,7 +194,7 @@ const SalesPage: React.FC = () => {
 
       {/* Sale Details Modal */}
       <SaleDetailsModal
-        sale={selectedSale}
+        sale={selectedSale || null}
         isOpen={showDetails}
         onClose={() => setShowDetails(false)}
         getCustomerName={(customerId) => getCustomerName(customerId, customers)}
@@ -248,15 +203,15 @@ const SalesPage: React.FC = () => {
 
       {/* Void Sale Modal */}
       <VoidSaleModal
-        sale={selectedSale}
+        sale={selectedSale || null}
         isOpen={showVoidModal}
         onClose={() => {
           setShowVoidModal(false);
-          setSelectedSale(null);
+          setSelectedSaleId(null);
         }}
         onConfirm={handleVoidConfirm}
         requirePassword={settings?.requirePasswordOnVoid || false}
-        isLoading={voidLoading}
+        isLoading={voidSale.isPending}
       />
     </div>
   );

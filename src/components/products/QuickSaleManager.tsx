@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { QuickSaleManagerProps, QuickSaleItem } from "../../types";
-import { quickSaleItemsAPI } from "../../services";
+import {
+  useQuickSaleItems,
+  useCreateQuickSaleItem,
+  useUpdateQuickSaleItem,
+  useDeleteQuickSaleItem,
+} from "../../services/queries/quickSaleQueries";
 import { Button } from "../common";
 
 const COLOR_OPTIONS = [
@@ -21,41 +26,28 @@ export const QuickSaleManager: React.FC<QuickSaleManagerProps> = ({
   product,
   onSuccess,
 }) => {
-  const [quickItems, setQuickItems] = useState<QuickSaleItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [selectedColor, setSelectedColor] = useState("#3B82F6");
   const [sortOrder, setSortOrder] = useState(0);
   const [editingItem, setEditingItem] = useState<QuickSaleItem | null>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      loadQuickItems();
-      if (product) {
-        setDisplayName(product.name);
-        // Find next available sort order
-        const maxOrder =
-          quickItems.length > 0
-            ? Math.max(...quickItems.map((i) => i.sortOrder))
-            : -1;
-        setSortOrder(maxOrder + 1);
-      }
-    }
-  }, [isOpen, product]);
+  // React Query hooks
+  const { data: quickItems = [], isLoading: loading } = useQuickSaleItems();
+  const createQuickSale = useCreateQuickSaleItem();
+  const updateQuickSale = useUpdateQuickSaleItem();
+  const deleteQuickSale = useDeleteQuickSaleItem();
 
-  const loadQuickItems = async () => {
-    try {
-      setLoading(true);
-      const response = await quickSaleItemsAPI.getAll();
-      setQuickItems(response);
-    } catch (error) {
-      console.error("Error loading quick sale items:", error);
-      toast.error("Failed to load quick sale items");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (isOpen && product) {
+      setDisplayName(product.name);
+      // Find next available sort order
+      const maxOrder =
+        quickItems.length > 0
+          ? Math.max(...quickItems.map((i: QuickSaleItem) => i.sortOrder))
+          : -1;
+      setSortOrder(maxOrder + 1);
     }
-  };
+  }, [isOpen, product, quickItems]);
 
   const handleAddToQuickSale = async () => {
     if (!product && !editingItem) return;
@@ -66,20 +58,21 @@ export const QuickSaleManager: React.FC<QuickSaleManagerProps> = ({
     }
 
     try {
-      setIsSubmitting(true);
-
       if (editingItem) {
         // Update existing item
-        await quickSaleItemsAPI.update(editingItem.id, {
-          displayName: displayName.trim(),
-          color: selectedColor,
-          sortOrder,
+        await updateQuickSale.mutateAsync({
+          id: editingItem.id,
+          data: {
+            displayName: displayName.trim(),
+            color: selectedColor,
+            sortOrder,
+          },
         });
         toast.success("Quick Sale item updated!");
         setEditingItem(null);
       } else if (product) {
         // Create new item
-        await quickSaleItemsAPI.create({
+        await createQuickSale.mutateAsync({
           productId: product.id,
           displayName: displayName.trim(),
           color: selectedColor,
@@ -88,7 +81,6 @@ export const QuickSaleManager: React.FC<QuickSaleManagerProps> = ({
         toast.success("Added to Quick Sale!");
       }
 
-      loadQuickItems();
       onSuccess();
 
       // Reset form
@@ -98,8 +90,6 @@ export const QuickSaleManager: React.FC<QuickSaleManagerProps> = ({
     } catch (error: any) {
       console.error("Error saving quick sale item:", error);
       toast.error(error.response?.data?.error || "Failed to save");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -107,9 +97,8 @@ export const QuickSaleManager: React.FC<QuickSaleManagerProps> = ({
     if (!confirm("Remove this item from Quick Sale?")) return;
 
     try {
-      await quickSaleItemsAPI.delete(itemId);
+      await deleteQuickSale.mutateAsync(itemId);
       toast.success("Removed from Quick Sale");
-      loadQuickItems();
       onSuccess();
     } catch (error) {
       console.error("Error removing quick sale item:", error);
@@ -132,7 +121,7 @@ export const QuickSaleManager: React.FC<QuickSaleManagerProps> = ({
       setDisplayName(product.name);
       const maxOrder =
         quickItems.length > 0
-          ? Math.max(...quickItems.map((i) => i.sortOrder))
+          ? Math.max(...quickItems.map((i: QuickSaleItem) => i.sortOrder))
           : -1;
       setSortOrder(maxOrder + 1);
     } else {
@@ -146,7 +135,8 @@ export const QuickSaleManager: React.FC<QuickSaleManagerProps> = ({
 
   // Check if current product is already in quick sale
   const isProductInQuickSale =
-    product && quickItems.some((item) => item.productId === product.id);
+    product &&
+    quickItems.some((item: QuickSaleItem) => item.productId === product.id);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
@@ -306,7 +296,11 @@ export const QuickSaleManager: React.FC<QuickSaleManagerProps> = ({
                         <Button
                           variant="primary"
                           onClick={handleAddToQuickSale}
-                          disabled={isSubmitting || !displayName.trim()}
+                          disabled={
+                            createQuickSale.isPending ||
+                            updateQuickSale.isPending ||
+                            !displayName.trim()
+                          }
                           className="flex items-center"
                         >
                           <svg
@@ -326,7 +320,8 @@ export const QuickSaleManager: React.FC<QuickSaleManagerProps> = ({
                               }
                             />
                           </svg>
-                          {isSubmitting
+                          {createQuickSale.isPending ||
+                          updateQuickSale.isPending
                             ? editingItem
                               ? "Updating..."
                               : "Adding..."
@@ -424,8 +419,11 @@ export const QuickSaleManager: React.FC<QuickSaleManagerProps> = ({
             ) : (
               <div className="space-y-3">
                 {quickItems
-                  .sort((a, b) => a.sortOrder - b.sortOrder)
-                  .map((item) => (
+                  .sort(
+                    (a: QuickSaleItem, b: QuickSaleItem) =>
+                      a.sortOrder - b.sortOrder,
+                  )
+                  .map((item: QuickSaleItem) => (
                     <div
                       key={item.id}
                       className="rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"

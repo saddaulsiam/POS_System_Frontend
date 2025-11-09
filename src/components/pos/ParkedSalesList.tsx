@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useSettings } from "../../context/SettingsContext";
-import { parkedSalesAPI } from "../../services";
 import { ParkedSale } from "../../types";
 import { formatCurrency } from "../../utils/currencyUtils";
 import { Button } from "../common";
+import {
+  useParkedSales,
+  useDeleteParkedSale,
+} from "../../services/queries/parkedSalesQueries";
 
 interface ParkedSalesListProps {
   isOpen: boolean;
@@ -17,29 +20,23 @@ export const ParkedSalesList: React.FC<ParkedSalesListProps> = ({
   onClose,
   onResume,
 }) => {
-  const [parkedSales, setParkedSales] = useState<ParkedSale[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState<number | null>(null);
   const { settings } = useSettings();
+  const {
+    data: parkedSalesData,
+    isLoading,
+    refetch: refetchParkedSales,
+  } = useParkedSales();
+
+  const parkedSales: ParkedSale[] = parkedSalesData || [];
+  const deleteParkedSale = useDeleteParkedSale();
+  const [deleting, setDeleting] = useState<number | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      loadParkedSales();
+      // ensure fresh data when opening the modal
+      refetchParkedSales();
     }
-  }, [isOpen]);
-
-  const loadParkedSales = async () => {
-    try {
-      setLoading(true);
-      const data = await parkedSalesAPI.getAll();
-      setParkedSales(data);
-    } catch (error) {
-      console.error("Error loading parked sales:", error);
-      toast.error("Failed to load parked sales");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [isOpen, refetchParkedSales]);
 
   const handleResume = (parkedSale: ParkedSale) => {
     onResume(parkedSale);
@@ -53,13 +50,13 @@ export const ParkedSalesList: React.FC<ParkedSalesListProps> = ({
 
     try {
       setDeleting(id);
-      await parkedSalesAPI.delete(id);
+      await deleteParkedSale.mutateAsync(id);
       toast.success("Parked sale deleted");
-      loadParkedSales();
+      // invalidate/refetch handled by mutation onSuccess
     } catch (error: any) {
       console.error("Error deleting parked sale:", error);
       toast.error(
-        error.response?.data?.error || "Failed to delete parked sale",
+        error?.response?.data?.error || "Failed to delete parked sale",
       );
     } finally {
       setDeleting(null);
@@ -107,7 +104,7 @@ export const ParkedSalesList: React.FC<ParkedSalesListProps> = ({
           Resume or manage your saved sales
         </p>
 
-        {loading ? (
+        {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
             <span className="ml-3 text-gray-600">Loading parked sales...</span>

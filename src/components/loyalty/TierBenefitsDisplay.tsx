@@ -1,7 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Trophy, Award, Star, Zap, TrendingUp } from "lucide-react";
-import { loyaltyAPI } from "../../services";
-import type { LoyaltyTier, LoyaltyTierConfig } from "../../types";
+import { useTierConfig } from "../../services/queries/loyaltyQueries";
+import type { LoyaltyTier } from "../../types";
+
+interface LoyaltyTierConfig {
+  tier: LoyaltyTier;
+  minimumPoints: number;
+  pointsMultiplier: number;
+  discountPercentage: number;
+  birthdayBonus: number;
+  description?: string;
+}
 
 interface TierBenefitsDisplayProps {
   currentTier?: LoyaltyTier;
@@ -12,27 +21,7 @@ const TierBenefitsDisplay: React.FC<TierBenefitsDisplayProps> = ({
   currentTier,
   lifetimePoints = 0,
 }) => {
-  const [tierConfigs, setTierConfigs] = useState<LoyaltyTierConfig[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchTierConfigs();
-  }, []);
-
-  const fetchTierConfigs = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await loyaltyAPI.getTierConfig();
-      setTierConfigs(data || []);
-    } catch (err: any) {
-      setError(err.message || "Failed to load tier information");
-      console.error("Error fetching tier configs:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: tierConfigs = [], isLoading: loading } = useTierConfig();
 
   const getTierIcon = (tier: LoyaltyTier) => {
     const icons: Record<LoyaltyTier, any> = {
@@ -74,22 +63,6 @@ const TierBenefitsDisplay: React.FC<TierBenefitsDisplayProps> = ({
     );
   }
 
-  if (error) {
-    return (
-      <div className="rounded-lg bg-white p-6 shadow">
-        <div className="flex h-64 flex-col items-center justify-center text-red-500">
-          <p className="mb-4">{error}</p>
-          <button
-            onClick={fetchTierConfigs}
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="rounded-lg bg-white shadow">
       <div className="p-6">
@@ -101,7 +74,7 @@ const TierBenefitsDisplay: React.FC<TierBenefitsDisplayProps> = ({
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {tierConfigs.map((config) => {
+          {tierConfigs.map((config: LoyaltyTierConfig) => {
             const Icon = getTierIcon(config.tier);
             const gradient = getTierGradient(config.tier);
             const border = getTierBorder(config.tier);
@@ -110,7 +83,7 @@ const TierBenefitsDisplay: React.FC<TierBenefitsDisplayProps> = ({
 
             return (
               <div
-                key={config.id}
+                key={config.tier}
                 className={`relative overflow-hidden rounded-lg border-2 transition-all ${
                   isCurrent
                     ? `${border} ring-4 ring-blue-200`

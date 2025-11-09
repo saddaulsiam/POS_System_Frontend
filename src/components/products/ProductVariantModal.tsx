@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { ProductVariant, Product } from "../../types";
-import { productVariantsAPI } from "../../services";
+import {
+  useCreateProductVariant,
+  useUpdateProductVariant,
+} from "../../services/queries/productVariantsQueries";
 import { Button } from "../common";
 
 interface ProductVariantModalProps {
@@ -28,7 +31,11 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
     stockQuantity: "",
     isActive: true,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // React Query mutations
+  const createVariant = useCreateProductVariant();
+  const updateVariant = useUpdateProductVariant();
+  const isSubmitting = createVariant.isPending || updateVariant.isPending;
 
   useEffect(() => {
     if (variant) {
@@ -86,25 +93,23 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
       return;
     }
 
-    setIsSubmitting(true);
+    const data = {
+      productId: product.id,
+      name: formData.name.trim(),
+      sku: formData.sku.trim(),
+      barcode: formData.barcode.trim() || undefined,
+      purchasePrice: parseFloat(formData.purchasePrice),
+      sellingPrice: parseFloat(formData.sellingPrice),
+      stockQuantity: parseInt(formData.stockQuantity) || 0,
+      isActive: formData.isActive,
+    };
 
     try {
-      const data = {
-        productId: product.id,
-        name: formData.name.trim(),
-        sku: formData.sku.trim(),
-        barcode: formData.barcode.trim() || undefined,
-        purchasePrice: parseFloat(formData.purchasePrice),
-        sellingPrice: parseFloat(formData.sellingPrice),
-        stockQuantity: parseInt(formData.stockQuantity) || 0,
-        isActive: formData.isActive,
-      };
-
       if (variant) {
-        await productVariantsAPI.update(variant.id, data);
+        await updateVariant.mutateAsync({ id: variant.id, data });
         toast.success("Variant updated successfully");
       } else {
-        await productVariantsAPI.create(data);
+        await createVariant.mutateAsync(data);
         toast.success("Variant created successfully");
       }
 
@@ -115,8 +120,6 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
       toast.error(
         error.response?.data?.error || "Failed to save product variant",
       );
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

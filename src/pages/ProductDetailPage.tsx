@@ -1,39 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
-import { Product } from "../types";
-import { productsAPI } from "../services";
+import React from "react";
+import { useParams } from "react-router-dom";
 import { BackButton } from "../components/common";
 import { ProductVariantList } from "../components/products";
 import { useSettings } from "../context/SettingsContext";
+import { useProduct } from "../services/queries/productsQueries";
 import { formatCurrency } from "../utils/currencyUtils";
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
   const { settings } = useSettings();
 
-  useEffect(() => {
-    if (id) {
-      loadProduct(parseInt(id));
-    }
-  }, [id]);
-
-  const loadProduct = async (productId: number) => {
-    try {
-      setLoading(true);
-      const data = await productsAPI.getById(productId);
-      setProduct(data);
-    } catch (error) {
-      console.error("Error loading product:", error);
-      toast.error("Failed to load product details");
-      navigate("/products");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: product, isLoading: loading } = useProduct(
+    id ? parseInt(id) : undefined,
+  );
 
   if (loading) {
     return (

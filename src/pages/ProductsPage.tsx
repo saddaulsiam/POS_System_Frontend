@@ -8,8 +8,16 @@ import { ProductTable } from "../components/products/ProductTable";
 import { QuickSaleManager } from "../components/products/QuickSaleManager";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
-import { categoriesAPI, productsAPI, suppliersAPI } from "../services";
-import { Category, Product, Supplier } from "../types";
+import { productsAPI } from "../services";
+import { useCategories, useSuppliers } from "../services/queries/commonQueries";
+import {
+  useCreateProduct,
+  useDeleteProduct,
+  useProductImageUpload,
+  useProducts,
+  useUpdateProduct,
+} from "../services/queries/productsQueries";
+import { Product } from "../types";
 import { printBarcodeLabel } from "../utils/productUtils";
 
 const ProductsPage: React.FC = () => {
@@ -20,11 +28,21 @@ const ProductsPage: React.FC = () => {
   // Show deleted toggle (must be inside component)
   const [showDeleted, setShowDeleted] = useState(false);
 
-  // State management
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Use React Query for products, categories and suppliers
+  const {
+    data: productsResponse,
+    isLoading: isProductsLoading,
+    refetch: refetchProducts,
+  } = useProducts({ page: 1, limit: 50, showDeleted });
+  const products = productsResponse?.data || [];
+  const { data: categoriesResponse } = useCategories();
+  const categories = categoriesResponse || [];
+  const { data: suppliersResponse } = useSuppliers({ limit: 1000 });
+  const suppliers = suppliersResponse?.data || [];
+  const createProduct = useCreateProduct();
+  const updateProduct = useUpdateProduct();
+  const deleteProduct = useDeleteProduct();
+  const uploadImageMut = useProductImageUpload();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
@@ -67,69 +85,26 @@ const ProductsPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
 
-  // Data loading functions
-  const loadData = async () => {
-    setIsLoading(true);
-    try {
-      const productsResponse = await productsAPI.getAll({
-        page: 1,
-        limit: 50,
-        showDeleted,
-      });
-      setProducts(productsResponse.data || []);
-    } catch (error) {
-      console.error("Failed to load data:", error);
-      toast.error("Failed to load products");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Load data on mount
+  // React Query handles loading and caching; when `showDeleted` changes we refetch
   useEffect(() => {
-    loadData();
-    loadCategories();
-    loadSuppliers();
-    // eslint-disable-next-line
-  }, []);
-
-  // Reload products when showDeleted changes
-  useEffect(() => {
-    loadData();
-    // eslint-disable-next-line
+    refetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showDeleted]);
   // Restore deleted product
   const handleRestoreProduct = async (product: Product) => {
     try {
-      await productsAPI.update(product.id, {
-        isDeleted: false,
-        isActive: true,
+      await updateProduct.mutateAsync({
+        id: product.id,
+        data: { isDeleted: false, isActive: true },
       });
       toast.success("Product restored");
-      loadData();
+      refetchProducts();
     } catch (error: any) {
       toast.error(error?.response?.data?.error || "Failed to restore product");
     }
   };
 
-  const loadCategories = async () => {
-    try {
-      const cats = await categoriesAPI.getAll();
-      setCategories(cats);
-    } catch (error) {
-      setCategories([]);
-    }
-  };
-
-  const loadSuppliers = async () => {
-    try {
-      const response = await suppliersAPI.getAll({ limit: 1000 });
-      setSuppliers(response.data);
-    } catch (error) {
-      console.error("Error loading suppliers:", error);
-      setSuppliers([]);
-    }
-  };
+  // categories and suppliers are provided by React Query hooks above
 
   // Form handlers
   const handleFormChange = (
@@ -183,14 +158,14 @@ const ProductsPage: React.FC = () => {
         isWeighted: form.isWeighted,
         taxRate: parseFloat(form.taxRate),
       };
-      const product = await productsAPI.create(payload);
+      const product = await createProduct.mutateAsync(payload);
 
       // Upload image if selected
       if (imageFile && product.id) {
         const formData = new FormData();
         formData.append("image", imageFile);
         try {
-          await productsAPI.uploadImage(product.id, formData);
+          await uploadImageMut.mutateAsync({ id: product.id, formData });
         } catch (error) {
           toast.error("Product created but image upload failed");
         }
@@ -199,7 +174,7 @@ const ProductsPage: React.FC = () => {
       toast.success("Product added successfully");
       resetForm();
       setShowAddModal(false);
-      loadData();
+      refetchProducts();
     } catch (error: any) {
       toast.error(error?.response?.data?.error || "Failed to add product");
     } finally {
@@ -226,14 +201,14 @@ const ProductsPage: React.FC = () => {
         isWeighted: form.isWeighted,
         taxRate: parseFloat(form.taxRate),
       };
-      await productsAPI.update(editProduct.id, payload);
+      await updateProduct.mutateAsync({ id: editProduct.id, data: payload });
 
       // Upload image if selected
       if (imageFile && editProduct.id) {
         const formData = new FormData();
         formData.append("image", imageFile);
         try {
-          await productsAPI.uploadImage(editProduct.id, formData);
+          await uploadImageMut.mutateAsync({ id: editProduct.id, formData });
         } catch (error) {
           toast.error("Product updated but image upload failed");
         }
@@ -244,7 +219,7 @@ const ProductsPage: React.FC = () => {
       setEditProduct(null);
       setImageFile(null);
       setImagePreview("");
-      loadData();
+      refetchProducts();
     } catch (error: any) {
       toast.error(error?.response?.data?.error || "Failed to update product");
     } finally {
@@ -260,9 +235,9 @@ const ProductsPage: React.FC = () => {
   const confirmDeleteProduct = async () => {
     if (deletingId === null) return;
     try {
-      await productsAPI.delete(deletingId);
+      await deleteProduct.mutateAsync(deletingId);
       toast.success("Product deleted successfully");
-      setProducts((prev) => prev.filter((p) => p.id !== deletingId));
+      refetchProducts();
     } catch (error: any) {
       toast.error(error?.response?.data?.error || "Failed to delete product");
     } finally {
@@ -273,11 +248,14 @@ const ProductsPage: React.FC = () => {
 
   const handleToggleStatus = async (product: Product) => {
     try {
-      await productsAPI.update(product.id, { isActive: !product.isActive });
+      await updateProduct.mutateAsync({
+        id: product.id,
+        data: { isActive: !product.isActive },
+      });
       toast.success(
         `Product ${!product.isActive ? "activated" : "deactivated"} successfully`,
       );
-      loadData();
+      refetchProducts();
     } catch (error: any) {
       toast.error(
         error?.response?.data?.error || "Failed to update product status",
@@ -349,7 +327,7 @@ const ProductsPage: React.FC = () => {
 
       setShowImportModal(false);
       setImportFile(null);
-      loadData();
+      refetchProducts();
     } catch (error: any) {
       const errorData = error?.response?.data;
       if (errorData?.existingSkus) {
@@ -482,7 +460,7 @@ const ProductsPage: React.FC = () => {
           products={filteredProducts}
           categories={categories}
           suppliers={suppliers}
-          isLoading={isLoading}
+          isLoading={isProductsLoading}
           canWrite={canWrite}
           deletingId={deletingId}
           onPrint={handlePrintClick}
@@ -538,7 +516,7 @@ const ProductsPage: React.FC = () => {
         <ExcelImportDialog
           isOpen={showImportExcelModal}
           onClose={() => setShowImportExcelModal(false)}
-          onSuccess={loadData}
+          onSuccess={() => refetchProducts()}
         />
 
         <QuickSaleManager

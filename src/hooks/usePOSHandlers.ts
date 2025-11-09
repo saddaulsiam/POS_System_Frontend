@@ -1,12 +1,12 @@
-import { useCallback, useRef, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
-import type { Product, ParkedSale, CartItem } from "../types";
-import {
-  customersAPI,
-  parkedSalesAPI,
-  productsAPI,
-  productVariantsAPI,
-} from "../services";
+import { productsAPI, productVariantsAPI } from "../services";
+import { useCreateCustomer } from "../services/queries/customersQueries";
+import { useCreateParkedSale } from "../services/queries/parkedSalesQueries";
+import { useLookupVariant } from "../services/queries/productVariantsQueries";
+import { useCreateSale } from "../services/queries/salesQueries";
+import type { CartItem, ParkedSale, Product } from "../types";
 import { formatCurrency } from "../utils/currencyUtils";
 
 interface UsePOSHandlersArgs {
@@ -44,6 +44,13 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
     cartRef.current = args.cart;
   }, [args.cart]);
 
+  // React Query mutations and client
+  const queryClient = useQueryClient();
+  const lookupVariant = useLookupVariant();
+  const createCustomer = useCreateCustomer();
+  const createParkedSale = useCreateParkedSale();
+  const createSale = useCreateSale();
+
   // Handler: Barcode submit (matches POSBarcodeScanner prop signature)
   const handleBarcodeSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -54,7 +61,7 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
       try {
         if (barcode.match(/^\d+$/)) {
           try {
-            const variant = await productVariantsAPI.lookup(barcode);
+            const variant = await lookupVariant.mutateAsync(barcode);
             if (variant && variant.productId) {
               const product = await productsAPI.getById(variant.productId);
               addVariantToCart(variant, product);
@@ -139,7 +146,7 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
         dateOfBirth: formData.dateOfBirth.trim() || undefined,
         address: formData.address.trim() || undefined,
       };
-      const newCustomer = await customersAPI.create(customerData);
+      const newCustomer = await createCustomer.mutateAsync(customerData);
       args.setCustomer(newCustomer);
       args.setCustomerPhone(newCustomer.phoneNumber || "");
       args.setCustomerNotFound(false);
@@ -206,7 +213,7 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
       };
       // Debug: log parkData before sending to backend
       console.log("[DEBUG] parkData sent to backend:", parkData);
-      await parkedSalesAPI.create(parkData);
+      await createParkedSale.mutateAsync(parkData);
       toast.success("Sale parked successfully");
       args.setCart([]);
       args.setCustomer(null);
@@ -235,7 +242,9 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
         let product = null;
         let variant = null;
         try {
-          product = await productsAPI.getById(item.productId);
+          product =
+            (queryClient.getQueryData(["product", item.productId]) as any) ||
+            (await productsAPI.getById(item.productId));
         } catch (e) {
           outOfStockItems.push(
             item.productName || `Product #${item.productId}`,
@@ -244,7 +253,12 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
         }
         if (item.productVariantId) {
           try {
-            variant = await productVariantsAPI.getById(item.productVariantId);
+            variant =
+              (queryClient.getQueryData([
+                "productVariant",
+                item.productVariantId,
+              ]) as any) ||
+              (await productVariantsAPI.getById(item.productVariantId));
           } catch (e) {
             outOfStockItems.push(
               `${product.name} (Variant #${item.productVariantId})`,
@@ -329,10 +343,8 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
         loyaltyDiscount: args.loyaltyDiscount || 0,
       };
 
-      // @ts-ignore: salesAPI should be available in your context or pass as arg
-      const sale = await (args.salesAPI || (window as any).salesAPI).create(
-        saleData,
-      );
+      // Create sale via React Query mutation
+      const sale = await createSale.mutateAsync(saleData);
       toast.success(
         `Sale completed! Receipt ID: ${sale.receiptId || sale.id || ""}`,
       );

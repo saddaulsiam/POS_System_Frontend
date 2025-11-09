@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Input } from "../components/common/Input";
 import {
   Gift,
@@ -12,8 +12,15 @@ import {
   Award,
   Target,
 } from "lucide-react";
-import { loyaltyAPI } from "../services";
-import toast from "react-hot-toast";
+import {
+  useLoyaltyOffers,
+  useTierConfig,
+  useLoyaltyStatistics,
+  useCreateOffer,
+  useUpdateOffer,
+  useDeleteOffer,
+  useUpdateTierConfig,
+} from "../services/queries/loyaltyQueries";
 
 interface TierConfig {
   id?: number;
@@ -39,126 +46,48 @@ interface LoyaltyOffer {
   createdAt: string;
 }
 
-interface LoyaltyStats {
-  customersByTier: Record<string, number>;
-  pointsIssued: number;
-  pointsRedeemed: number;
-  activeOffers: number;
-  topCustomers: Array<{
-    id: number;
-    name: string;
-    loyaltyPoints: number;
-    loyaltyTier: string;
-  }>;
-}
-
 const LoyaltyAdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"overview" | "tiers" | "offers">(
     "overview",
   );
-  const [stats, setStats] = useState<LoyaltyStats | null>(null);
-  const [tiers, setTiers] = useState<TierConfig[]>([]);
-  const [offers, setOffers] = useState<LoyaltyOffer[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showTierModal, setShowTierModal] = useState(false);
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [editingTier, setEditingTier] = useState<TierConfig | null>(null);
   const [editingOffer, setEditingOffer] = useState<LoyaltyOffer | null>(null);
 
-  useEffect(() => {
-    fetchAllData();
-  }, []);
+  // React Query hooks
+  const { data: tiers = [], isLoading: tiersLoading } = useTierConfig();
+  const { data: offers = [], isLoading: offersLoading } = useLoyaltyOffers();
+  const { data: stats, isLoading: statsLoading } = useLoyaltyStatistics();
 
-  const fetchAllData = async () => {
-    try {
-      setLoading(true);
+  const createOffer = useCreateOffer();
+  const updateOffer = useUpdateOffer();
+  const deleteOffer = useDeleteOffer();
+  const updateTierConfig = useUpdateTierConfig();
 
-      console.log("🔄 Fetching loyalty data...");
-
-      // Fetch tier config and offers (public endpoints)
-      const [tiersData, offersData] = await Promise.all([
-        loyaltyAPI.getTierConfig(),
-        loyaltyAPI.getAllOffers(),
-      ]);
-
-      console.log("✅ Tiers loaded:", tiersData?.length || 0);
-      console.log("✅ Offers loaded:", offersData?.length || 0);
-
-      setTiers(tiersData);
-      setOffers(offersData);
-
-      // Try to fetch statistics (requires auth)
-      try {
-        console.log("🔄 Fetching statistics...");
-        const statsData = await loyaltyAPI.getStatistics();
-        console.log("✅ Statistics loaded:", statsData);
-        setStats(statsData);
-      } catch (statsError: any) {
-        console.error("❌ Statistics error:", statsError);
-        console.error("Error details:", {
-          status: statsError.response?.status,
-          statusText: statsError.response?.statusText,
-          data: statsError.response?.data,
-          message: statsError.message,
-        });
-
-        // Initialize with empty stats if not authorized
-        setStats({
-          customersByTier: { BRONZE: 0, SILVER: 0, GOLD: 0, PLATINUM: 0 },
-          pointsIssued: 0,
-          pointsRedeemed: 0,
-          activeOffers: offersData.filter((o: any) => o.isActive).length,
-          topCustomers: [],
-        });
-
-        if (
-          statsError.response?.status === 401 ||
-          statsError.response?.status === 403
-        ) {
-          toast.error("You need admin/manager access to view statistics");
-        } else {
-          toast.error("Failed to load statistics");
-        }
-      }
-    } catch (error: any) {
-      console.error("❌ Failed to load loyalty data:", error);
-      toast.error(
-        error.response?.data?.error ||
-          error.message ||
-          "Failed to load loyalty data",
-      );
-    } finally {
-      setLoading(false);
-      console.log("✅ Fetch complete");
-    }
-  };
+  const loading = tiersLoading || offersLoading || statsLoading;
 
   const handleSaveTier = async (tierData: TierConfig) => {
     try {
-      await loyaltyAPI.updateTierConfig(tierData);
-      toast.success("Tier configuration updated successfully");
-      fetchAllData();
+      await updateTierConfig.mutateAsync(tierData);
       setShowTierModal(false);
       setEditingTier(null);
     } catch (error: any) {
-      toast.error(error.message || "Failed to update tier");
+      // Error handled by mutation
     }
   };
 
   const handleSaveOffer = async (offerData: any) => {
     try {
       if (editingOffer) {
-        await loyaltyAPI.updateOffer(editingOffer.id, offerData);
-        toast.success("Offer updated successfully");
+        await updateOffer.mutateAsync({ id: editingOffer.id, data: offerData });
       } else {
-        await loyaltyAPI.createOffer(offerData);
-        toast.success("Offer created successfully");
+        await createOffer.mutateAsync(offerData);
       }
-      fetchAllData();
       setShowOfferModal(false);
       setEditingOffer(null);
     } catch (error: any) {
-      toast.error(error.message || "Failed to save offer");
+      // Error handled by mutation
     }
   };
 
@@ -166,11 +95,9 @@ const LoyaltyAdminPage: React.FC = () => {
     if (!confirm("Are you sure you want to delete this offer?")) return;
 
     try {
-      await loyaltyAPI.deleteOffer(offerId);
-      toast.success("Offer deleted successfully");
-      fetchAllData();
+      await deleteOffer.mutateAsync(offerId);
     } catch (error: any) {
-      toast.error(error.message || "Failed to delete offer");
+      // Error handled by mutation
     }
   };
 
@@ -373,7 +300,7 @@ const LoyaltyAdminPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {stats.topCustomers.map((customer, index) => (
+                    {stats.topCustomers.map((customer: any, index: number) => (
                       <tr key={customer.id}>
                         <td className="px-4 py-3">
                           <span className="text-lg font-bold text-gray-600">
@@ -416,7 +343,7 @@ const LoyaltyAdminPage: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                {tiers.map((tier) => (
+                {tiers.map((tier: any) => (
                   <div
                     key={tier.tier}
                     className={`rounded-lg border-2 p-6 ${getTierColor(tier.tier)}`}
@@ -516,7 +443,7 @@ const LoyaltyAdminPage: React.FC = () => {
                     </p>
                   </div>
                 ) : (
-                  offers.map((offer) => (
+                  offers.map((offer: any) => (
                     <div
                       key={offer.id}
                       className="rounded-lg border border-gray-200 p-6 transition-shadow hover:shadow-md"
