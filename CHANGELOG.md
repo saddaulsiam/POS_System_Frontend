@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed invalid `publisherName` property from `win` config
 - Fixed corrupted Electron download issue
   - Changed Windows build to x64 only (removed ia32 architecture)
+- Fixed electron-updater ES module import error
+  - Changed to default import with destructuring for CommonJS compatibility
+  - Resolved "Named export 'autoUpdater' not found" error
+- Fixed invalid icon format for NSIS installer
+  - Generated proper multi-resolution .ico file using electron-icon-builder
+  - Created Windows (.ico) and macOS (.icns) icons from source PNG
 
 ### Changed
 
@@ -38,6 +44,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Now builds only for 64-bit Windows (x64)
   - Faster build times
   - Modern system compatibility
+- Updated icon paths in package.json
+  - Now uses `assets/icons/win/icon.ico` for Windows
+  - Now uses `assets/icons/mac/icon.icns` for macOS
+- Cleaned up unnecessary build dependencies
+  - Removed temporary icon generation packages after build
 
 ### Technical
 
