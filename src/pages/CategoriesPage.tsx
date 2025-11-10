@@ -151,6 +151,7 @@ const CategoriesPage: FC = () => {
           <Input
             label="Category Name"
             type="text"
+            placeholder="Enter category name"
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
             required

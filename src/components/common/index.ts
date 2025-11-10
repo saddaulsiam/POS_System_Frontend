@@ -7,3 +7,14 @@ export { SearchBar } from "./SearchBar";
 export { Badge } from "./Badge";
 export { Card, CardHeader, CardBody, CardFooter } from "./Card";
 export { CategoryTableSkeleton } from "./CategoryTableSkeleton";
+export {
+  Skeleton,
+  SkeletonCard,
+  SkeletonTable,
+  SkeletonTableRow,
+  SkeletonLoader,
+  SkeletonProductCard,
+  SkeletonStatsCard,
+  SkeletonProductDetail,
+  SkeletonProductVariants,
+} from "./Skeleton";

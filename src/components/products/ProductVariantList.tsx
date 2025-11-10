@@ -5,7 +5,7 @@ import {
   useProductVariants,
   useDeleteProductVariant,
 } from "../../services/queries";
-import { Button } from "../common";
+import { Button, SkeletonProductVariants } from "../common";
 import { ProductVariantModal } from "./ProductVariantModal";
 import { useSettings } from "../../context/SettingsContext";
 import { formatCurrency } from "../../utils/currencyUtils";
@@ -68,14 +68,7 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({
   };
 
   if (loading) {
-    return (
-      <div className="rounded-lg bg-white p-6 shadow">
-        <div className="flex items-center justify-center py-8">
-          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600">Loading variants...</span>
-        </div>
-      </div>
-    );
+    return <SkeletonProductVariants />;
   }
 
   return (
