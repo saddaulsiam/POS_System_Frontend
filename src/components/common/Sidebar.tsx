@@ -128,7 +128,7 @@ const Sidebar: React.FC = () => {
                   location.pathname === link.to
                     ? "bg-blue-600 text-white shadow-md"
                     : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
-                }`}
+                } ${isCollapsed ? "justify-center" : ""} `}
                 title={isCollapsed ? link.label : ""}
               >
                 <span className="flex-shrink-0 text-xl">{link.icon}</span>
