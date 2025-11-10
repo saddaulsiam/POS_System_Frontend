@@ -237,6 +237,11 @@ autoUpdater.on("update-downloaded", (info) => {
       version: info.version,
     });
 
+    // Ensure window is focused before showing dialog
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+
+    // Show dialog immediately after download completes
     const response = dialog.showMessageBoxSync(mainWindow, {
       type: "info",
       title: "Update Ready",
@@ -252,7 +257,11 @@ autoUpdater.on("update-downloaded", (info) => {
         app.isQuitting = true;
         autoUpdater.quitAndInstall(false, true);
       });
+    } else {
+      log.info("User chose to install update later");
     }
+  } else {
+    log.warn("Main window not available for update dialog");
   }
 });
 

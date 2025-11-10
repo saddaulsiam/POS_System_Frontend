@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const UpdatesTab: React.FC = () => {
   const [checkingUpdate, setCheckingUpdate] = useState(false);
@@ -7,10 +7,65 @@ const UpdatesTab: React.FC = () => {
     version?: string;
     message?: string;
   } | null>(null);
+  const [downloadProgress, setDownloadProgress] = useState<{
+    percent: number;
+    transferred: number;
+    total: number;
+    bytesPerSecond: number;
+  } | null>(null);
+  const [updateStatus, setUpdateStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Listen for update status from main process
+    if (window.electron?.onUpdateAvailable) {
+      window.electron.onUpdateAvailable((info) => {
+        setUpdateInfo({
+          available: true,
+          version: info.version,
+          message: "Update is being downloaded in the background...",
+        });
+        setUpdateStatus("downloading");
+      });
+    }
+
+    if (window.electron?.onUpdateDownloaded) {
+      window.electron.onUpdateDownloaded((info) => {
+        setUpdateInfo({
+          available: true,
+          version: info.version,
+          message: "Update downloaded and ready to install!",
+        });
+        setUpdateStatus("downloaded");
+        setDownloadProgress(null);
+      });
+    }
+
+    // Listen for download progress
+    if (window.electronAPI?.on) {
+      window.electronAPI.on("update-status", (data: any) => {
+        if (data.status === "downloading" && data.progress) {
+          setDownloadProgress({
+            percent: data.progress.percent,
+            transferred: data.progress.transferred,
+            total: data.progress.total,
+            bytesPerSecond: data.progress.bytesPerSecond,
+          });
+        } else if (data.status === "downloaded") {
+          setUpdateStatus("downloaded");
+          setDownloadProgress(null);
+        } else if (data.status === "available") {
+          setUpdateStatus("available");
+        } else if (data.status === "not-available") {
+          setUpdateStatus("not-available");
+        }
+      });
+    }
+  }, []);
 
   const handleCheckForUpdates = async () => {
     setCheckingUpdate(true);
     setUpdateInfo(null);
+    setDownloadProgress(null);
 
     try {
       // Call the Electron IPC to check for updates
@@ -30,6 +85,20 @@ const UpdatesTab: React.FC = () => {
       });
     } finally {
       setCheckingUpdate(false);
+    }
+  };
+
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  };
+
+  const handleInstallUpdate = () => {
+    if (window.electron?.installUpdate) {
+      window.electron.installUpdate();
     }
   };
 
@@ -53,7 +122,7 @@ const UpdatesTab: React.FC = () => {
                 Current Version
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Version {window.electron?.appVersion || "1.0.1"}
+                Version {window.electron?.appVersion || "1.0.2"}
               </p>
               {updateInfo && (
                 <div
@@ -71,6 +140,60 @@ const UpdatesTab: React.FC = () => {
                   {updateInfo.message && (
                     <p className="mt-1 text-xs">{updateInfo.message}</p>
                   )}
+                </div>
+              )}
+
+              {/* Download Progress */}
+              {downloadProgress && (
+                <div className="mt-3 rounded-md bg-indigo-50 p-3">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-sm font-medium text-indigo-900">
+                      Downloading Update...
+                    </p>
+                    <p className="text-sm font-bold text-indigo-900">
+                      {downloadProgress.percent.toFixed(1)}%
+                    </p>
+                  </div>
+                  <div className="h-2.5 w-full rounded-full bg-indigo-200">
+                    <div
+                      className="h-2.5 rounded-full bg-indigo-600 transition-all duration-300"
+                      style={{ width: `${downloadProgress.percent}%` }}
+                    ></div>
+                  </div>
+                  <div className="mt-2 flex justify-between text-xs text-indigo-700">
+                    <span>
+                      {formatBytes(downloadProgress.transferred)} /{" "}
+                      {formatBytes(downloadProgress.total)}
+                    </span>
+                    <span>
+                      {formatBytes(downloadProgress.bytesPerSecond)}/s
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Update Downloaded - Install Button */}
+              {updateStatus === "downloaded" && (
+                <div className="mt-3">
+                  <button
+                    onClick={handleInstallUpdate}
+                    className="inline-flex w-full items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                  >
+                    <svg
+                      className="-ml-1 mr-2 h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                      />
+                    </svg>
+                    Restart and Install Update
+                  </button>
                 </div>
               )}
             </div>

@@ -5,27 +5,20 @@ interface SettingsTabsProps {
   setActiveTab: (tab: string) => void;
 }
 
-const baseTabList = [
+const tabList = [
   { key: "features", label: "🎯 POS Features" },
   { key: "receipt", label: "🧾 Receipts" },
   { key: "finance", label: "💰 Tax & Currency" },
   { key: "alerts", label: "🔔 Alerts" },
   { key: "profile", label: "🙍 Profile" },
   { key: "system", label: "⚙️ System" },
+  { key: "updates", label: "🔄 Updates" },
 ];
 
 const SettingsTabs: React.FC<SettingsTabsProps> = ({
   activeTab,
   setActiveTab,
 }) => {
-  // Check if running in Electron (desktop app)
-  const isElectron = typeof window !== "undefined" && window.electron;
-
-  // Add Updates tab only for Electron app
-  const tabList = isElectron
-    ? [...baseTabList, { key: "updates", label: "🔄 Updates" }]
-    : baseTabList;
-
   return (
     <div className="sticky top-0 z-20 mb-6 rounded-b-lg bg-white/90 shadow-sm backdrop-blur">
       <div className="border-b border-gray-200 px-2">
