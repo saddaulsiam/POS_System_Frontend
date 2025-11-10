@@ -1,6 +1,6 @@
 import React from "react";
 import { Product, Category, Supplier } from "../../types";
-import { Button, Modal } from "../common";
+import { Button, Modal, ConfirmModal } from "../common";
 import { ProductFormModal } from "./ProductFormModal";
 
 interface ProductModalsProps {
@@ -131,36 +131,19 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
       )}
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <ConfirmModal
         isOpen={showDeleteConfirm}
         onClose={() => {
           setShowDeleteConfirm(false);
           setDeletingId(null);
         }}
+        onConfirm={confirmDeleteProduct}
         title="Confirm Deletion"
-        size="sm"
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setShowDeleteConfirm(false);
-                setDeletingId(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={confirmDeleteProduct}>
-              Delete
-            </Button>
-          </div>
-        }
-      >
-        <p>
-          Are you sure you want to delete this product? This action cannot be
-          undone.
-        </p>
-      </Modal>
+        message="Are you sure you want to delete this product? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
 
       {/* Print Barcode Modal */}
       <Modal

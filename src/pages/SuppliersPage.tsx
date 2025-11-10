@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { Button } from "../components/common";
+import { Button, ConfirmModal } from "../components/common";
 import { Pagination } from "../components/sales/Pagination";
 import { SupplierModal } from "../components/suppliers/SupplierModal";
 import { SupplierSearch } from "../components/suppliers/SupplierSearch";
@@ -27,7 +27,11 @@ interface SupplierFormData {
 
 const SuppliersPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
+  const [deletingSupplier, setDeletingSupplier] = useState<Supplier | null>(
+    null,
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -83,19 +87,33 @@ const SuppliersPage: React.FC = () => {
 
       setShowModal(false);
     } catch (error: any) {
-      toast.error(error.response?.data?.error || "Failed to save supplier");
+      console.error("Supplier save error:", error);
+
+      // Handle different error response formats
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to save supplier";
+
+      toast.error(errorMessage);
       throw error; // Re-throw to keep modal open
     }
   };
 
   const handleDelete = async (supplier: Supplier) => {
-    if (!confirm(`Are you sure you want to delete "${supplier.name}"?`)) {
-      return;
-    }
+    setDeletingSupplier(supplier);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingSupplier) return;
 
     try {
-      await deleteSupplier.mutateAsync(supplier.id);
+      await deleteSupplier.mutateAsync(deletingSupplier.id);
       toast.success("Supplier deleted successfully");
+      setShowDeleteConfirm(false);
+      setDeletingSupplier(null);
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Failed to delete supplier");
     }
@@ -144,6 +162,22 @@ const SuppliersPage: React.FC = () => {
         editingSupplier={editingSupplier}
         onClose={() => setShowModal(false)}
         onSubmit={handleSubmit}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setDeletingSupplier(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Confirm Deletion"
+        message={`Are you sure you want to delete the supplier "${deletingSupplier?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={deleteSupplier.isPending}
       />
     </div>
   );

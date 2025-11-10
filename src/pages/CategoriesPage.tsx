@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import {
   Button,
   CategoryTableSkeleton,
+  ConfirmModal,
   Input,
   Modal,
 } from "../components/common";
@@ -16,7 +17,11 @@ import { Category } from "../types";
 
 const CategoriesPage: FC = () => {
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<Category | null>(
+    null,
+  );
   const [formName, setFormName] = useState("");
 
   // React Query hooks
@@ -40,10 +45,17 @@ const CategoriesPage: FC = () => {
   };
 
   const handleDelete = async (category: Category) => {
-    if (!window.confirm(`Delete category "${category.name}"?`)) return;
+    setDeletingCategory(category);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingCategory) return;
     try {
-      await deleteCategory.mutateAsync(category.id);
+      await deleteCategory.mutateAsync(deletingCategory.id);
       toast.success("Category deleted");
+      setShowDeleteConfirm(false);
+      setDeletingCategory(null);
     } catch (error) {
       toast.error("Failed to delete category");
     }
@@ -146,22 +158,12 @@ const CategoriesPage: FC = () => {
         onClose={() => setShowModal(false)}
         title={editingCategory ? "Edit Category" : "Add Category"}
         size="md"
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Category Name"
-            type="text"
-            placeholder="Enter category name"
-            value={formName}
-            onChange={(e) => setFormName(e.target.value)}
-            required
-            fullWidth
-          />
-          <div className="flex justify-end space-x-3 pt-4">
+        footer={
+          <div className="flex justify-end gap-2">
             <Button
-              type="button"
               variant="ghost"
               onClick={() => setShowModal(false)}
+              disabled={isLoading}
             >
               Cancel
             </Button>
@@ -173,8 +175,36 @@ const CategoriesPage: FC = () => {
                   : "Create"}
             </Button>
           </div>
+        }
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            label="Category Name"
+            type="text"
+            placeholder="Enter category name"
+            value={formName}
+            onChange={(e) => setFormName(e.target.value)}
+            required
+            fullWidth
+          />
         </form>
       </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setDeletingCategory(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Confirm Deletion"
+        message={`Are you sure you want to delete the category "${deletingCategory?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={deleteCategory.isPending}
+      />
     </div>
   );
 };
