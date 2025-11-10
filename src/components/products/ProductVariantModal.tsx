@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { ProductVariant, Product } from "../../types";
+import { useSettings } from "../../context";
 import {
   useCreateProductVariant,
   useUpdateProductVariant,
 } from "../../services/queries";
+import { Product, ProductVariant } from "../../types";
+import { formatCurrency } from "../../utils/currencyUtils";
 import { Button, Modal } from "../common";
 
 interface ProductVariantModalProps {
@@ -22,6 +24,7 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
   variant,
   onSuccess,
 }) => {
+  const { settings } = useSettings();
   const [formData, setFormData] = useState({
     name: "",
     sku: "",
@@ -275,25 +278,31 @@ export const ProductVariantModal: React.FC<ProductVariantModalProps> = ({
         </div>
 
         {/* Profit Margin Display */}
-        {formData.purchasePrice && formData.sellingPrice && (
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
-            <p className="text-sm text-gray-700">
-              <span className="font-semibold">Profit Margin:</span>{" "}
-              {(
-                ((parseFloat(formData.sellingPrice) -
-                  parseFloat(formData.purchasePrice)) /
-                  parseFloat(formData.sellingPrice)) *
-                100
-              ).toFixed(2)}
-              % (${" "}
-              {(
-                parseFloat(formData.sellingPrice) -
-                parseFloat(formData.purchasePrice)
-              ).toFixed(2)}{" "}
-              per unit)
-            </p>
-          </div>
-        )}
+        {formData.purchasePrice &&
+          formData.sellingPrice &&
+          !isNaN(parseFloat(formData.purchasePrice)) &&
+          !isNaN(parseFloat(formData.sellingPrice)) &&
+          parseFloat(formData.purchasePrice) > 0 &&
+          parseFloat(formData.sellingPrice) > 0 && (
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
+              <p className="text-sm text-gray-700">
+                <span className="font-semibold">Profit Margin:</span>{" "}
+                {(
+                  ((parseFloat(formData.sellingPrice) -
+                    parseFloat(formData.purchasePrice)) /
+                    parseFloat(formData.sellingPrice)) *
+                  100
+                ).toFixed(2)}
+                % (
+                {formatCurrency(
+                  parseFloat(formData.sellingPrice) -
+                    parseFloat(formData.purchasePrice),
+                  settings,
+                )}{" "}
+                per unit)
+              </p>
+            </div>
+          )}
 
         {/* Active Status */}
         <div className="flex items-center">

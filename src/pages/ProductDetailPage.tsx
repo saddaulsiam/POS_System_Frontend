@@ -131,11 +131,13 @@ const ProductDetailPage: React.FC = () => {
               <div>
                 <span className="text-sm text-gray-600">Profit Margin:</span>
                 <p className="font-semibold text-green-600">
-                  {(
-                    ((product.sellingPrice - product.purchasePrice) /
-                      product.sellingPrice) *
-                    100
-                  ).toFixed(2)}
+                  {product.purchasePrice > 0 && product.sellingPrice > 0
+                    ? (
+                        ((product.sellingPrice - product.purchasePrice) /
+                          product.sellingPrice) *
+                        100
+                      ).toFixed(2)
+                    : "0.00"}
                   %
                 </p>
               </div>

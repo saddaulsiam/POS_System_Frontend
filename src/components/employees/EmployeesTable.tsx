@@ -1,7 +1,9 @@
 import React from "react";
+import { useSettings } from "../../context";
 import { Employee } from "../../types";
-import { EmployeesTableSkeleton } from "./EmployeesTableSkeleton";
+import { formatCurrency } from "../../utils/currencyUtils";
 import { Badge, Button } from "../common";
+import { EmployeesTableSkeleton } from "./EmployeesTableSkeleton";
 
 interface EmployeesTableProps {
   employees: Employee[];
@@ -21,7 +23,7 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
   if (isLoading) {
     return <EmployeesTableSkeleton />;
   }
-
+  const { settings } = useSettings();
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
@@ -103,7 +105,7 @@ export const EmployeesTable: React.FC<EmployeesTableProps> = ({
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-gray-700">
                   {employee.salary !== undefined && employee.salary !== null ? (
-                    `$${employee.salary.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
+                    formatCurrency(employee.salary, settings)
                   ) : (
                     <span className="text-gray-400">N/A</span>
                   )}

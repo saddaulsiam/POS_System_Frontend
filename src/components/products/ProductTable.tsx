@@ -173,7 +173,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                         {product.name}{" "}
                         {product.hasVariants && (
                           <Badge variant="info" rounded size="sm">
-                            variants
+                            Variants
                           </Badge>
                         )}
                       </p>

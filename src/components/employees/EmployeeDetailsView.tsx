@@ -1,5 +1,7 @@
 import React from "react";
-import { Button, BackButton } from "../common";
+import { useSettings } from "../../context";
+import { formatCurrency } from "../../utils/currencyUtils";
+import { BackButton, Button } from "../common";
 
 interface EmployeeDetailsViewProps {
   employee: any;
@@ -14,6 +16,7 @@ const EmployeeDetailsView: React.FC<EmployeeDetailsViewProps> = ({
   onEdit,
   onResetPin,
 }) => {
+  const { settings } = useSettings();
   if (!employee) return null;
   return (
     <div className="min-h-screen bg-gray-50">
@@ -102,10 +105,7 @@ const EmployeeDetailsView: React.FC<EmployeeDetailsViewProps> = ({
                     {employee.salary !== undefined &&
                     employee.salary !== null &&
                     !isNaN(Number(employee.salary)) ? (
-                      `$${Number(employee.salary).toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}`
+                      formatCurrency(Number(employee.salary), settings)
                     ) : (
                       <span className="text-gray-400">N/A</span>
                     )}

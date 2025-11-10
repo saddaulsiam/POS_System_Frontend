@@ -1,5 +1,7 @@
 import React from "react";
+import { useSettings } from "../../context";
 import { SalarySheet } from "../../services/api/salarySheetsAPI";
+import { formatCurrency } from "../../utils/currencyUtils";
 
 interface SalarySheetsTableProps {
   salarySheets: SalarySheet[];
@@ -20,6 +22,8 @@ const SalarySheetsTable: React.FC<SalarySheetsTableProps> = ({
   onDelete,
   onPrint,
 }) => {
+  const { settings } = useSettings();
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full rounded border bg-white shadow">
@@ -52,21 +56,19 @@ const SalarySheetsTable: React.FC<SalarySheetsTableProps> = ({
               <td className="border px-4 py-2">{months[sheet.month - 1]}</td>
               <td className="border px-4 py-2">{sheet.year}</td>
               <td className="border px-4 py-2">
-                ${sheet.baseSalary.toLocaleString()}
+                {formatCurrency(sheet.baseSalary, settings)}
               </td>
               <td className="border px-4 py-2">
-                ${sheet.bonus.toLocaleString()}
+                {formatCurrency(sheet.bonus, settings)}
               </td>
               <td className="border px-4 py-2">
-                ${sheet.deduction.toLocaleString()}
+                {formatCurrency(sheet.deduction, settings)}
               </td>
               <td className="border px-4 py-2 font-semibold">
-                $
-                {(
-                  sheet.baseSalary +
-                  sheet.bonus -
-                  sheet.deduction
-                ).toLocaleString()}
+                {formatCurrency(
+                  sheet.baseSalary + sheet.bonus - sheet.deduction,
+                  settings,
+                )}
               </td>
               <td className="border px-4 py-2">
                 {sheet.paid ? (
