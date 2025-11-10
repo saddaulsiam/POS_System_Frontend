@@ -1,4 +1,4 @@
-# 🏪 POS System - Desktop Application
+# 🏪 POS System - Web & Desktop Application
 
 A modern Point of Sale desktop app built with **Electron**, **React**, and **TypeScript**. Cross-platform support for Windows, macOS, and Linux with automatic updates.
 

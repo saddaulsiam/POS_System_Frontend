@@ -6,7 +6,7 @@ interface LoadingSpinnerProps {
   className?: string;
 }
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ className = "" }) => {
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = () => {
   // return (
   //   <div
   //     className={`flex items-center justify-center ${className}`}

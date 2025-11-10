@@ -1,6 +1,6 @@
 {
   "name": "pos-system-frontend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "Modern Point of Sale System - Electron Desktop Application",
   "private": true,
@@ -120,7 +120,6 @@
         }
       ],
       "icon": "assets/icon.ico",
-      "publisherName": "Saddaul Siam",
       "verifyUpdateCodeSignature": false
     },
     "nsis": {

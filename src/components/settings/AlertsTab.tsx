@@ -108,7 +108,6 @@ const AlertsTab: React.FC<AlertsTabProps> = ({
   saving,
   handleSwitchChange,
   handleNumberFieldChange,
-  handleSelectChange,
 }) => {
   return (
     <div className="rounded-lg bg-white shadow">

@@ -11,6 +11,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial features and functionality
 
+## [1.0.1] - 2025-11-11
+
+### Fixed
+
+- Removed unused TypeScript parameters in components
+  - `ImageUpload.tsx`: Removed unused `value` parameter
+  - `LoadingSpinner.tsx`: Removed unused `className` parameter
+  - `AlertsTab.tsx`: Removed unused `handleSelectChange` parameter
+  - `ProfileTab.tsx`: Removed unused `user` parameter
+- Fixed PostCSS configuration for ES module compatibility
+  - Renamed `postcss.config.js` to `postcss.config.cjs`
+- Fixed electron-builder configuration
+  - Removed invalid `publisherName` property from `win` config
+
+### Changed
+
+- Updated README.md to be concise and frontend-focused
+  - Removed backend-heavy content
+  - Streamlined to ~300 lines
+  - Added clear quick start guide
+  - Improved documentation structure
+
+### Technical
+
+- All TypeScript compilation errors resolved
+- Build process now completes successfully
+- Compatible with electron-builder 26.0.12
+
 ## [1.0.0] - 2025-11-10
 
 ### Added

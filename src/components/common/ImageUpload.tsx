@@ -8,7 +8,6 @@ interface ImageUploadProps {
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
   label = "Upload Photo",
-  value,
   onChange,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);

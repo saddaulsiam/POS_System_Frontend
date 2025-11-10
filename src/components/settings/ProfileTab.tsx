@@ -20,7 +20,6 @@ interface ProfileTabProps {
 }
 
 const ProfileTab: React.FC<ProfileTabProps> = ({
-  user,
   name,
   setName,
   username,
