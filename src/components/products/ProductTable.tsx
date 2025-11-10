@@ -170,7 +170,12 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-gray-900">
-                        {product.name}
+                        {product.name}{" "}
+                        {product.hasVariants && (
+                          <Badge variant="info" rounded size="sm">
+                            variants
+                          </Badge>
+                        )}
                       </p>
                       {product.supplierId && (
                         <p className="text-xs text-gray-500">
@@ -197,7 +202,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
                 {/* Category Column */}
                 <td className="px-6 py-4">
-                  <Badge variant="primary" rounded size="sm">
+                  <Badge variant="default" rounded size="sm">
                     {categories.find((c) => c.id === product.categoryId)
                       ?.name || "-"}
                   </Badge>

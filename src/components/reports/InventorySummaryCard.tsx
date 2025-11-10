@@ -1,8 +1,8 @@
 import React from "react";
 import { InventoryReport } from "../../types";
-import { formatCurrency } from "../../utils/reportUtils";
 import { exportTableToPDF, exportTableToCSV } from "../../utils/exportUtils";
 import { useSettings } from "../../context/SettingsContext";
+import { formatCurrency } from "../../utils/currencyUtils";
 
 interface InventorySummaryCardProps {
   inventory: InventoryReport;
@@ -34,7 +34,7 @@ export const InventorySummaryCard: React.FC<InventorySummaryCardProps> = ({
                     inventory.totalProducts,
                     inventory.lowStockCount,
                     inventory.outOfStockCount,
-                    formatCurrency(inventory.totalInventoryValue),
+                    formatCurrency(inventory.totalInventoryValue, settings),
                   ],
                 ],
                 filename: `inventory-summary.pdf`,
@@ -92,10 +92,7 @@ export const InventorySummaryCard: React.FC<InventorySummaryCardProps> = ({
         <div className="rounded-lg bg-blue-50 p-4 text-center">
           <div className="text-xs text-gray-500">Inventory Value</div>
           <div className="text-2xl font-bold text-blue-900">
-            {formatCurrency(
-              inventory.totalInventoryValue,
-              settings || undefined,
-            )}
+            {formatCurrency(inventory.totalInventoryValue, settings)}
           </div>
         </div>
       </div>

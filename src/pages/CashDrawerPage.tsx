@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-import { RefreshButton } from "../components/common/RefreshButton";
-import { useAuth } from "../context/AuthContext";
 import { CashDrawerTableSkeleton } from "../components/common/CashDrawerTableSkeleton";
+import { RefreshButton } from "../components/common/RefreshButton";
+import { useSettings } from "../context";
+import { useAuth } from "../context/AuthContext";
 import {
-  useCurrentCashDrawer,
-  useCashDrawers,
   useCashDrawerReconciliation,
-  useOpenCashDrawer,
+  useCashDrawers,
   useCloseCashDrawer,
+  useCurrentCashDrawer,
+  useOpenCashDrawer,
 } from "../services/queries";
+import { formatCurrency } from "../utils/currencyUtils";
 
 const CashDrawerPage: React.FC = () => {
   const { user } = useAuth();
+  const { settings } = useSettings();
 
   // History filters (must be declared before using in hooks)
   const [page, setPage] = useState(1);
@@ -107,13 +110,6 @@ const CashDrawerPage: React.FC = () => {
     } catch (err: any) {
       setError(err.response?.data?.error || "Failed to close cash drawer");
     }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
   };
 
   const formatDate = (date: string) => {
@@ -237,13 +233,16 @@ const CashDrawerPage: React.FC = () => {
                   <div className="rounded-lg bg-gray-50 p-4">
                     <p className="text-sm text-gray-600">Opening Balance</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {formatCurrency(currentDrawer.openingBalance)}
+                      {formatCurrency(currentDrawer.openingBalance, settings)}
                     </p>
                   </div>
                   <div className="rounded-lg bg-gray-50 p-4">
                     <p className="text-sm text-gray-600">Expected Cash</p>
                     <p className="text-2xl font-bold text-green-600">
-                      {formatCurrency(reconciliation.expectedCashBalance)}
+                      {formatCurrency(
+                        reconciliation.expectedCashBalance,
+                        settings,
+                      )}
                     </p>
                   </div>
                 </div>
@@ -262,25 +261,34 @@ const CashDrawerPage: React.FC = () => {
                     <div className="flex justify-between">
                       <span className="text-gray-600">Total Amount:</span>
                       <span className="font-medium">
-                        {formatCurrency(reconciliation.totalSales)}
+                        {formatCurrency(reconciliation.totalSales, settings)}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Cash Sales:</span>
                       <span className="font-medium">
-                        {formatCurrency(reconciliation.paymentBreakdown.cash)}
+                        {formatCurrency(
+                          reconciliation.paymentBreakdown.cash,
+                          settings,
+                        )}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Card Sales:</span>
                       <span className="font-medium">
-                        {formatCurrency(reconciliation.paymentBreakdown.card)}
+                        {formatCurrency(
+                          reconciliation.paymentBreakdown.card,
+                          settings,
+                        )}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Mobile Sales:</span>
                       <span className="font-medium">
-                        {formatCurrency(reconciliation.paymentBreakdown.mobile)}
+                        {formatCurrency(
+                          reconciliation.paymentBreakdown.mobile,
+                          settings,
+                        )}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -299,12 +307,19 @@ const CashDrawerPage: React.FC = () => {
                 <div className="mb-4 rounded-lg bg-blue-50 p-4">
                   <p className="text-sm font-medium text-blue-800">
                     Expected Cash Balance:{" "}
-                    {formatCurrency(reconciliation.expectedCashBalance)}
+                    {formatCurrency(
+                      reconciliation.expectedCashBalance,
+                      settings,
+                    )}
                   </p>
                   <p className="mt-1 text-xs text-blue-600">
-                    Opening: {formatCurrency(currentDrawer!.openingBalance)} +
+                    Opening:{" "}
+                    {formatCurrency(currentDrawer!.openingBalance, settings)} +
                     Cash Sales:{" "}
-                    {formatCurrency(reconciliation.paymentBreakdown.cash)}
+                    {formatCurrency(
+                      reconciliation.paymentBreakdown.cash,
+                      settings,
+                    )}
                   </p>
                 </div>
 
@@ -338,6 +353,7 @@ const CashDrawerPage: React.FC = () => {
                       {formatCurrency(
                         parseFloat(actualCash) -
                           reconciliation.expectedCashBalance,
+                        settings,
                       )}
                     </p>
                   )}
@@ -449,6 +465,7 @@ const CashDrawerPage: React.FC = () => {
                             typeof transaction.finalAmount === "number"
                               ? transaction.finalAmount
                               : 0,
+                            settings,
                           )}
                         </span>
                       </div>
@@ -521,12 +538,12 @@ const CashDrawerPage: React.FC = () => {
                         </td>
                         <td className="px-4 py-3 text-right text-sm text-gray-900">
                           {drawer?.openingBalance !== undefined
-                            ? formatCurrency(drawer.openingBalance)
+                            ? formatCurrency(drawer.openingBalance, settings)
                             : "-"}
                         </td>
                         <td className="px-4 py-3 text-right text-sm text-gray-900">
                           {drawer.closingBalance
-                            ? formatCurrency(drawer.closingBalance)
+                            ? formatCurrency(drawer.closingBalance, settings)
                             : "-"}
                         </td>
                         <td
@@ -539,7 +556,7 @@ const CashDrawerPage: React.FC = () => {
                           }`}
                         >
                           {drawer.difference !== null
-                            ? formatCurrency(drawer.difference)
+                            ? formatCurrency(drawer.difference, settings)
                             : "-"}
                         </td>
                         <td className="px-4 py-3 text-center">

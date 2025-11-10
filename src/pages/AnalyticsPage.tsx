@@ -1,5 +1,6 @@
 import React from "react";
 import { AnalyticsOverviewCards } from "../components/analytics/AnalyticsOverviewCards";
+import { AnalyticsPageSkeleton } from "../components/analytics/AnalyticsPageSkeleton";
 import { AnalyticsPeriodSelector } from "../components/analytics/AnalyticsPeriodSelector";
 import { CategoryBreakdownChart } from "../components/analytics/CategoryBreakdownChart";
 import { SalesTrendChart } from "../components/analytics/SalesTrendChart";
@@ -7,8 +8,6 @@ import { TopProductsTable } from "../components/analytics/TopProductsTable";
 import { RefreshButton } from "../components/common";
 import { useSettings } from "../context/SettingsContext";
 import { useAnalyticsData } from "../hooks/useAnalyticsData";
-import { formatCurrency } from "../utils/currencyUtils";
-import { AnalyticsPageSkeleton } from "../components/analytics/AnalyticsPageSkeleton";
 
 const AnalyticsPage: React.FC = () => {
   const { settings } = useSettings();
@@ -105,27 +104,18 @@ const AnalyticsPage: React.FC = () => {
         {/* Charts Row */}
         <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Sales Trend Chart */}
-          <SalesTrendChart
-            salesTrend={salesTrend}
-            settings={settings}
-            formatCurrency={formatCurrency}
-          />
+          <SalesTrendChart salesTrend={salesTrend} settings={settings} />
 
           {/* Category Breakdown */}
           <CategoryBreakdownChart
             categories={categories}
             settings={settings}
-            formatCurrency={formatCurrency}
             colors={COLORS}
           />
         </div>
 
         {/* Top Products */}
-        <TopProductsTable
-          topProducts={topProducts}
-          settings={settings}
-          formatCurrency={formatCurrency}
-        />
+        <TopProductsTable topProducts={topProducts} settings={settings} />
       </div>
     </div>
   );

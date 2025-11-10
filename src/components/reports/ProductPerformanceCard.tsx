@@ -1,6 +1,6 @@
 import React from "react";
 import { ProductPerformanceReport } from "../../types";
-import { formatCurrency } from "../../utils/reportUtils";
+import { formatCurrency } from "../../utils/currencyUtils";
 import { exportTableToPDF, exportTableToCSV } from "../../utils/exportUtils";
 import { useSettings } from "../../context/SettingsContext";
 
@@ -44,9 +44,9 @@ export const ProductPerformanceCard: React.FC<ProductPerformanceCardProps> = ({
                   .map((prod) => [
                     prod.product.name,
                     prod.totalQuantitySold,
-                    formatCurrency(prod.totalRevenue),
+                    formatCurrency(prod.totalRevenue, settings),
                     prod.totalTransactions,
-                    formatCurrency(prod.estimatedProfit),
+                    formatCurrency(prod.estimatedProfit, settings),
                   ]),
                 filename: `top-products-${startDate}-to-${endDate}.pdf`,
               })
@@ -112,13 +112,13 @@ export const ProductPerformanceCard: React.FC<ProductPerformanceCardProps> = ({
                   {prod.totalQuantitySold}
                 </td>
                 <td className="px-4 py-2 text-right">
-                  {formatCurrency(prod.totalRevenue, settings || undefined)}
+                  {formatCurrency(prod.totalRevenue, settings)}
                 </td>
                 <td className="px-4 py-2 text-right">
                   {prod.totalTransactions}
                 </td>
                 <td className="px-4 py-2 text-right">
-                  {formatCurrency(prod.estimatedProfit, settings || undefined)}
+                  {formatCurrency(prod.estimatedProfit, settings)}
                 </td>
               </tr>
             ))}

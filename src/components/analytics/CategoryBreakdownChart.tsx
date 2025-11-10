@@ -1,11 +1,11 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { CategoryData } from "../../types/analyticsTypes";
+import { formatCurrency } from "../../utils/currencyUtils";
 
 interface CategoryBreakdownChartProps {
   categories: CategoryData[];
   settings: any;
-  formatCurrency: (value: number, settings: any) => string;
   colors?: string[];
 }
 
@@ -23,7 +23,6 @@ const DEFAULT_COLORS = [
 export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
   categories,
   settings,
-  formatCurrency,
   colors = DEFAULT_COLORS,
 }) => (
   <div className="rounded-lg bg-white p-6 shadow-sm">

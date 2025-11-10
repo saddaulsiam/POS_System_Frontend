@@ -10,17 +10,16 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { SalesTrendData } from "../../types/analyticsTypes";
+import { formatCurrency } from "../../utils/currencyUtils";
 
 interface SalesTrendChartProps {
   salesTrend: SalesTrendData[];
   settings: any;
-  formatCurrency: (value: number, settings: any) => string;
 }
 
 export const SalesTrendChart: React.FC<SalesTrendChartProps> = ({
   salesTrend,
   settings,
-  formatCurrency,
 }) => (
   <div className="rounded-lg bg-white p-6 shadow-sm">
     <h2 className="mb-4 text-xl font-bold text-gray-800">Sales Trend</h2>

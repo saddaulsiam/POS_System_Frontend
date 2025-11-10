@@ -1,16 +1,15 @@
 import React from "react";
 import { TopProduct } from "../../types/analyticsTypes";
+import { formatCurrency } from "../../utils/currencyUtils";
 
 interface TopProductsTableProps {
   topProducts: TopProduct[];
   settings: any;
-  formatCurrency: (value: number, settings: any) => string;
 }
 
 export const TopProductsTable: React.FC<TopProductsTableProps> = ({
   topProducts,
   settings,
-  formatCurrency,
 }) => (
   <div className="rounded-lg bg-white p-6 shadow-sm">
     <h2 className="mb-4 text-xl font-bold text-gray-800">Top Products</h2>

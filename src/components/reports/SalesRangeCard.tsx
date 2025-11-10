@@ -1,5 +1,5 @@
 import React from "react";
-import { formatCurrency } from "../../utils/reportUtils";
+import { formatCurrency } from "../../utils/currencyUtils";
 import { exportTableToPDF, exportTableToCSV } from "../../utils/exportUtils";
 import { useSettings } from "../../context/SettingsContext";
 
@@ -34,10 +34,16 @@ export const SalesRangeCard: React.FC<SalesRangeCardProps> = ({
                 columns: ["Total Sales", "Transactions", "Tax", "Discount"],
                 data: [
                   [
-                    formatCurrency(salesRange.summary?.totalSales ?? 0),
+                    formatCurrency(
+                      salesRange.summary?.totalSales ?? 0,
+                      settings,
+                    ),
                     salesRange.summary?.totalTransactions ?? 0,
-                    formatCurrency(salesRange.summary?.totalTax ?? 0),
-                    formatCurrency(salesRange.summary?.totalDiscount ?? 0),
+                    formatCurrency(salesRange.summary?.totalTax ?? 0, settings),
+                    formatCurrency(
+                      salesRange.summary?.totalDiscount ?? 0,
+                      settings,
+                    ),
                   ],
                 ],
                 filename: `sales-range-${startDate}-to-${endDate}.pdf`,
@@ -73,10 +79,7 @@ export const SalesRangeCard: React.FC<SalesRangeCardProps> = ({
         <div className="rounded-lg bg-blue-50 p-4 text-center">
           <div className="text-xs text-gray-500">Total Sales</div>
           <div className="text-2xl font-bold text-blue-900">
-            {formatCurrency(
-              salesRange.summary?.totalSales ?? 0,
-              settings || undefined,
-            )}
+            {formatCurrency(salesRange.summary?.totalSales ?? 0, settings)}
           </div>
         </div>
         <div className="rounded-lg bg-blue-50 p-4 text-center">
@@ -88,19 +91,13 @@ export const SalesRangeCard: React.FC<SalesRangeCardProps> = ({
         <div className="rounded-lg bg-blue-50 p-4 text-center">
           <div className="text-xs text-gray-500">Tax</div>
           <div className="text-2xl font-bold text-blue-900">
-            {formatCurrency(
-              salesRange.summary?.totalTax ?? 0,
-              settings || undefined,
-            )}
+            {formatCurrency(salesRange.summary?.totalTax ?? 0, settings)}
           </div>
         </div>
         <div className="rounded-lg bg-blue-50 p-4 text-center">
           <div className="text-xs text-gray-500">Discount</div>
           <div className="text-2xl font-bold text-blue-900">
-            {formatCurrency(
-              salesRange.summary?.totalDiscount ?? 0,
-              settings || undefined,
-            )}
+            {formatCurrency(salesRange.summary?.totalDiscount ?? 0, settings)}
           </div>
         </div>
       </div>

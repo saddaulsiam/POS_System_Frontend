@@ -1,8 +1,8 @@
 import React from "react";
 import { DailySalesReport } from "../../types";
-import { formatCurrency } from "../../utils/reportUtils";
 import { exportTableToPDF, exportTableToCSV } from "../../utils/exportUtils";
 import { useSettings } from "../../context/SettingsContext";
+import { formatCurrency } from "../../utils/currencyUtils";
 
 interface DailySalesCardProps {
   daily: DailySalesReport;
@@ -62,7 +62,7 @@ export const DailySalesCard: React.FC<DailySalesCardProps> = ({ daily }) => {
         <div className="rounded-lg bg-blue-50 p-4 text-center">
           <div className="text-xs text-gray-500">Total Sales</div>
           <div className="text-2xl font-bold text-blue-900">
-            {formatCurrency(daily.summary.totalSales, settings || undefined)}
+            {formatCurrency(daily.summary.totalSales, settings)}
           </div>
         </div>
         <div className="rounded-lg bg-blue-50 p-4 text-center">
@@ -74,13 +74,13 @@ export const DailySalesCard: React.FC<DailySalesCardProps> = ({ daily }) => {
         <div className="rounded-lg bg-blue-50 p-4 text-center">
           <div className="text-xs text-gray-500">Tax</div>
           <div className="text-2xl font-bold text-blue-900">
-            {formatCurrency(daily.summary.totalTax, settings || undefined)}
+            {formatCurrency(daily.summary.totalTax, settings)}
           </div>
         </div>
         <div className="rounded-lg bg-blue-50 p-4 text-center">
           <div className="text-xs text-gray-500">Discount</div>
           <div className="text-2xl font-bold text-blue-900">
-            {formatCurrency(daily.summary.totalDiscount, settings || undefined)}
+            {formatCurrency(daily.summary.totalDiscount, settings)}
           </div>
         </div>
       </div>
@@ -107,7 +107,7 @@ export const DailySalesCard: React.FC<DailySalesCardProps> = ({ daily }) => {
               <li key={pm.paymentMethod} className="flex justify-between py-1">
                 <span>{pm.paymentMethod}</span>
                 <span className="text-gray-700">
-                  {formatCurrency(pm._sum.finalAmount)}
+                  {formatCurrency(pm._sum.finalAmount, settings)}
                 </span>
               </li>
             ))}

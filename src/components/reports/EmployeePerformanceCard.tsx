@@ -1,8 +1,8 @@
 import React from "react";
-import { EmployeePerformanceReport } from "../../types";
-import { formatCurrency } from "../../utils/reportUtils";
-import { exportTableToPDF, exportTableToCSV } from "../../utils/exportUtils";
 import { useSettings } from "../../context/SettingsContext";
+import { EmployeePerformanceReport } from "../../types";
+import { formatCurrency } from "../../utils/currencyUtils";
+import { exportTableToCSV, exportTableToPDF } from "../../utils/exportUtils";
 
 interface EmployeePerformanceCardProps {
   employeePerf: EmployeePerformanceReport;
@@ -35,9 +35,9 @@ export const EmployeePerformanceCard: React.FC<
                   .slice(0, 5)
                   .map((emp) => [
                     emp.employee.name,
-                    formatCurrency(emp.totalSales),
+                    formatCurrency(emp.totalSales, settings),
                     emp.totalTransactions,
-                    formatCurrency(emp.averageTransaction),
+                    formatCurrency(emp.averageTransaction, settings),
                   ]),
                 filename: `top-employees-${startDate}-to-${endDate}.pdf`,
               })
@@ -95,16 +95,13 @@ export const EmployeePerformanceCard: React.FC<
               <tr key={emp.employee.id} className="border-b">
                 <td className="px-4 py-2">{emp.employee.name}</td>
                 <td className="px-4 py-2 text-right">
-                  {formatCurrency(emp.totalSales, settings || undefined)}
+                  {formatCurrency(emp.totalSales, settings)}
                 </td>
                 <td className="px-4 py-2 text-right">
                   {emp.totalTransactions}
                 </td>
                 <td className="px-4 py-2 text-right">
-                  {formatCurrency(
-                    emp.averageTransaction,
-                    settings || undefined,
-                  )}
+                  {formatCurrency(emp.averageTransaction, settings)}
                 </td>
               </tr>
             ))}
