@@ -3,18 +3,32 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # Environment (secrets)
 .env
+.env.local
+.env.production
 
 # Build outputs
-dist
 dist/
+dist-electron/
 build/
+out/
+
+# Electron build outputs
+release/
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.rpm
+*.snap
 
 # Logs
 logs/
 *.log
+main.log
 
 # Coverage and test artifacts
 coverage/
@@ -25,18 +39,30 @@ coverage/
 .parcel-cache/
 .vite/
 *.tsbuildinfo
+.eslintcache
 
 # Editor/IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Uploaded/generated assets
 uploads/
 public/uploads/
 
+# Electron specific
+app/
+app-update.yml
+latest*.yml
+*.blockmap
+
 # Misc
 *.tgz
+.npmrc

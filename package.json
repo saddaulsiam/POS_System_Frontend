@@ -1,19 +1,48 @@
 {
-  "name": "grocery-pos-frontend",
+  "name": "pos-system-frontend",
   "version": "1.0.0",
   "type": "module",
-  "description": "Frontend for Grocery Store POS System",
+  "description": "Modern Point of Sale System - Electron Desktop Application",
   "private": true,
   "main": "main.js",
-  "author": "saddaulsiam",
+  "author": {
+    "name": "Saddaul Siam",
+    "email": "saddaulsiam@gmail.com",
+    "url": "https://github.com/saddaulsiam"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/saddaulsiam/POS_System_Frontend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/saddaulsiam/POS_System_Frontend/issues"
+  },
+  "homepage": "https://github.com/saddaulsiam/POS_System_Frontend#readme",
+  "license": "MIT",
+  "keywords": [
+    "pos",
+    "point-of-sale",
+    "retail",
+    "inventory",
+    "electron",
+    "react",
+    "typescript"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "format": "prettier --write .",
-    "dev:electron": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && cross-env ELECTRON_START_URL=http://localhost:3000 electron .\"",
+    "format:check": "prettier --check .",
+    "lint": "tsc --noEmit",
+    "dev:electron": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && cross-env ELECTRON_START_URL=http://localhost:5173 electron .\"",
     "electron": "electron .",
-    "package": "npm run build && electron-builder"
+    "package": "npm run build && electron-builder",
+    "package:win": "npm run build && electron-builder --win",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:linux": "npm run build && electron-builder --linux",
+    "clean": "rimraf dist dist-electron release",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
@@ -58,33 +87,78 @@
     "wait-on": "^7.0.1"
   },
   "build": {
-    "appId": "com.yourcompany.possystem",
+    "appId": "com.saddaulsiam.possystem",
     "productName": "POS System",
+    "copyright": "Copyright © 2025 ${author}",
     "files": [
       "main.js",
       "preload.js",
       "dist/**/*",
-      "node_modules/**/*"
+      "node_modules/**/*",
+      "package.json"
     ],
     "directories": {
-      "buildResources": "../assets"
+      "buildResources": "assets",
+      "output": "release"
     },
     "publish": [
       {
         "provider": "github",
         "owner": "saddaulsiam",
-        "repo": "POS_System_Frontend"
+        "repo": "POS_System_Frontend",
+        "releaseType": "release"
       }
     ],
     "win": {
-      "target": "nsis",
-      "icon": "../assets/icon.ico"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "publisherName": "Saddaul Siam",
+      "verifyUpdateCodeSignature": false
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+      "createStartMenuShortcut": true,
+      "shortcutName": "POS System",
+      "uninstallDisplayName": "POS System",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "license": "LICENSE"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.business",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "assets/icon.png",
+      "category": "Office",
+      "description": "Modern Point of Sale System"
+    },
+    "extraMetadata": {
+      "main": "main.js"
     }
   },
   "browserslist": {
