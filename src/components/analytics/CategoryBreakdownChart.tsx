@@ -1,5 +1,5 @@
 import React from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { CategoryData } from "../../types/analyticsTypes";
 import { formatCurrency } from "../../utils/currencyUtils";
 
@@ -30,7 +30,7 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
         <Pie
-          data={categories}
+          data={categories as any}
           dataKey="revenue"
           nameKey="name"
           cx="50%"

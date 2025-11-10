@@ -17,6 +17,7 @@ export interface CurrencyConfig {
 /**
  * Supported currencies with their configurations
  */
+
 export const CURRENCIES: Record<string, CurrencyConfig> = {
   USD: {
     code: "USD",
