@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { ConfirmModal } from "../components/common";
 import { Pagination } from "../components/sales/Pagination";
 import { SaleDetailsModal } from "../components/sales/SaleDetailsModal";
 import { SalesFilters } from "../components/sales/SalesFilters";
@@ -25,6 +26,8 @@ const SalesPage: React.FC = () => {
   const [selectedSaleId, setSelectedSaleId] = useState<number | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showVoidModal, setShowVoidModal] = useState(false);
+  const [showRefundConfirm, setShowRefundConfirm] = useState(false);
+  const [refundingSale, setRefundingSale] = useState<Sale | null>(null);
 
   // Filters
   const [dateFrom, setDateFrom] = useState("");
@@ -81,27 +84,30 @@ const SalesPage: React.FC = () => {
   };
 
   const handleRefund = async (sale: Sale) => {
-    if (
-      !confirm(
-        `Are you sure you want to process a refund for sale #${sale.receiptId}?`,
-      )
-    ) {
-      return;
-    }
+    setRefundingSale(sale);
+    setShowRefundConfirm(true);
+  };
+
+  const confirmRefund = async () => {
+    if (!refundingSale) return;
 
     try {
       const refundData = {
-        items: (sale.saleItems ?? []).map((item) => ({
+        items: (refundingSale.saleItems ?? []).map((item) => ({
           saleItemId: item.id,
           quantity: item.quantity,
         })),
         reason: "Customer return",
       };
-      await refundSale.mutateAsync({ id: sale.id, data: refundData });
-      toast.success("Refund processed successfully");
+      await refundSale.mutateAsync({ id: refundingSale.id, data: refundData });
+      toast.success("✅ Refund processed successfully");
+      setShowRefundConfirm(false);
+      setRefundingSale(null);
     } catch (error: any) {
       console.error("Error processing refund:", error);
-      toast.error(error?.response?.data?.error || "Failed to process refund");
+      toast.error(
+        error?.response?.data?.error || "❌ Failed to process refund",
+      );
     }
   };
 
@@ -212,6 +218,22 @@ const SalesPage: React.FC = () => {
         onConfirm={handleVoidConfirm}
         requirePassword={settings?.requirePasswordOnVoid || false}
         isLoading={voidSale.isPending}
+      />
+
+      {/* Refund Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showRefundConfirm}
+        onClose={() => {
+          setShowRefundConfirm(false);
+          setRefundingSale(null);
+        }}
+        onConfirm={confirmRefund}
+        title="Confirm Refund"
+        message={`Are you sure you want to process a refund for sale #${refundingSale?.receiptId}? This will return all items and restore stock quantities.`}
+        confirmText="Process Refund"
+        cancelText="Cancel"
+        variant="warning"
+        isLoading={refundSale.isPending}
       />
     </div>
   );

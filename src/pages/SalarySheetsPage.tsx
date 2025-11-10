@@ -1,6 +1,7 @@
+import { DollarSign } from "lucide-react";
 import React from "react";
 import toast from "react-hot-toast";
-import { Modal } from "../components/common/Modal";
+import { Button, ConfirmModal, Modal } from "../components/common";
 import SalarySheetForm from "../components/salarySheet/SalarySheetForm";
 import SalarySheetsTable from "../components/salarySheet/SalarySheetsTable";
 import { SalarySheetsTableSkeleton } from "../components/salarySheet/SalarySheetsTableSkeleton";
@@ -32,6 +33,8 @@ const SalarySheetsPage: React.FC = () => {
   const [year, setYear] = React.useState<number | "">(now.getFullYear());
   const [showModal, setShowModal] = React.useState(false);
   const [editingSheet, setEditingSheet] = React.useState<any>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const [deletingSheet, setDeletingSheet] = React.useState<any>(null);
   const [form, setForm] = React.useState({
     employeeId: "",
     month: "",
@@ -81,13 +84,21 @@ const SalarySheetsPage: React.FC = () => {
       };
       if (editingSheet) {
         await salarySheetsAPI.update(editingSheet.id, payload);
+        toast.success("✅ Salary sheet updated successfully");
       } else {
         await salarySheetsAPI.create(payload);
+        toast.success("✅ Salary sheet created successfully");
       }
       setShowModal(false);
       fetchSalarySheets(month, year);
     } catch (err: any) {
-      toast.error(err.message || "Failed to save salary sheet");
+      console.error("Salary sheet save error:", err);
+      toast.error(
+        err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "❌ Failed to save salary sheet",
+      );
     }
   };
 
@@ -117,14 +128,27 @@ const SalarySheetsPage: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this salary sheet?"))
-      return;
+  const handleDelete = (sheet: any) => {
+    setDeletingSheet(sheet);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingSheet) return;
     try {
-      await salarySheetsAPI.delete(id);
+      await salarySheetsAPI.delete(deletingSheet.id);
+      toast.success("✅ Salary sheet deleted successfully");
+      setShowDeleteConfirm(false);
+      setDeletingSheet(null);
       fetchSalarySheets(month, year);
     } catch (err: any) {
-      toast.error(err.message || "Failed to delete salary sheet");
+      console.error("Delete salary sheet error:", err);
+      toast.error(
+        err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "❌ Failed to delete salary sheet",
+      );
     }
   };
 
@@ -321,8 +345,38 @@ const SalarySheetsPage: React.FC = () => {
         <Modal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          title={editingSheet ? "Edit Salary Sheet" : "Add Salary Sheet"}
-          size="md"
+          title={
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+                <DollarSign className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingSheet ? "Edit Salary Sheet" : "Add Salary Sheet"}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {editingSheet
+                    ? "Update employee salary information"
+                    : "Create a new salary sheet for an employee"}
+                </p>
+              </div>
+            </div>
+          }
+          size="lg"
+          footer={
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => setShowModal(false)}
+                type="button"
+              >
+                Cancel
+              </Button>
+              <Button variant="primary" type="submit" form="salary-sheet-form">
+                {editingSheet ? "Update Sheet" : "Create Sheet"}
+              </Button>
+            </div>
+          }
         >
           {empLoading ? (
             <div className="text-gray-500">Loading employees...</div>
@@ -335,12 +389,26 @@ const SalarySheetsPage: React.FC = () => {
               months={months}
               onChange={handleFormChange}
               onSubmit={handleFormSubmit}
-              onCancel={() => setShowModal(false)}
-              editingSheet={!!editingSheet}
             />
           )}
         </Modal>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setDeletingSheet(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Salary Sheet"
+        message={`Are you sure you want to delete this salary sheet? This action cannot be undone.`}
+        confirmText="Delete Sheet"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={false}
+      />
     </div>
   );
 };

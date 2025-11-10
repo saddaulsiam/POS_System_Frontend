@@ -1,5 +1,6 @@
 import React from "react";
 import { Product, StockMovement } from "../../types";
+import { Modal } from "../common";
 
 interface StockHistoryModalProps {
   isOpen: boolean;
@@ -17,22 +18,54 @@ export const StockHistoryModal: React.FC<StockHistoryModalProps> = ({
   if (!isOpen || !product) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="relative max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
-        <button
-          className="absolute right-2 top-2 text-xl text-gray-500 hover:text-gray-700"
-          onClick={onClose}
-          aria-label="Close"
-        >
-          &times;
-        </button>
-        <h2 className="mb-4 text-xl font-semibold">
-          Stock History for {product.name}
-        </h2>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={
+        <div className="flex items-center space-x-3">
+          <div className="rounded-lg bg-green-100 p-2">
+            <svg
+              className="h-6 w-6 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+              />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Stock History</h2>
+            <p className="text-sm text-gray-600">{product.name}</p>
+          </div>
+        </div>
+      }
+      size="2xl"
+    >
+      <div className="space-y-4">
         {history.length === 0 ? (
-          <p className="text-gray-500">No stock movements found.</p>
+          <div className="py-8 text-center">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+              />
+            </svg>
+            <p className="mt-2 text-gray-500">No stock movements found.</p>
+          </div>
         ) : (
-          <div className="max-h-[60vh] overflow-y-auto">
+          <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead>
                 <tr>
@@ -70,6 +103,6 @@ export const StockHistoryModal: React.FC<StockHistoryModalProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </Modal>
   );
 };

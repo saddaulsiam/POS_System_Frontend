@@ -16,8 +16,6 @@ interface SalarySheetFormProps {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
   onSubmit: (e: React.FormEvent) => void;
-  onCancel: () => void;
-  editingSheet: boolean;
 }
 
 const SalarySheetForm: React.FC<SalarySheetFormProps> = ({
@@ -26,11 +24,9 @@ const SalarySheetForm: React.FC<SalarySheetFormProps> = ({
   months,
   onChange,
   onSubmit,
-  onCancel,
-  editingSheet,
 }) => {
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4" id="salary-sheet-form">
       <div>
         <label className="mb-1 block text-sm font-medium">Employee</label>
         <select
@@ -165,21 +161,6 @@ const SalarySheetForm: React.FC<SalarySheetFormProps> = ({
             className="w-full rounded border px-3 py-2"
           />
         </div>
-      </div>
-      <div className="flex justify-end gap-2">
-        <button
-          type="button"
-          className="rounded bg-gray-300 px-4 py-2 text-gray-700"
-          onClick={onCancel}
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="rounded bg-blue-600 px-4 py-2 text-white"
-        >
-          {editingSheet ? "Update" : "Create"}
-        </button>
       </div>
     </form>
   );

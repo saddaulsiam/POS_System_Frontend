@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Input, Button } from "../common";
+import { ShieldCheck } from "lucide-react";
 
 interface PinPromptModalProps {
   isOpen: boolean;
@@ -12,7 +13,7 @@ const PinPromptModal: React.FC<PinPromptModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  title = "Enter PIN",
+  title = "Reset PIN",
 }) => {
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -36,38 +37,56 @@ const PinPromptModal: React.FC<PinPromptModalProps> = ({
     onSubmit(pin);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      validateAndSubmit();
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={title}
-      closeOnOverlayClick={false}
+      title={
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+            <ShieldCheck className="h-5 w-5 text-blue-600" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            <p className="text-sm text-gray-500">Secure PIN authentication</p>
+          </div>
+        </div>
+      }
       size="sm"
+      footer={
+        <div className="flex justify-end gap-3">
+          <Button variant="ghost" onClick={onClose} type="button">
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={validateAndSubmit} type="button">
+            Reset
+          </Button>
+        </div>
+      }
     >
       <div className="space-y-4">
         <Input
-          label="New PIN"
+          label="PIN Code"
           value={pin}
           onChange={(e) => setPin(e.target.value)}
-          placeholder="4-8 digits"
+          onKeyDown={handleKeyDown}
+          placeholder="Enter 4-8 digit PIN"
           inputMode="numeric"
           pattern="[0-9]*"
           maxLength={8}
           autoFocus
           fullWidth
           required
-          helperText="PIN must be 4-8 digits"
+          helperText="PIN must be 4-8 digits (numbers only)"
           error={error || undefined}
         />
-
-        <div className="flex justify-end gap-3">
-          <Button variant="ghost" onClick={onClose} type="button">
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={validateAndSubmit} type="button">
-            Save PIN
-          </Button>
-        </div>
       </div>
     </Modal>
   );

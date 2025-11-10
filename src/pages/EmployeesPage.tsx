@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { Button } from "../components/common";
+import { Button, ConfirmModal } from "../components/common";
 import EmployeeDetailsView from "../components/employees/EmployeeDetailsView";
 import EmployeeModal from "../components/employees/EmployeeModal";
 import { EmployeeSearch } from "../components/employees/EmployeeSearch";
@@ -33,6 +33,10 @@ const EmployeesPage: React.FC = () => {
     useState<Employee | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(
+    null,
+  );
 
   // React Query hooks
   const { data: employeesData, isLoading } = useEmployees({
@@ -84,13 +88,26 @@ const EmployeesPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (employee: Employee) => {
-    if (!window.confirm(`Delete employee "${employee.name}"?`)) return;
+  const handleDelete = (employee: Employee) => {
+    setDeletingEmployee(employee);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingEmployee) return;
     try {
-      await deleteEmployee.mutateAsync(employee.id);
-      toast.success("Employee deleted successfully");
+      await deleteEmployee.mutateAsync(deletingEmployee.id);
+      toast.success("✅ Employee deleted successfully");
+      setShowDeleteConfirm(false);
+      setDeletingEmployee(null);
     } catch (error: any) {
-      toast.error(error.response?.data?.error || "Failed to delete employee");
+      console.error("Delete employee error:", error);
+      toast.error(
+        error?.response?.data?.error ||
+          error?.response?.data?.message ||
+          error?.message ||
+          "❌ Failed to delete employee",
+      );
     }
   };
 
@@ -204,6 +221,22 @@ const EmployeesPage: React.FC = () => {
           setSelectedEmployeeForPin(null);
         }}
         onSubmit={handleSubmitPin}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setDeletingEmployee(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Employee"
+        message={`Are you sure you want to delete "${deletingEmployee?.name}"? This action cannot be undone and will remove all employee data.`}
+        confirmText="Delete Employee"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={deleteEmployee.isPending}
       />
     </div>
   );
