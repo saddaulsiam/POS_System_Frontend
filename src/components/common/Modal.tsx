@@ -68,7 +68,7 @@ export const Modal: React.FC<ModalProps> = ({
 
         {/* Footer */}
         {footer && (
-          <div className="rounded-b-lg border-t bg-gray-50 px-6 py-4">
+          <div className="flex justify-end rounded-b-lg border-t bg-gray-50 px-6 py-4">
             {footer}
           </div>
         )}

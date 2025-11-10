@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Button } from "../common";
+import { FC } from "react";
+import { Button, Dropdown } from "../common";
 
 interface ProductActionsProps {
   canWrite: boolean;
@@ -10,7 +10,7 @@ interface ProductActionsProps {
   onAddNew: () => void;
 }
 
-export const ProductActions: React.FC<ProductActionsProps> = ({
+export const ProductActions: FC<ProductActionsProps> = ({
   canWrite,
   onExport,
   onExportExcel,
@@ -18,108 +18,93 @@ export const ProductActions: React.FC<ProductActionsProps> = ({
   onImportExcel,
   onAddNew,
 }) => {
-  const [showExportMenu, setShowExportMenu] = useState(false);
-  const [showImportMenu, setShowImportMenu] = useState(false);
-
   if (!canWrite) {
     return null;
   }
 
+  const exportItems = [
+    {
+      label: "Export as CSV",
+      icon: "📄",
+      onClick: onExport,
+    },
+    {
+      label: "Export as Excel",
+      icon: "📊",
+      onClick: onExportExcel,
+    },
+  ];
+
+  const importItems = [
+    {
+      label: "Import from CSV",
+      icon: "📄",
+      onClick: onImport,
+    },
+    {
+      label: "Import from Excel",
+      icon: "📊",
+      onClick: onImportExcel,
+    },
+  ];
+
   return (
     <div className="flex gap-2">
       {/* Export Dropdown */}
-      <div className="relative">
-        <Button
-          variant="success"
-          onClick={() => setShowExportMenu(!showExportMenu)}
-          title="Export products"
-          className="flex items-center"
-        >
-          📥 Export
-          <svg
-            className="ml-1 h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <Dropdown
+        trigger={
+          <Button
+            variant="success"
+            title="Export products"
+            className="flex items-center"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </Button>
-        {showExportMenu && (
-          <div className="absolute right-0 z-10 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg">
-            <button
-              onClick={() => {
-                onExport();
-                setShowExportMenu(false);
-              }}
-              className="block w-full rounded-t-lg px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+            📥 Export
+            <svg
+              className="ml-1 h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              📄 Export as CSV
-            </button>
-            <button
-              onClick={() => {
-                onExportExcel();
-                setShowExportMenu(false);
-              }}
-              className="block w-full rounded-b-lg px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-            >
-              📊 Export as Excel
-            </button>
-          </div>
-        )}
-      </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </Button>
+        }
+        items={exportItems}
+        align="right"
+      />
 
       {/* Import Dropdown */}
-      <div className="relative">
-        <Button
-          variant="warning"
-          onClick={() => setShowImportMenu(!showImportMenu)}
-          title="Import products"
-          className="flex items-center"
-        >
-          📤 Import
-          <svg
-            className="ml-1 h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <Dropdown
+        trigger={
+          <Button
+            variant="warning"
+            title="Import products"
+            className="flex items-center"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </Button>
-        {showImportMenu && (
-          <div className="absolute right-0 z-10 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg">
-            <button
-              onClick={() => {
-                onImport();
-                setShowImportMenu(false);
-              }}
-              className="block w-full rounded-t-lg px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+            📤 Import
+            <svg
+              className="ml-1 h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              📄 Import from CSV
-            </button>
-            <button
-              onClick={() => {
-                onImportExcel();
-                setShowImportMenu(false);
-              }}
-              className="block w-full rounded-b-lg px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-            >
-              📊 Import from Excel
-            </button>
-          </div>
-        )}
-      </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </Button>
+        }
+        items={importItems}
+        align="right"
+      />
 
       <Button variant="primary" onClick={onAddNew}>
         Add New Product

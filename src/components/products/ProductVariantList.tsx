@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
-import { ProductVariant, Product } from "../../types";
+import { useSettings } from "../../context/SettingsContext";
 import {
-  useProductVariants,
   useDeleteProductVariant,
+  useProductVariants,
 } from "../../services/queries";
+import { Product, ProductVariant } from "../../types";
+import { formatCurrency } from "../../utils/currencyUtils";
 import { Button, SkeletonProductVariants } from "../common";
 import { ProductVariantModal } from "./ProductVariantModal";
-import { useSettings } from "../../context/SettingsContext";
-import { formatCurrency } from "../../utils/currencyUtils";
 
 interface ProductVariantListProps {
   product: Product;

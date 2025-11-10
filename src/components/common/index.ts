@@ -2,6 +2,7 @@ export { Button } from "./Button";
 export { BackButton } from "./BackButton";
 export { RefreshButton } from "./RefreshButton";
 export { Modal } from "./Modal";
+export { Dropdown } from "./Dropdown";
 export { Input, TextArea, Select } from "./Input";
 export { SearchBar } from "./SearchBar";
 export { Badge } from "./Badge";
