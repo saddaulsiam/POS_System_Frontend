@@ -10,6 +10,7 @@ import {
   SettingsPageSkeleton,
   SettingsTabs,
   SystemSettingsTab,
+  UpdatesTab,
 } from "../components/settings";
 import { useAuth } from "../context/AuthContext";
 import { authAPI } from "../services";
@@ -293,6 +294,7 @@ const SettingsPage: React.FC = () => {
             handleTextFieldChangeString={handleTextFieldChangeString}
           />
         )}
+        {activeTab === "updates" && <UpdatesTab />}
       </div>
     </div>
   );

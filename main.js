@@ -257,13 +257,47 @@ autoUpdater.on("update-downloaded", (info) => {
 });
 
 // IPC handlers for manual update checks
-ipcMain.on("check-for-updates", () => {
+ipcMain.handle("check-for-updates", async () => {
+  try {
+    if (updateAvailable) {
+      return {
+        available: true,
+        message: "An update has already been detected and is being processed.",
+      };
+    }
+
+    const result = await autoUpdater.checkForUpdates();
+
+    if (result && result.updateInfo) {
+      return {
+        available: result.updateInfo.version !== app.getVersion(),
+        version: result.updateInfo.version,
+        message:
+          result.updateInfo.version !== app.getVersion()
+            ? "A new update is available and will be downloaded."
+            : "You are running the latest version.",
+      };
+    }
+
+    return {
+      available: false,
+      message: "You are running the latest version.",
+    };
+  } catch (error) {
+    log.error("Error checking for updates:", error);
+    return {
+      available: false,
+      message: "Failed to check for updates. Please try again later.",
+    };
+  }
+});
+
+ipcMain.on("install-update", () => {
   if (updateAvailable) {
-    mainWindow.webContents.send("update-status", {
-      status: "available-cached",
+    setImmediate(() => {
+      app.isQuitting = true;
+      autoUpdater.quitAndInstall(false, true);
     });
-  } else {
-    autoUpdater.checkForUpdates();
   }
 });
 

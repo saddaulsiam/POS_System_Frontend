@@ -11,3 +11,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.removeListener(channel, listener);
   },
 });
+
+// Expose electron utilities for updates
+contextBridge.exposeInMainWorld("electron", {
+  appVersion: process.env.npm_package_version || "1.0.1",
+  checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
+  onUpdateAvailable: (callback) =>
+    ipcRenderer.on("update-available", (_, info) => callback(info)),
+  onUpdateDownloaded: (callback) =>
+    ipcRenderer.on("update-downloaded", (_, info) => callback(info)),
+  installUpdate: () => ipcRenderer.send("install-update"),
+});

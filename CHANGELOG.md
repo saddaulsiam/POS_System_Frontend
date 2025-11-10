@@ -11,6 +11,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial features and functionality
 
+## [1.0.2] - 2025-11-11
+
+### Added
+
+- New "Updates" tab in Settings (Desktop app only)
+  - Manual "Check for Updates" button with loading state
+  - Current version display
+  - Update availability notifications
+  - Auto-update information and documentation
+  - Link to GitHub release notes
+- Conditional UI rendering based on platform (Desktop vs Web)
+  - Updates tab visible only in Electron desktop app
+  - Web version shows standard settings tabs only
+
+### Fixed
+
+- Fixed electron-updater module import for ES6 compatibility
+  - Updated main.js to properly import CommonJS module
+  - Added IPC handlers for manual update checks
+  - Implemented update status feedback system
+
+### Changed
+
+- Enhanced preload.js with Electron API exposure
+  - Added window.electron interface for update functions
+  - Exposed app version information
+  - Added update event listeners (onUpdateAvailable, onUpdateDownloaded)
+- Updated TypeScript definitions in vite-env.d.ts
+  - Added Window interface with electron property
+  - Defined update-related type definitions
+- Improved settings organization
+  - Separated update functionality into dedicated tab
+  - Simplified System Settings tab to focus on store information
+
 ## [1.0.1] - 2025-11-11
 
 ### Fixed
