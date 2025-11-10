@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Renamed `postcss.config.js` to `postcss.config.cjs`
 - Fixed electron-builder configuration
   - Removed invalid `publisherName` property from `win` config
+- Fixed corrupted Electron download issue
+  - Changed Windows build to x64 only (removed ia32 architecture)
 
 ### Changed
 
@@ -32,12 +34,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Streamlined to ~300 lines
   - Added clear quick start guide
   - Improved documentation structure
+- Optimized Windows build process
+  - Now builds only for 64-bit Windows (x64)
+  - Faster build times
+  - Modern system compatibility
 
 ### Technical
 
 - All TypeScript compilation errors resolved
 - Build process now completes successfully
 - Compatible with electron-builder 26.0.12
+- Vite build outputs 1.57 MB main bundle (gzipped: 440.94 KB)
+- Total of 3217 modules transformed
 
 ## [1.0.0] - 2025-11-10
 
