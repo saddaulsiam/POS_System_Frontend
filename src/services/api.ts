@@ -1,13 +1,16 @@
 import axios, { AxiosResponse } from "axios";
 import toast from "react-hot-toast";
+import { getApiBaseUrl, logApiConfig, API_CONFIG } from "../config/apiConfig";
 
-const envBackend = import.meta.env.VITE_BACKEND_URL;
+// Get the appropriate base URL for the current environment
+const baseURL = getApiBaseUrl();
 
-const baseURL = envBackend && envBackend !== "" ? envBackend : "/api";
+// Log configuration for debugging
+logApiConfig();
 
 const api = axios.create({
   baseURL,
-  timeout: 10000,
+  timeout: API_CONFIG.TIMEOUT,
 });
 
 // Request interceptor to add auth token
