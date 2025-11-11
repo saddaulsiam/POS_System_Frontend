@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 const UpdatesTab: React.FC = () => {
+  const [appVersion, setAppVersion] = useState<string>("Loading...");
   const [checkingUpdate, setCheckingUpdate] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<{
     available: boolean;
@@ -16,6 +17,22 @@ const UpdatesTab: React.FC = () => {
   const [updateStatus, setUpdateStatus] = useState<string | null>(null);
 
   useEffect(() => {
+    // Get app version
+    const getVersion = async () => {
+      if (window.electron?.getVersion) {
+        try {
+          const version = await window.electron.getVersion();
+          setAppVersion(version);
+        } catch (error) {
+          setAppVersion("Error loading version");
+        }
+      } else {
+        setAppVersion("Web Version");
+      }
+    };
+
+    getVersion();
+
     // Listen for update status from main process
     if (window.electron?.onUpdateAvailable) {
       window.electron.onUpdateAvailable((info) => {
@@ -121,9 +138,7 @@ const UpdatesTab: React.FC = () => {
               <h3 className="text-sm font-medium text-gray-900">
                 Current Version
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Version {window.electron?.appVersion || "1.0.2"}
-              </p>
+              <p className="mt-1 text-sm text-gray-500">Version {appVersion}</p>
               {updateInfo && (
                 <div
                   className={`mt-3 rounded-md p-3 ${

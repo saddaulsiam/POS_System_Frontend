@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2025-11-11
+
 ### Added
 
-- Initial features and functionality
+- Release 1.0.4 — bug fixes, performance improvements, and minor updates. (placeholder; update details as needed)
 
 ## [1.0.3] - 2025-11-11
 

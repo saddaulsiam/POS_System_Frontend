@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from "electron";
+const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("electronAPI", {
   send: (channel, data) => {
@@ -14,7 +14,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
 // Expose electron utilities for updates
 contextBridge.exposeInMainWorld("electron", {
-  appVersion: process.env.npm_package_version || "1.0.1",
+  getVersion: () => ipcRenderer.invoke("get-version"),
   checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
   onUpdateAvailable: (callback) =>
     ipcRenderer.on("update-available", (_, info) => callback(info)),

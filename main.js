@@ -1,13 +1,7 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu } from "electron";
-import log from "electron-log";
-import pkg from "electron-updater";
-const { autoUpdater } = pkg;
-import path from "path";
-import { fileURLToPath } from "url";
-
-// ES6 __dirname equivalent
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const { app, BrowserWindow, dialog, ipcMain, Menu } = require("electron");
+const log = require("electron-log");
+const { autoUpdater } = require("electron-updater");
+const path = require("path");
 
 // Configure logging
 log.transports.file.level = "info";
@@ -315,6 +309,11 @@ ipcMain.on("quit-and-install", () => {
     app.isQuitting = true;
     autoUpdater.quitAndInstall(false, true);
   });
+});
+
+// IPC Handlers for version
+ipcMain.handle("get-version", () => {
+  return app.getVersion();
 });
 
 ipcMain.on("get-app-version", (event) => {

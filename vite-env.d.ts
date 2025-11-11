@@ -19,7 +19,7 @@ interface Window {
     ) => void;
   };
   electron?: {
-    appVersion: string;
+    getVersion: () => Promise<string>;
     checkForUpdates: () => Promise<{
       available: boolean;
       version?: string;
