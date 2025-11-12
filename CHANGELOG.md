@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-11-12
+
+### Added
+
+- Category icon upload functionality - categories can now have custom icons
+- Single request API for creating/updating categories with icons
+- Image preview and removal in category form modal
+- Visual category icons display in POS product grid
+- FormData support for multipart file uploads in category API
+
+### Changed
+
+- Simplified category creation/update workflow from two requests to one
+- Enhanced CORS configuration with explicit methods and headers
+- Improved category form validation with express-validator
+- Updated category icons to display at full size (h-12 w-12) in POS grid
+- Better error handling with backend error message display in frontend
+
+### Fixed
+
+- CORS preflight request handling with explicit OPTIONS route
+- Category icon rendering in POS grid (fixed incorrect JSX syntax)
+- Form state reset after category creation/editing
+- Category icon conditional rendering with proper ternary operator
+
+### Technical
+
+- Backend: Added multer memory storage for icon uploads
+- Backend: Integrated Cloudinary for icon storage
+- Frontend: Implemented FormData handling in categoriesAPI
+- Frontend: Added proper Content-Type headers for multipart requests
+- Removed redundant icon upload endpoint in favor of unified create/update
+
 ## [1.0.0] - 2025-11-11
 
 ### Added
