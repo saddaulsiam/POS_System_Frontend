@@ -50,10 +50,16 @@ export const POSProductGrid: React.FC<POSProductGridProps> = ({
             }`}
           >
             <div className="text-center">
-              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                <span className="text-xl text-blue-600">
-                  {category.icon || "📦"}
-                </span>
+              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                {category.icon ? (
+                  <img
+                    src={category.icon}
+                    alt={category.name}
+                    className="h-12 w-12 p-0.5 rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xl text-blue-600">📦</span>
+                )}
               </div>
               <p className="text-sm font-medium text-gray-900">
                 {category.name}
