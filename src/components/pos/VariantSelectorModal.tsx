@@ -1,10 +1,9 @@
 import React, { useMemo } from "react";
-import { Product, ProductVariant } from "../../types";
-import { useProductVariants } from "../../services/queries";
 import { useSettings } from "../../context/SettingsContext";
+import { useProductVariants } from "../../services/queries";
+import { Product, ProductVariant } from "../../types";
 import { formatCurrency } from "../../utils/currencyUtils";
-import { Modal } from "../common";
-import LoadingSpinner from "../common/LoadingSpinner";
+import { Button, Modal, Skeleton } from "../common";
 
 interface VariantSelectorModalProps {
   isOpen: boolean;
@@ -41,18 +40,90 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
     onClose();
   };
 
+  // Compute totals for header context
+  const availableCount = variants.length;
+  const totalStock = variants.reduce(
+    (sum: number, v: ProductVariant) => sum + (v.stockQuantity || 0),
+    0,
+  );
+  const subtitle = loading
+    ? "Loading variants..."
+    : availableCount === 0
+      ? "No active variants in stock"
+      : `${availableCount} variant${availableCount > 1 && "s"} • ${totalStock} unit${totalStock > 1 && "s"} available`;
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Select Variant - ${product.name}`}
+      title={
+        <div className="flex items-center space-x-3">
+          <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-md bg-blue-100">
+            <svg
+              className="h-6 w-6 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+              />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">
+              Select Variant — {product.name}
+            </h2>
+            <p className="text-sm text-gray-600">{subtitle}</p>
+          </div>
+        </div>
+      }
       size="lg"
+      footer={
+        <Button
+          variant="ghost"
+          onClick={() => onClose()}
+          disabled={loading}
+          className="flex items-center justify-center"
+        >
+          <svg
+            className="mr-1 h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+          Cancel
+        </Button>
+      }
     >
-      <div className="p-6">
+      <div className="p-3">
         {loading ? (
-          <div className="py-12 text-center">
-            <LoadingSpinner />
-            <p className="font-medium text-gray-600">Loading variants...</p>
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="flex items-center space-x-4 rounded-xl border-2 border-gray-200 bg-white p-5"
+              >
+                <Skeleton variant="rectangular" width="3rem" height="3rem" />
+                <div className="flex-1">
+                  <Skeleton height="1rem" width="40%" className="mb-2" />
+                  <Skeleton height="0.75rem" width="30%" />
+                </div>
+                <div className="w-20">
+                  <Skeleton height="1rem" width="100%" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : variants.length === 0 ? (
           <div className="py-12 text-center">
@@ -114,20 +185,28 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
                   <div className="relative flex items-center justify-between">
                     {/* Left Section: Icon and Info */}
                     <div className="flex flex-1 items-center">
-                      <div className="mr-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 transition-colors group-hover:bg-blue-200">
-                        <svg
-                          className="h-6 w-6 text-blue-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                      <div className="mr-4 flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-md bg-blue-100 transition-colors group-hover:bg-blue-200">
+                        {product.image ? (
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="h-14 w-14 object-cover object-center"
                           />
-                        </svg>
+                        ) : (
+                          <svg
+                            className="h-6 w-6 text-blue-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                            />
+                          </svg>
+                        )}
                       </div>
 
                       <div className="min-w-0 flex-1">
@@ -201,28 +280,6 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
             </div>
           </div>
         )}
-
-        <div className="mt-6 flex justify-end border-t border-gray-200 pt-4">
-          <button
-            onClick={onClose}
-            className="flex items-center rounded-lg bg-gray-100 px-6 py-2.5 font-medium text-gray-700 transition-colors hover:bg-gray-200"
-          >
-            <svg
-              className="mr-2 h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-            Cancel
-          </button>
-        </div>
       </div>
     </Modal>
   );

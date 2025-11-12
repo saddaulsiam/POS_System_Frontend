@@ -3,9 +3,17 @@ import React from "react";
 // Reusable skeleton row component
 const SkeletonRow: React.FC = () => (
   <tr className="border-b border-gray-200 hover:bg-gray-50">
+    {/* Image column */}
+    <td className="whitespace-nowrap px-6 py-4">
+      <div className="flex items-center">
+        <div className="mr-3 h-10 w-10 animate-pulse rounded-full bg-gray-200" />
+      </div>
+    </td>
+    {/* Name column */}
     <td className="whitespace-nowrap px-6 py-4">
       <div className="h-4 w-32 animate-pulse rounded bg-gray-200" />
     </td>
+    {/* Actions column */}
     <td className="whitespace-nowrap px-6 py-4 text-right">
       <div className="flex justify-end gap-4">
         <div className="h-8 w-16 animate-pulse rounded bg-gray-200" />
@@ -33,6 +41,7 @@ export const CategoryTableSkeleton: React.FC = () => {
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
+            <HeaderSkeleton width="w-16" align="left" />
             <HeaderSkeleton width="w-24" align="left" />
             <HeaderSkeleton width="w-28" align="right" />
           </tr>
