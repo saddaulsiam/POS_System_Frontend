@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2025-11-13
+
+### Fixed
+
+- Auto-update download progress now displays correctly in Settings Updates tab
+- Auto-update popup notifications now work properly in older versions
+- Fixed event listener cleanup in UpdatesTab to prevent memory leaks
+- Corrected IPC event names in preload.js to match main process update events
+
 ## [1.1.1] - 2025-11-13
 
 ### Fixed
