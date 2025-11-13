@@ -43,6 +43,13 @@ jobs:
             release/*.blockmap
             release/latest.yml
 
+      - name: Delete existing release (if any)
+        continue-on-error: true
+        run: |
+          gh release delete ${{ github.ref_name }} --yes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
@@ -53,5 +60,7 @@ jobs:
             release/latest.yml
           draft: false
           prerelease: false
+          fail_on_unmatched_files: true
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
