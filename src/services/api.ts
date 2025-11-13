@@ -66,16 +66,33 @@ api.interceptors.response.use(
       error.response?.status === 404;
 
     if (error.response?.status === 401) {
-      console.log("🚪 401 Unauthorized - Clearing auth data");
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      // Use hash-based redirect for Electron/production
-      if (window.location.protocol === "file:") {
-        window.location.hash = "#/login";
+      console.log("🚪 401 Unauthorized");
+
+      // Check if this is a login attempt (no token in request)
+      const hasToken = error.config?.headers?.Authorization;
+
+      if (hasToken) {
+        // Token exists but is invalid/expired - session expired
+        console.log("🚪 Session expired - Clearing auth data");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        // Use hash-based redirect for Electron/production
+        if (window.location.protocol === "file:") {
+          window.location.hash = "#/login";
+        } else {
+          window.location.href = "/login";
+        }
+        toast.error("Session expired. Please log in again.");
       } else {
-        window.location.href = "/login";
+        // No token - this is a login failure, show backend error
+        if (error.response?.data?.error) {
+          toast.error(error.response.data.error);
+        } else {
+          toast.error("Invalid credentials");
+        }
       }
-      toast.error("Session expired. Please log in again.");
+      // Don't continue to other error handlers for 401
+      return Promise.reject(error);
     } else if (error.response?.status >= 500) {
       toast.error("Server error. Please try again later.");
     } else if (error.response?.data?.error && !isVariantLookup404) {

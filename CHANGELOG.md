@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.3] - 2025-11-13
+
+### Changed
+
+- Removed built-in backend server management from Electron app (backend should run separately)
+- Simplified main.js by removing backend spawn and health check logic
+
+### Fixed
+
+- Fixed duplicate error toasts on login failure (now shows only "Invalid credentials" instead of also showing "Session expired")
+- Improved 401 error handling to distinguish between login failures and expired sessions
+- Removed duplicate error toast in AuthContext (API interceptor handles all error toasts now)
+
 ## [1.1.2] - 2025-11-13
 
 ### Fixed
