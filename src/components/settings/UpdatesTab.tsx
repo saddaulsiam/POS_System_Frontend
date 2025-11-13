@@ -34,33 +34,23 @@ const UpdatesTab: React.FC = () => {
     getVersion();
 
     // Listen for update status from main process
-    if (window.electron?.onUpdateAvailable) {
-      window.electron.onUpdateAvailable((info) => {
-        setUpdateInfo({
-          available: true,
-          version: info.version,
-          message: "Update is being downloaded in the background...",
-        });
-        setUpdateStatus("downloading");
-      });
-    }
+    let cleanup: (() => void) | undefined;
 
-    if (window.electron?.onUpdateDownloaded) {
-      window.electron.onUpdateDownloaded((info) => {
-        setUpdateInfo({
-          available: true,
-          version: info.version,
-          message: "Update downloaded and ready to install!",
-        });
-        setUpdateStatus("downloaded");
-        setDownloadProgress(null);
-      });
-    }
+    if (window.electron?.onUpdateStatus) {
+      cleanup = window.electron.onUpdateStatus((data: any) => {
+        console.log("Update status received:", data);
 
-    // Listen for download progress
-    if (window.electronAPI?.on) {
-      window.electronAPI.on("update-status", (data: any) => {
-        if (data.status === "downloading" && data.progress) {
+        if (data.status === "checking") {
+          setUpdateStatus("checking");
+        } else if (data.status === "available") {
+          setUpdateInfo({
+            available: true,
+            version: data.version,
+            message: "Update is being downloaded in the background...",
+          });
+          setUpdateStatus("available");
+        } else if (data.status === "downloading" && data.progress) {
+          setUpdateStatus("downloading");
           setDownloadProgress({
             percent: data.progress.percent,
             transferred: data.progress.transferred,
@@ -68,15 +58,30 @@ const UpdatesTab: React.FC = () => {
             bytesPerSecond: data.progress.bytesPerSecond,
           });
         } else if (data.status === "downloaded") {
+          setUpdateInfo({
+            available: true,
+            version: data.version,
+            message: "Update downloaded and ready to install!",
+          });
           setUpdateStatus("downloaded");
           setDownloadProgress(null);
-        } else if (data.status === "available") {
-          setUpdateStatus("available");
         } else if (data.status === "not-available") {
           setUpdateStatus("not-available");
+        } else if (data.status === "error") {
+          setUpdateInfo({
+            available: false,
+            message:
+              data.error || "An error occurred while checking for updates",
+          });
+          setUpdateStatus("error");
         }
       });
     }
+
+    // Cleanup listener on unmount
+    return () => {
+      if (cleanup) cleanup();
+    };
   }, []);
 
   const handleCheckForUpdates = async () => {

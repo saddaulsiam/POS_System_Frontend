@@ -25,8 +25,8 @@ interface Window {
       version?: string;
       message?: string;
     }>;
-    onUpdateAvailable: (callback: (info: any) => void) => void;
-    onUpdateDownloaded: (callback: (info: any) => void) => void;
+    onUpdateStatus: (callback: (data: any) => void) => () => void;
     installUpdate: () => void;
+    quitAndInstall: () => void;
   };
 }
