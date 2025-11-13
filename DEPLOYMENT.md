@@ -75,7 +75,7 @@ npm run clean
 npm install
 
 # Build
-npm run package
+npm run package:win
 ```
 
 **Output location:** `release/`
