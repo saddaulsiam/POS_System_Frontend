@@ -74,7 +74,7 @@
   },
   "build": {
     "appId": "com.saddaulsiam.possystem",
-    "productName": "POS System",
+    "productName": "POS-System",
     "copyright": "Copyright © 2025 ${author}",
     "files": [
       "main.js",
