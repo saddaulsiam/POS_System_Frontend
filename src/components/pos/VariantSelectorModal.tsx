@@ -177,7 +177,7 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
                 <button
                   key={variant.id}
                   onClick={() => handleSelectVariant(variant)}
-                  className="group relative w-full rounded-xl border-2 border-gray-200 bg-white p-4 text-left transition-all duration-200 hover:border-blue-500 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-blue-200"
+                  className="group relative w-full rounded-xl border-2 border-gray-200 bg-white p-2.5 text-left transition-all duration-200 hover:border-blue-500 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-blue-200"
                 >
                   {/* Hover Effect Background */}
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
