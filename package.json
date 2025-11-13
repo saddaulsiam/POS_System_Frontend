@@ -105,7 +105,8 @@
         }
       ],
       "icon": "assets/icons/win/icon.ico",
-      "verifyUpdateCodeSignature": false
+      "verifyUpdateCodeSignature": false,
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
