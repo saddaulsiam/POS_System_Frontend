@@ -65,6 +65,20 @@ api.interceptors.response.use(
       error.config?.url?.includes("/product-variants/lookup/") &&
       error.response?.status === 404;
 
+    // Handle timeout errors with friendly message
+    if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
+      toast.error("Connection timeout. Please try again.", { duration: 5000 });
+      return Promise.reject(error);
+    }
+
+    // Handle network/connection errors
+    if (error.message === "Network Error" || error.code === "ERR_NETWORK") {
+      toast.error("Unable to connect to server. Please try again.", {
+        duration: 5000,
+      });
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401) {
       console.log("🚪 401 Unauthorized");
 

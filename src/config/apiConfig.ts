@@ -13,8 +13,8 @@ export const API_CONFIG = {
   // Fallback for proxy
   PROXY_URL: "/api",
 
-  // Request timeout in milliseconds
-  TIMEOUT: 10000,
+  // Request timeout in milliseconds (60s for cold starts on free hosting)
+  TIMEOUT: 60000,
 };
 
 /**

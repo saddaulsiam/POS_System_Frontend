@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.6] - 2025-11-14
+
+### Fixed
+
+- Increased API timeout from 10s to 60s to handle backend cold starts (especially on Render free tier)
+- Added user-friendly error messages for timeout and network connection issues
+- Improved error handling for server wake-up scenarios
+
 ## [1.1.5] - 2025-11-14
 
 ### Changed
