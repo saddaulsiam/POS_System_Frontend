@@ -1,5 +1,7 @@
+import { LogOut } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { Badge, Button } from "../common";
 
 interface POSHeaderProps {
   storeName?: string;
@@ -12,39 +14,40 @@ export const POSHeader: React.FC<POSHeaderProps> = ({
   user,
   onLogout,
 }) => (
-  <header className="border-b border-gray-200 bg-white shadow-sm">
-    <div className="flex h-16 items-center justify-between px-4">
+  <header className="h-16 border-b border-gray-200 bg-white shadow-sm">
+    <div className="flex h-full items-center justify-between px-4">
       {/* Left: Store Logo and Name */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center justify-center space-x-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
           <span className="text-2xl">🛒</span>
         </div>
         <span className="text-xl font-bold tracking-tight text-gray-900">
           {storeName || "POS System"}
         </span>
-        <span className="ml-2 rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+        <Badge size="sm" variant="info">
           {user?.role}
-        </span>
+        </Badge>
       </div>
+
       {/* Right: User Info and Actions */}
       <div className="flex items-center space-x-4">
-        <span className="hidden text-sm text-gray-700 sm:inline">
+        <span className="hidden text-sm font-medium text-gray-700 sm:inline">
           Welcome, {user?.name}
         </span>
         {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
-          <Link
-            to="/admin"
-            className="rounded px-3 py-1 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800"
-          >
-            Admin Panel
+          <Link to="/admin">
+            <Button>Admin Panel</Button>
           </Link>
         )}
-        <button
+        <Button
           onClick={onLogout}
-          className="rounded border border-red-200 px-3 py-1 text-sm font-medium text-red-600 transition-colors hover:bg-red-600 hover:text-white"
+          variant="ghost"
+          size="md"
+          className="flex items-center justify-center border-red-300 text-red-600 hover:bg-red-100 focus:ring-red-400"
         >
           Logout
-        </button>
+          <LogOut className="ml-1.5 size-4" />
+        </Button>
       </div>
     </div>
   </header>

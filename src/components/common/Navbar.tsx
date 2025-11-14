@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSettings } from "../../context/SettingsContext";
 import NotificationBell from "./NotificationBell";
+import { Badge } from "./Badge";
+import { Button } from "./Button";
+import { LogOut } from "lucide-react";
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -11,27 +14,23 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="fixed left-0 right-0 top-0 z-50 h-16 border-b border-gray-200 bg-white shadow-sm">
-      <div className="flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="flex h-full items-center justify-between px-4">
         {/* Logo/Brand */}
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-2 text-xl font-extrabold tracking-tight text-blue-700 sm:text-2xl">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-lg text-white sm:h-10 sm:w-10 sm:text-xl">
-              🛒
-            </span>
-            <span className="hidden sm:inline">
-              {settings?.storeName || "POS System"}
-            </span>
-            <span className="sm:hidden">POS</span>
+        <div className="flex items-center justify-center space-x-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+            <span className="text-2xl">🛒</span>
+          </div>
+          <span className="text-xl font-bold tracking-tight text-gray-900">
+            {settings?.storeName || "POS System"}
           </span>
+          <Badge size="sm" variant="info">
+            {user?.role}
+          </Badge>
         </div>
 
         {/* User Info & Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center space-x-4">
           <NotificationBell />
-          {/* User Role Badge */}
-          <span className="hidden rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800 sm:inline-flex">
-            {user?.role}
-          </span>
 
           {/* User Name */}
           <span className="hidden text-sm font-medium text-gray-700 md:inline-flex">
@@ -39,19 +38,19 @@ const Navbar: React.FC = () => {
           </span>
 
           {/* Desktop Actions */}
-          <div className="hidden items-center gap-2 sm:flex">
-            <Link
-              to="/"
-              className="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white transition-colors hover:bg-blue-700"
-            >
-              POS Terminal
+          <div className="hidden items-center space-x-4 sm:flex">
+            <Link to="/">
+              <Button>POS Terminal</Button>
             </Link>
-            <button
+            <Button
               onClick={logout}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-600 transition-colors hover:border-red-300 hover:text-red-600"
+              variant="ghost"
+              size="md"
+              className="flex items-center justify-center border-red-300 text-red-600 hover:bg-red-100 focus:ring-red-400"
             >
               Logout
-            </button>
+              <LogOut className="ml-1.5 size-4" />
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -93,15 +92,18 @@ const Navbar: React.FC = () => {
                 >
                   🏪 POS Terminal
                 </Link>
-                <button
+                <Button
                   onClick={() => {
                     logout();
                     setMenuOpen(false);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                  variant="ghost"
+                  size="md"
+                  className="flex items-center justify-center border-red-300 text-red-600 hover:bg-red-100 focus:ring-red-400"
                 >
-                  🚪 Logout
-                </button>
+                  Logout
+                  <LogOut className="ml-1.5 size-4" />
+                </Button>
               </div>
             )}
           </div>

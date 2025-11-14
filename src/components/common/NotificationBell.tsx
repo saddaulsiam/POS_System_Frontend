@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications, useMarkAsRead } from "../../services/queries";
+import { Bell } from "lucide-react";
 
 const NotificationBell: React.FC = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -37,13 +38,16 @@ const NotificationBell: React.FC = () => {
         aria-label="Notifications"
         onClick={() => setDropdownOpen((open) => !open)}
       >
-        <span className="text-xl">🔔</span>
-        {unreadCount > 0 && (
-          <span className="absolute right-0 top-0 rounded-full bg-red-500 px-1.5 py-0.5 text-xs text-white">
+        <span className="text-xl">
+          <Bell className="text-gray-700" />
+        </span>
+        {unreadCount >= 0 && (
+          <span className="absolute right-0 top-0 rounded-full bg-blue-500 px-1.5 py-0.5 text-xs text-white">
             {unreadCount}
           </span>
         )}
       </button>
+
       {dropdownOpen && (
         <div className="absolute right-0 z-50 mt-2 w-80 rounded-lg border border-gray-200 bg-white shadow-lg">
           <div className="border-b p-3 font-semibold text-gray-700">

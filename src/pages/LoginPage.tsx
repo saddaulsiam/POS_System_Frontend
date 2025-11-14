@@ -1,8 +1,7 @@
 import React, { useState } from "react";
+import { Button, Input } from "../components/common";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
-import LoadingSpinner from "../components/common/LoadingSpinner";
-import { Button, Input } from "../components/common";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -114,12 +113,13 @@ const LoginPage: React.FC = () => {
 
           <div>
             <Button
+              fullWidth
               type="submit"
               variant="primary"
-              fullWidth
+              className="py-2.5"
               disabled={isLoading || !username || !pinCode}
             >
-              {isLoading ? <LoadingSpinner size="sm" /> : "Sign in"}
+              Sign in
             </Button>
           </div>
 

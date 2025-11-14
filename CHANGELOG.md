@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.4] - 2025-11-14
+
+### Fixed
+
+- Employee search functionality now works correctly (searches by name and username)
+- Backend now properly processes search query parameter for employee filtering
+
+### Changed
+
+- Improved navbar UI with consistent button components and logout icon
+- Enhanced notification bell with lucide-react Bell icon and improved styling
+- Updated POS header with better spacing and consistent component usage
+- Refined Badge component padding for better visual consistency
+- Added transition-colors to Button component for smoother hover effects
+- Streamlined LoginPage by removing LoadingSpinner in favor of disabled state
+- Improved mobile responsiveness in navbar and POS header
+
 ## [1.1.3] - 2025-11-13
 
 ### Changed
