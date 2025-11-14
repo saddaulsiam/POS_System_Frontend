@@ -41,7 +41,7 @@ const NotificationBell: React.FC = () => {
         <span className="text-xl">
           <Bell className="text-gray-700" />
         </span>
-        {unreadCount >= 0 && (
+        {unreadCount > 0 && (
           <span className="absolute right-0 top-0 rounded-full bg-blue-500 px-1.5 py-0.5 text-xs text-white">
             {unreadCount}
           </span>
