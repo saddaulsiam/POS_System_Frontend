@@ -63,7 +63,10 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
       try {
         if (barcode.match(/^\d+$/)) {
           try {
-            const variant = await lookupVariant.mutateAsync(barcode);
+            const variant = await lookupVariant.mutateAsync({
+              barcode,
+              silent: true,
+            });
             if (variant && variant.productId) {
               const product = await productsAPI.getById(variant.productId);
               addVariantToCart(variant, product);
@@ -71,22 +74,14 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
               return;
             }
           } catch (variantError: any) {
-            // Only show error if it's a server error (not 404)
-            if (
-              typeof variantError === "object" &&
-              variantError &&
-              "response" in variantError &&
-              (variantError as any).response?.status >= 500
-            ) {
-              toast.error("Error looking up variant");
-            }
+            // Silently fall through to product lookup - no error toast needed
             // If 404, fall through to product lookup
           }
         }
         // Try product lookup if variant not found or not a number barcode
         let product;
         try {
-          product = await productsAPI.getByBarcode(barcode);
+          product = await productsAPI.getByBarcode(barcode, true); // silent mode
         } catch {
           const searchResults = await productsAPI.getAll({
             search: barcode,

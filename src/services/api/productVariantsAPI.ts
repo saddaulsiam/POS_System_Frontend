@@ -20,7 +20,11 @@ export const productVariantsAPI = {
   delete: async (id: number) => {
     await api.delete(`/product-variants/${id}`);
   },
-  lookup: async (barcode: string) => {
-    return (await api.get(`/product-variants/lookup/${barcode}`)).data;
+  lookup: async (barcode: string, silent = false) => {
+    return (
+      await api.get(`/product-variants/lookup/${barcode}`, {
+        headers: silent ? { "X-Silent-Error": "true" } : {},
+      })
+    ).data;
   },
 };

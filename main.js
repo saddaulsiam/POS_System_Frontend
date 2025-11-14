@@ -143,19 +143,21 @@ autoUpdater.on("checking-for-update", () => {
 });
 
 autoUpdater.on("update-available", (info) => {
-  log.info("Update available:", info);
+  log.info("Update available:", JSON.stringify(info, null, 2));
   updateAvailable = true;
+
+  const newVersion = info.version || info.releaseName || "Unknown";
 
   if (mainWindow) {
     mainWindow.webContents.send("update-status", {
       status: "available",
-      version: info.version,
+      version: newVersion,
     });
 
     dialog.showMessageBox(mainWindow, {
       type: "info",
       title: "Update Available",
-      message: `A new version (${info.version}) is available!`,
+      message: `A new version (${newVersion}) is available!`,
       detail:
         "The update will be downloaded in the background. You'll be notified when it's ready to install.",
       buttons: ["OK"],
@@ -198,13 +200,15 @@ autoUpdater.on("download-progress", (progressObj) => {
 });
 
 autoUpdater.on("update-downloaded", (info) => {
-  log.info("Update downloaded:", info);
+  log.info("Update downloaded:", JSON.stringify(info, null, 2));
   updateAvailable = true;
+
+  const newVersion = info.version || info.releaseName || "Unknown";
 
   if (mainWindow) {
     mainWindow.webContents.send("update-status", {
       status: "downloaded",
-      version: info.version,
+      version: newVersion,
     });
 
     // Ensure window is focused before showing dialog
@@ -215,7 +219,7 @@ autoUpdater.on("update-downloaded", (info) => {
     const response = dialog.showMessageBoxSync(mainWindow, {
       type: "info",
       title: "Update Ready",
-      message: `Version ${info.version} has been downloaded and is ready to install.`,
+      message: `Version ${newVersion} has been downloaded and is ready to install.`,
       detail: "The application will restart to install the update.",
       buttons: ["Restart Now", "Later"],
       defaultId: 0,

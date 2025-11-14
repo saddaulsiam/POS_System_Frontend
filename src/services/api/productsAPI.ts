@@ -23,8 +23,11 @@ export const productsAPI = {
     return response.data;
   },
 
-  getByBarcode: async (barcode: string): Promise<Product> => {
-    const response = await api.get(`/products`, { params: { barcode } });
+  getByBarcode: async (barcode: string, silent = false): Promise<Product> => {
+    const response = await api.get(`/products`, {
+      params: { barcode },
+      headers: silent ? { "X-Silent-Error": "true" } : {},
+    });
     if (response.data && response.data.length > 0) {
       return response.data[0];
     } else {

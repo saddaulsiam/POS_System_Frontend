@@ -24,7 +24,13 @@ export function useProductVariant(id?: number) {
 
 export function useLookupVariant() {
   return useMutation({
-    mutationFn: (barcode: string) => productVariantsAPI.lookup(barcode),
+    mutationFn: ({
+      barcode,
+      silent = false,
+    }: {
+      barcode: string;
+      silent?: boolean;
+    }) => productVariantsAPI.lookup(barcode, silent),
   });
 }
 

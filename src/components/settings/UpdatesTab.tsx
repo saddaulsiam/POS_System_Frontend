@@ -154,7 +154,7 @@ const UpdatesTab: React.FC = () => {
                 >
                   <p className="text-sm font-medium">
                     {updateInfo.available
-                      ? `🎉 New version ${updateInfo.version} is available!`
+                      ? `🎉 New version ${updateInfo.version || "available"}!`
                       : "✓ You're running the latest version"}
                   </p>
                   {updateInfo.message && (

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.7] - 2025-11-14
+
+### Fixed
+
+- Fixed variant product search results not adding to cart when clicked
+- Removed duplicate error toasts when scanning barcodes for products with variants
+- Improved barcode scanner error handling with silent mode for product lookups
+- Fixed auto-update notification showing "undefined" version number
+
+### Changed
+
+- Updated barcode scanner to consistently handle variant products
+- Added better logging for update info debugging
+- Improved error suppression for barcode/variant lookup failures
+
 ## [1.1.6] - 2025-11-14
 
 ### Fixed

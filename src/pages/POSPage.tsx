@@ -424,7 +424,7 @@ const POSPage: FC = () => {
               barcode={barcode}
               onBarcodeChange={setBarcode}
               onSubmit={handleBarcodeSubmit}
-              onProductSelect={addToCart}
+              onProductSelect={handleAddToCart}
             />
           )}
 
