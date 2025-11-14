@@ -1,0 +1,20 @@
+# Electron build outputs (large files)
+release/
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.rpm
+*.snap
+
+# Electron outputs
+dist-electron/
+out/
+
+# Node modules (Vercel installs these)
+node_modules/
+
+# Build artifacts
+*.log
+main.log
+logs/

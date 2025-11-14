@@ -66,3 +66,4 @@ latest*.yml
 # Misc
 *.tgz
 .npmrc
+.vercel
