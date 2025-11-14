@@ -15,12 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed duplicate error toasts when scanning barcodes for products with variants
 - Improved barcode scanner error handling with silent mode for product lookups
 - Fixed auto-update notification showing "undefined" version number
+- Fixed hash routing (/#/) appearing in web version URLs - now uses clean URLs for web and hash routing only for Electron
 
 ### Changed
 
 - Updated barcode scanner to consistently handle variant products
 - Added better logging for update info debugging
 - Improved error suppression for barcode/variant lookup failures
+- Router now automatically selects BrowserRouter for web (clean URLs) and HashRouter for Electron (file:// protocol)
 
 ## [1.1.6] - 2025-11-14
 
