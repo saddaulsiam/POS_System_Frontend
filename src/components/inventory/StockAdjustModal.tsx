@@ -26,6 +26,7 @@ interface StockAdjustModalProps {
     movementType: AllowedMovementType;
     reason: string;
   }) => Promise<void>;
+  loading?: boolean;
 }
 
 export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
@@ -33,6 +34,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
   product,
   onClose,
   onSubmit,
+  loading = false,
 }) => {
   const [formData, setFormData] = useState<{
     quantity: number;
@@ -98,11 +100,46 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
       size="md"
       footer={
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="ghost" onClick={onClose}>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onClose}
+            disabled={loading}
+          >
             Cancel
           </Button>
-          <Button type="submit" onClick={handleSubmit} variant="primary">
-            Adjust Stock
+          <Button
+            type="submit"
+            onClick={handleSubmit}
+            variant="primary"
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <svg
+                  className="h-4 w-4 animate-spin text-white"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  />
+                </svg>
+                Adjusting...
+              </span>
+            ) : (
+              "Adjust Stock"
+            )}
           </Button>
         </div>
       }
@@ -117,6 +154,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
             onChange={handleChange}
             className="w-full rounded border px-3 py-2"
             required
+            disabled={loading}
           />
         </div>
         <div>
@@ -128,6 +166,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
             value={formData.movementType}
             onChange={handleChange}
             className="w-full rounded border px-3 py-2"
+            disabled={loading}
           >
             {movementTypes.map((type) => (
               <option key={type.value} value={type.value}>
@@ -145,6 +184,7 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
             value={formData.reason}
             onChange={handleChange}
             className="w-full rounded border px-3 py-2"
+            disabled={loading}
           />
         </div>
       </form>

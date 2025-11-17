@@ -109,6 +109,7 @@ const InventoryPage: React.FC = () => {
           product={selectedProduct}
           onClose={() => setShowAdjustModal(false)}
           onSubmit={handleSubmitAdjustment}
+          loading={updateStock.isPending}
         />
 
         <StockHistoryModal
