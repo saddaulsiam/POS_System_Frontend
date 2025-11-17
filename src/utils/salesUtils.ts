@@ -9,10 +9,13 @@ export const getCustomerName = (
   return customer?.name || "Unknown Customer";
 };
 
+// Enhanced: Prefer sale.employee.name if available, fallback to employees list, then 'Unknown Employee'
 export const getEmployeeName = (
   employeeId: number,
   employees: Employee[],
+  employeeObj?: Employee | null,
 ): string => {
+  if (employeeObj && employeeObj.name) return employeeObj.name;
   const employee = employees.find((e) => e.id === employeeId);
   return employee?.name || "Unknown Employee";
 };

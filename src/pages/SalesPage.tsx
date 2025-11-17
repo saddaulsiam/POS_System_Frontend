@@ -183,8 +183,8 @@ const SalesPage: React.FC = () => {
             getCustomerName={(customerId) =>
               getCustomerName(customerId, customers)
             }
-            getEmployeeName={(employeeId) =>
-              getEmployeeName(employeeId, employees)
+            getEmployeeName={(employeeId, _employees, employeeObj) =>
+              getEmployeeName(employeeId, employees, employeeObj)
             }
           />
 
@@ -204,7 +204,9 @@ const SalesPage: React.FC = () => {
         isOpen={showDetails}
         onClose={() => setShowDetails(false)}
         getCustomerName={(customerId) => getCustomerName(customerId, customers)}
-        getEmployeeName={(employeeId) => getEmployeeName(employeeId, employees)}
+        getEmployeeName={(employeeId, _employees, employeeObj) =>
+          getEmployeeName(employeeId, employees, employeeObj)
+        }
       />
 
       {/* Void Sale Modal */}

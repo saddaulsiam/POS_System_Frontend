@@ -13,7 +13,11 @@ interface SalesTableProps {
   onVoid?: (sale: Sale) => void;
   userRole?: string;
   getCustomerName: (customerId?: number) => string;
-  getEmployeeName: (employeeId: number) => string;
+  getEmployeeName: (
+    employeeId: number,
+    employees: any[],
+    employeeObj?: any,
+  ) => string;
 }
 
 export const SalesTable: React.FC<SalesTableProps> = ({
@@ -93,7 +97,7 @@ export const SalesTable: React.FC<SalesTableProps> = ({
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   <div className="text-sm text-gray-900">
-                    {getEmployeeName(sale.employeeId)}
+                    {getEmployeeName(sale.employeeId, [], sale.employee)}
                   </div>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">

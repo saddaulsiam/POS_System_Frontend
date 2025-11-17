@@ -10,7 +10,11 @@ interface SaleDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   getCustomerName: (customerId?: number) => string;
-  getEmployeeName: (employeeId: number) => string;
+  getEmployeeName: (
+    employeeId: number,
+    employees: any[],
+    employeeObj?: any,
+  ) => string;
 }
 
 export const SaleDetailsModal: React.FC<SaleDetailsModalProps> = ({
@@ -119,7 +123,7 @@ export const SaleDetailsModal: React.FC<SaleDetailsModalProps> = ({
               Employee
             </label>
             <p className="text-sm text-gray-900">
-              {getEmployeeName(sale.employeeId)}
+              {getEmployeeName(sale.employeeId, [], sale.employee)}
             </p>
           </div>
           <div>

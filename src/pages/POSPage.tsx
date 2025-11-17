@@ -334,13 +334,6 @@ const POSPage: FC = () => {
       if (settings?.autoPrintThermal) {
         try {
           let thermalContent = await receiptsAPI.getThermal(sale.id);
-          // Replace hardcoded $ with dynamic currency symbol from settings
-          const currencySymbol = settings?.currencySymbol || "$";
-          // Regex: replace $ before numbers with currencySymbol
-          thermalContent = thermalContent.replace(
-            /\$(\d+[.,]?\d*)/g,
-            `${currencySymbol}$1`,
-          );
           console.log({ thermalContent });
           const printWindow = window.open("", "_blank", "width=400,height=600");
           if (printWindow) {
