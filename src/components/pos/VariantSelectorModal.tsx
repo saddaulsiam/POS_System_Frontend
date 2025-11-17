@@ -185,7 +185,7 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
                   <div className="relative flex items-center justify-between">
                     {/* Left Section: Icon and Info */}
                     <div className="flex flex-1 items-center">
-                      <div className="mr-4 flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-md bg-blue-100 transition-colors group-hover:bg-blue-200">
+                      <div className="mr-4 flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-100 transition-colors group-hover:bg-gray-200">
                         {product.image ? (
                           <img
                             src={product.image}
@@ -194,7 +194,7 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
                           />
                         ) : (
                           <svg
-                            className="h-6 w-6 text-blue-600"
+                            className="h-6 w-6 text-gray-400"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -203,7 +203,7 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               strokeWidth={2}
-                              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                             />
                           </svg>
                         )}
