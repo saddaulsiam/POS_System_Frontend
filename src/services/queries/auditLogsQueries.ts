@@ -7,13 +7,6 @@ export const auditLogsKeys = {
   list: (params?: any) => [...auditLogsKeys.all, "list", params] as const,
 };
 
-// ============================================================================
-// QUERIES
-// ============================================================================
-
-/**
- * Get paginated audit logs
- */
 export const useAuditLogs = (params?: {
   page?: number;
   limit?: number;
