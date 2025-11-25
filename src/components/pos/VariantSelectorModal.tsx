@@ -74,7 +74,7 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
             </svg>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-lg font-bold text-gray-900">
               Select Variant — {product.name}
             </h2>
             <p className="text-sm text-gray-600">{subtitle}</p>
@@ -210,7 +210,7 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 transition-colors group-hover:text-blue-600">
+                        <h3 className="text-base font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
                           {variant.name}
                         </h3>
                         {variant.sku && (
@@ -252,7 +252,7 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
                     {/* Right Section: Price and Arrow */}
                     <div className="ml-4 flex items-center space-x-3">
                       <div className="text-right">
-                        <div className="text-lg font-bold text-gray-900">
+                        <div className="text-base font-bold text-gray-900">
                           {formatCurrency(variant.sellingPrice, settings)}
                         </div>
                       </div>
