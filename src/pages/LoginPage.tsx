@@ -45,17 +45,17 @@ const LoginPage: React.FC = () => {
 
   const quickLogin = (role: string) => {
     switch (role) {
-      case "admin":
-        setUsername("admin");
+      case "grocery_admin":
+        setUsername("grocery_admin");
         setPinCode("1234");
         break;
-      case "manager":
-        setUsername("manager");
-        setPinCode("5678");
+      case "shoe_admin":
+        setUsername("shoe_admin");
+        setPinCode("1234");
         break;
-      case "cashier":
-        setUsername("cashier1");
-        setPinCode("9999");
+      case "cloth_admin":
+        setUsername("cloth_admin");
+        setPinCode("1234");
         break;
     }
   };
@@ -139,23 +139,23 @@ const LoginPage: React.FC = () => {
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => quickLogin("admin")}
+                onClick={() => quickLogin("grocery_admin")}
               >
-                Admin
+                Grocery
               </Button>
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => quickLogin("manager")}
+                onClick={() => quickLogin("shoe_admin")}
               >
-                Manager
+                Shoes
               </Button>
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => quickLogin("cashier")}
+                onClick={() => quickLogin("cloth_admin")}
               >
-                Cashier
+                Clothing
               </Button>
             </div>
           </div>
@@ -164,9 +164,9 @@ const LoginPage: React.FC = () => {
         <div className="mt-8 text-center">
           <div className="text-xs text-gray-500">
             <p className="mb-2 font-semibold">Default Credentials:</p>
-            <p>Admin: admin / 1234</p>
-            <p>Manager: manager / 5678</p>
-            <p>Cashier: cashier1 / 9999</p>
+            <p>Grocery: admin / 1234</p>
+            <p>Shoes: shoe_admin / 1234</p>
+            <p>Clothing: cloth_admin / 1234</p>
           </div>
         </div>
       </div>
