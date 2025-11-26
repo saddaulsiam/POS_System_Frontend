@@ -1,27 +1,28 @@
 import React, { useState } from "react";
-import {
-  Customer,
-  CreateCustomerRequest,
-  UpdateCustomerRequest,
-} from "../types";
 import toast from "react-hot-toast";
+import { BackButton, Button } from "../components/common";
+import { CustomerModal } from "../components/customers/CustomerModal";
 import { CustomerSearch } from "../components/customers/CustomerSearch";
 import { CustomersTable } from "../components/customers/CustomersTable";
-import { CustomerModal } from "../components/customers/CustomerModal";
-import { Pagination } from "../components/sales/Pagination";
-import { Button, BackButton } from "../components/common";
 import {
   LoyaltyDashboard,
   PointsHistoryTable,
   RewardsGallery,
 } from "../components/loyalty";
+import { Pagination } from "../components/sales/Pagination";
+import { useSettings } from "../context";
 import {
-  useCustomers,
-  useCustomer,
   useCreateCustomer,
-  useUpdateCustomer,
+  useCustomer,
+  useCustomers,
   useDeleteCustomer,
+  useUpdateCustomer,
 } from "../services/queries";
+import {
+  CreateCustomerRequest,
+  Customer,
+  UpdateCustomerRequest,
+} from "../types";
 
 interface CustomerFormData {
   name: string;
@@ -32,6 +33,7 @@ interface CustomerFormData {
 }
 
 const CustomersPage: React.FC = () => {
+  const { settings } = useSettings();
   const [showModal, setShowModal] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -88,6 +90,7 @@ const CustomersPage: React.FC = () => {
         email: formData.email.trim() || undefined,
         dateOfBirth: formData.dateOfBirth.trim() || undefined,
         address: formData.address.trim() || undefined,
+        storeIds: settings?.storeId ? [settings.storeId] : [],
       };
 
       let updatedCustomerId: number | null = null;

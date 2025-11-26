@@ -3,6 +3,10 @@ export interface User {
   name: string;
   username: string;
   role: "ADMIN" | "MANAGER" | "CASHIER" | "STAFF";
+  email: string;
+  storeId: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface LoginRequest {

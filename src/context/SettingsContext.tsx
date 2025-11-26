@@ -9,6 +9,7 @@ import { posSettingsAPI } from "../services";
 
 interface POSSettings {
   id: number;
+  storeId: number | null;
   // Feature Toggles
   enableQuickSale: boolean;
   enableSplitPayment: boolean;
@@ -102,6 +103,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
       // Set default values if loading fails
       setSettings({
         id: 0,
+        storeId: null,
         enableQuickSale: true,
         enableSplitPayment: true,
         enableParkSale: true,

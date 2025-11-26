@@ -75,6 +75,7 @@ export interface CreateCustomerRequest {
   email?: string;
   dateOfBirth?: string;
   address?: string;
+  storeIds: number[];
 }
 
 export interface UpdateCustomerRequest extends Partial<CreateCustomerRequest> {

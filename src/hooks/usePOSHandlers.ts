@@ -142,6 +142,7 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
         email: formData.email.trim() || undefined,
         dateOfBirth: formData.dateOfBirth.trim() || undefined,
         address: formData.address.trim() || undefined,
+        storeIds: args.settings?.storeId ? [args.settings.storeId] : [],
       };
       const newCustomer = await createCustomer.mutateAsync(customerData);
       args.setCustomer(newCustomer);
