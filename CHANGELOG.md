@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.8] - 2025-12-08
+
+### Added
+
+- Multi-store customer support: backend and frontend refactored to allow customers to be associated with multiple stores
+- Compound unique constraint for CustomerStore in Prisma schema
+- TypeScript types updated for customer creation with storeIds array
+
+### Changed
+
+- Refactored backend customer creation logic to require storeIds array
+- Seeder scripts updated for multi-store compatibility
+- Frontend customer creation flows (Customers page, POS page) now send storeIds from POSSettings context
+- Improved error handling for customer creation in frontend
+
+### Fixed
+
+- Resolved 'storeIds array is required' error when creating customers from POS and Customers pages
+- Fixed customer creation logic to ensure correct store association
+- Ensured seamless customer creation across all entry points in POS system
+
 ## [1.1.7] - 2025-11-14
 
 ### Fixed
