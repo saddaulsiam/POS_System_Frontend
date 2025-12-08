@@ -34,7 +34,9 @@ export const POSHeader: React.FC<POSHeaderProps> = ({
         <span className="hidden text-sm font-medium text-gray-700 sm:inline">
           Welcome, {user?.name}
         </span>
-        {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
+        {(user?.role === "OWNER" ||
+          user?.role === "ADMIN" ||
+          user?.role === "MANAGER") && (
           <Link to="/admin">
             <Button>Admin Panel</Button>
           </Link>

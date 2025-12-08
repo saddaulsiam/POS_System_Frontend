@@ -7,86 +7,91 @@ const navLinks = [
     to: "/admin",
     label: "Dashboard",
     icon: "🏠",
-    roles: ["ADMIN", "MANAGER", "CASHIER", "STAFF"],
+    roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER", "STAFF"],
   },
   {
     to: "/products",
     label: "Products",
     icon: "📦",
-    roles: ["ADMIN", "MANAGER", "CASHIER", "STAFF"],
+    roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER", "STAFF"],
   },
   {
     to: "/categories",
     label: "Categories",
     icon: "🗂️",
-    roles: ["ADMIN", "MANAGER"],
+    roles: ["OWNER", "ADMIN", "MANAGER"],
   },
   {
     to: "/suppliers",
     label: "Suppliers",
     icon: "🏪",
-    roles: ["ADMIN", "MANAGER"],
+    roles: ["OWNER", "ADMIN", "MANAGER"],
   },
   {
     to: "/inventory",
     label: "Inventory",
     icon: "📋",
-    roles: ["ADMIN", "MANAGER", "STAFF"],
+    roles: ["OWNER", "ADMIN", "MANAGER", "STAFF"],
   },
   {
     to: "/purchase-orders",
     label: "Purchase Orders",
     icon: "📋",
-    roles: ["ADMIN", "MANAGER"],
+    roles: ["OWNER", "ADMIN", "MANAGER"],
   },
   {
     to: "/cash-drawer",
     label: "Cash Drawer",
     icon: "💵",
-    roles: ["ADMIN", "MANAGER", "CASHIER"],
+    roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER"],
   },
   {
     to: "/sales",
     label: "Sales",
     icon: "💰",
-    roles: ["ADMIN", "MANAGER", "CASHIER"],
+    roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER"],
   },
-  { to: "/reports", label: "Reports", icon: "📊", roles: ["ADMIN", "MANAGER"] },
+  {
+    to: "/reports",
+    label: "Reports",
+    icon: "📊",
+    roles: ["OWNER", "ADMIN", "MANAGER"],
+  },
   {
     to: "/analytics",
     label: "Analytics",
     icon: "📈",
-    roles: ["ADMIN", "MANAGER"],
+    roles: ["OWNER", "ADMIN", "MANAGER"],
   },
   {
     to: "/loyalty-admin",
     label: "Loyalty Program",
     icon: "🎁",
-    roles: ["ADMIN", "MANAGER"],
+    roles: ["OWNER", "ADMIN", "MANAGER"],
   },
   {
     to: "/employees",
     label: "Employees",
     icon: "👥",
-    roles: ["ADMIN", "MANAGER"],
+    roles: ["OWNER", "ADMIN", "MANAGER"],
   },
   {
     to: "/salary-sheets",
     label: "Salary Sheets",
     icon: "💵",
-    roles: ["ADMIN", "MANAGER"],
+    roles: ["OWNER", "ADMIN", "MANAGER"],
   },
   {
     to: "/customers",
     label: "Customers",
     icon: "🧑‍🤝‍🧑",
-    roles: ["ADMIN", "MANAGER", "CASHIER"],
+    roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER"],
   },
   {
     to: "/audit-logs",
     label: "Audit Logs",
     icon: "📜",
-    roles: ["ADMIN", "MANAGER"],
+    roles: ["OWNER", "ADMIN", "MANAGER"],
   },
 ];
 
@@ -140,7 +145,9 @@ const Sidebar: React.FC = () => {
           </div>
 
           {/* Settings - Bottom Section */}
-          {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
+          {(user?.role === "OWNER" ||
+            user?.role === "ADMIN" ||
+            user?.role === "MANAGER") && (
             <>
               <div className="my-2 border-t border-gray-200"></div>
               <Link

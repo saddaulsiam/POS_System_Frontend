@@ -24,7 +24,10 @@ import { printBarcodeLabel } from "../utils/productUtils";
 const ProductsPage: React.FC = () => {
   const { user } = useAuth();
   const { settings } = useSettings();
-  const canWrite = user?.role === "ADMIN" || user?.role === "MANAGER";
+  const canWrite =
+    user?.role === "ADMIN" ||
+    user?.role === "MANAGER" ||
+    user?.role === "OWNER";
 
   // Show deleted toggle (must be inside component)
   const [showDeleted, setShowDeleted] = useState(false);
@@ -345,7 +348,7 @@ const ProductsPage: React.FC = () => {
         );
       } else if (errorData?.duplicates) {
         toast.error(
-          `Duplicate SKUs in file: ${errorData.duplicates.join(", ")}`,
+          `Dupl icate SKUs in file: ${errorData.duplicates.join(", ")}`,
         );
       } else {
         toast.error(errorData?.error || "Failed to import products");

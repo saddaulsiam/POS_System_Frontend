@@ -14,6 +14,7 @@ import CustomersPage from "./pages/CustomersPage";
 import EmployeesPage from "./pages/EmployeesPage";
 import InventoryPage from "./pages/InventoryPage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import LoyaltyAdminPage from "./pages/LoyaltyAdminPage";
 import NewProductPage from "./pages/NewProductPage";
 import NotificationsPage from "./pages/NotificationsPage";
@@ -60,6 +61,10 @@ const App: React.FC = () => {
   }
 
   if (!isAuthenticated) {
+    // Allow access to register page
+    if (location.pathname === "/register") {
+      return <RegisterPage />;
+    }
     return <LoginPage />;
   }
 
@@ -83,7 +88,9 @@ const App: React.FC = () => {
             <Route path="/pos" element={<POSPage />} />
 
             {/* Admin/Manager Routes */}
-            {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
+            {(user?.role === "OWNER" ||
+              user?.role === "ADMIN" ||
+              user?.role === "MANAGER") && (
               <>
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/products" element={<ProductsPage />} />
@@ -102,7 +109,10 @@ const App: React.FC = () => {
                 <Route path="/loyalty-admin" element={<LoyaltyAdminPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/cash-drawer" element={<CashDrawerPage />} />
-                <Route path="/purchase-orders" element={<PurchaseOrdersPage />} />
+                <Route
+                  path="/purchase-orders"
+                  element={<PurchaseOrdersPage />}
+                />
                 <Route path="/notifications" element={<NotificationsPage />} />
               </>
             )}
