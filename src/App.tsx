@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 import Navbar from "./components/common/Navbar";
 import Sidebar from "./components/common/Sidebar";
+import { SubscriptionGuard } from "./components/subscription";
 import { useAuth } from "./context/AuthContext";
 import AdminDashboard from "./pages/AdminDashboard";
 import AnalyticsPage from "./pages/AnalyticsPage";
@@ -25,6 +26,7 @@ import ReportsPage from "./pages/ReportsPage";
 import SalarySheetsPage from "./pages/SalarySheetsPage";
 import SalesPage from "./pages/SalesPage";
 import SettingsPage from "./pages/SettingsPage";
+import SubscriptionPurchasePage from "./pages/SubscriptionPurchasePage";
 import SuppliersPage from "./pages/SuppliersPage";
 
 const adminPaths = [
@@ -82,44 +84,54 @@ const App: React.FC = () => {
         <main
           className={`flex-1 ${isAdminPath ? "pt-16" : ""} min-h-screen bg-gray-50`}
         >
-          <Routes>
-            {/* POS Interface - Main cashier interface */}
-            <Route path="/" element={<POSPage />} />
-            <Route path="/pos" element={<POSPage />} />
+          <SubscriptionGuard>
+            <Routes>
+              <Route
+                path="/subscription/purchase"
+                element={<SubscriptionPurchasePage />}
+              />
 
-            {/* Admin/Manager Routes */}
-            {(user?.role === "OWNER" ||
-              user?.role === "ADMIN" ||
-              user?.role === "MANAGER") && (
-              <>
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/products/new" element={<NewProductPage />} />
-                <Route path="/products/:id" element={<ProductDetailPage />} />
-                <Route path="/categories" element={<CategoriesPage />} />
-                <Route path="/suppliers" element={<SuppliersPage />} />
-                <Route path="/employees" element={<EmployeesPage />} />
-                <Route path="/salary-sheets" element={<SalarySheetsPage />} />
-                <Route path="/customers" element={<CustomersPage />} />
-                <Route path="/sales" element={<SalesPage />} />
-                <Route path="/reports" element={<ReportsPage />} />
-                <Route path="/analytics" element={<AnalyticsPage />} />
-                <Route path="/inventory" element={<InventoryPage />} />
-                <Route path="/audit-logs" element={<AuditLogsPage />} />
-                <Route path="/loyalty-admin" element={<LoyaltyAdminPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/cash-drawer" element={<CashDrawerPage />} />
-                <Route
-                  path="/purchase-orders"
-                  element={<PurchaseOrdersPage />}
-                />
-                <Route path="/notifications" element={<NotificationsPage />} />
-              </>
-            )}
+              {/* POS Interface - Main cashier interface */}
+              <Route path="/" element={<POSPage />} />
+              <Route path="/pos" element={<POSPage />} />
 
-            {/* Redirect any unknown routes to home */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+              {/* Admin/Manager Routes */}
+              {(user?.role === "OWNER" ||
+                user?.role === "ADMIN" ||
+                user?.role === "MANAGER") && (
+                <>
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/products" element={<ProductsPage />} />
+                  <Route path="/products/new" element={<NewProductPage />} />
+                  <Route path="/products/:id" element={<ProductDetailPage />} />
+                  <Route path="/categories" element={<CategoriesPage />} />
+                  <Route path="/suppliers" element={<SuppliersPage />} />
+                  <Route path="/employees" element={<EmployeesPage />} />
+                  <Route path="/salary-sheets" element={<SalarySheetsPage />} />
+                  <Route path="/customers" element={<CustomersPage />} />
+                  <Route path="/sales" element={<SalesPage />} />
+                  <Route path="/reports" element={<ReportsPage />} />
+                  <Route path="/analytics" element={<AnalyticsPage />} />
+                  <Route path="/inventory" element={<InventoryPage />} />
+                  <Route path="/audit-logs" element={<AuditLogsPage />} />
+                  <Route path="/loyalty-admin" element={<LoyaltyAdminPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/cash-drawer" element={<CashDrawerPage />} />
+                  <Route
+                    path="/purchase-orders"
+                    element={<PurchaseOrdersPage />}
+                  />
+                  <Route
+                    path="/notifications"
+                    element={<NotificationsPage />}
+                  />
+                </>
+              )}
+
+              {/* Redirect any unknown routes to home */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </SubscriptionGuard>
         </main>
       </div>
     </>

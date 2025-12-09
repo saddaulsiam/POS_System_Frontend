@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import App from "./App.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { SettingsProvider } from "./context/SettingsContext.tsx";
+import { SubscriptionProvider } from "./context/SubscriptionContext.tsx";
 import "./index.css";
 
 // Use HashRouter for Electron (file:// protocol) and BrowserRouter for web
@@ -36,31 +37,33 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <Router>
         <AuthProvider>
-          <SettingsProvider>
-            <App />
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: "#363636",
-                  color: "#fff",
-                },
-                success: {
-                  duration: 3000,
+          <SubscriptionProvider>
+            <SettingsProvider>
+              <App />
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
                   style: {
-                    background: "#10b981",
+                    background: "#363636",
+                    color: "#fff",
                   },
-                },
-                error: {
-                  duration: 5000,
-                  style: {
-                    background: "#ef4444",
+                  success: {
+                    duration: 3000,
+                    style: {
+                      background: "#10b981",
+                    },
                   },
-                },
-              }}
-            />
-          </SettingsProvider>
+                  error: {
+                    duration: 5000,
+                    style: {
+                      background: "#ef4444",
+                    },
+                  },
+                }}
+              />
+            </SettingsProvider>
+          </SubscriptionProvider>
         </AuthProvider>
       </Router>
       {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
