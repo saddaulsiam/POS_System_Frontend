@@ -102,8 +102,10 @@ export default function RegisterPage() {
 
       toast.success(`Welcome to ${store.name}! Your account has been created.`);
 
-      // Reload to trigger auth context initialization
-      window.location.href = "/";
+      // Wait for toast to show before redirecting
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1500);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Registration failed");
     } finally {

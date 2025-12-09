@@ -79,8 +79,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         hasPinCode: !!credentials.pinCode,
       });
 
-      setIsLoading(true);
-
       console.log("📤 AuthContext: Calling authAPI.login with:", {
         username: credentials.username,
         pinCodeLength: credentials.pinCode?.length,
@@ -113,7 +111,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       return false;
     } finally {
-      setIsLoading(false);
       console.log("🏁 AuthContext: Login process completed");
     }
   };
