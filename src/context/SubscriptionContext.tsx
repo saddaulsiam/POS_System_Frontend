@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import React, { createContext, useContext } from "react";
 import {
   subscriptionAPI,
   SubscriptionStatus,
