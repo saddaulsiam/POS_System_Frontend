@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useSettings } from "../../context/SettingsContext";
 import { Category, Product } from "../../types";
 import { formatCurrency } from "../../utils/currencyUtils";
+import POSPageSkeleton from "./POSPageSkeleton";
 
 interface POSProductGridProps {
   products: Product[];
@@ -24,16 +25,7 @@ export const POSProductGrid: React.FC<POSProductGridProps> = ({
   const { settings } = useSettings();
 
   // Don't show empty state during initial loading
-  if (isLoading) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
-          <p className="text-sm text-gray-500">Loading products...</p>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <POSPageSkeleton />;
 
   // Check if store is completely new (no categories and no products)
   const isNewStore = categories.length === 0 && products.length === 0;
