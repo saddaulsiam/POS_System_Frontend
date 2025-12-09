@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-12-10
+
+### Added
+
+- Two-step registration wizard for new store owners (Personal Info → Business Info)
+- Owner personal information fields: name, email, phone number, username, PIN
+- Store information fields: name, email, phone, address, city, country
+- Professional welcome screen for new stores with guided onboarding
+- Skeleton loading screens for better UX during data fetching
+- Empty state handling for stores with no products/categories
+- Complete NewCategoryPage with image upload and preview functionality
+- Custom Input component integration throughout registration flow
+- Bangladeshi context for all form placeholders (bilingual support)
+- Owner role authorization across all backend routes
+- Email uniqueness validation for both owner and store emails
+- Phone number field for store owners
+- Visual progress indicator in registration wizard
+- Success toast notification with delay before redirect
+
+### Changed
+
+- Improved registration form UX with professional design and helper text
+- Enhanced POS product grid to show contextual messages for new stores
+- Updated placeholder text to reflect Bangladeshi business context
+- Better input validation with specific error messages
+- Registration response format to match API signature
+- Login process no longer triggers full-page loading state
+
+### Fixed
+
+- Circular dependency issue in store/employee creation during registration
+- Database schema field mismatches (removed invalid Store fields)
+- POSSettings field names (storeAddress, storePhone, storeEmail)
+- Store email unique constraint violations
+- Registration success toast not showing before redirect
+- Login button causing entire page to reload
+- Welcome screen flashing during initial data load
+- Empty state showing during loading instead of skeleton screens
+
+### Technical
+
+- Backend: 3-step transaction for store registration (temp employee → store → update employee)
+- Backend: Owner email and phone stored in Employee table
+- Backend: Conditional store email assignment to avoid unique constraint issues
+- Frontend: Custom Input component with automatic asterisk for required fields
+- Frontend: 1.5-second delay before redirect after successful registration
+- Frontend: Removed isLoading state changes during login to prevent page reload
+- Database: Migrated from Render PostgreSQL to Neon.tech
+- Database cleanup script with proper foreign key deletion order
+
 ## [1.1.8] - 2025-12-08
 
 ### Added
