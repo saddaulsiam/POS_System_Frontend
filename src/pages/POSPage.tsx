@@ -68,15 +68,21 @@ const POSPage: FC = () => {
 
   // Products and categories state (use React Query)
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const { data: categoriesResp } = useCategories();
+  const { data: categoriesResp, isLoading: isCategoriesLoading } =
+    useCategories();
   const categories = categoriesResp || [];
-  const { data: productsResp, refetch: refetchProducts } = useProducts({
+  const {
+    data: productsResp,
+    refetch: refetchProducts,
+    isLoading: isProductsLoading,
+  } = useProducts({
     page: 1,
     limit: 50,
     categoryId: selectedCategory,
     isActive: true,
   });
   const products = productsResp?.data || [];
+  const isLoadingData = isCategoriesLoading || isProductsLoading;
   const loadProducts = (_categoryId?: number) => {
     return refetchProducts();
   };
@@ -435,6 +441,7 @@ const POSPage: FC = () => {
             selectedCategory={selectedCategory}
             onCategoryClick={handleCategoryClick}
             onProductClick={handleAddToCart}
+            isLoading={isLoadingData}
           />
         </div>
 
