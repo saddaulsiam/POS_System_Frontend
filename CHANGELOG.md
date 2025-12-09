@@ -7,6 +7,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-12-10
+
+### Added
+
+- **In-App Subscription System**: Complete monetization with trial management
+  - 10-day free trial automatically created on store registration
+  - Warning modal appears 3 days before trial expiration
+  - Force-purchase modal blocks all features when trial expires
+  - Purchase page with three pricing tiers (Monthly $29, Yearly $290, Lifetime $999)
+  - Subscription status checking every 60 seconds
+  - Real-time subscription guard protecting all routes
+- **Subscription Backend Infrastructure**:
+  - Subscription model with trial dates, subscription dates, payment tracking
+  - Complete API endpoints: status, activate, renew, cancel, mark warning shown
+  - Automatic trial expiry checking with status updates
+  - Days remaining calculation for trial period
+  - Owner-only authorization for subscription management
+- **Session-Based Warning System**:
+  - "Remind Me Later" shows warning once per session (not on every reload)
+  - Warning reappears when app is reopened during last 3 days
+  - SessionStorage tracking to prevent notification spam
+- **Demo Payment Integration**:
+  - Ready-to-integrate payment gateway structure (Stripe/PayPal)
+  - Demo mode with 1.5s simulated payment processing
+  - Automatic subscription activation after purchase
+  - Subscription context with React Query for real-time updates
+
+### Changed
+
+- Registration process now includes automatic subscription creation
+- Seed scripts updated to create 10-day trial subscriptions for all demo stores
+- Purchase page accessible even when trial expires (all other routes blocked)
+- Improved subscription guard logic to allow purchase flow
+- Enhanced error messages during registration with specific field validation
+
+### Fixed
+
+- Registration field validation for ownerEmail and ownerPhone
+- Controller not passing ownerEmail and ownerPhone to service layer
+- Prisma field name mismatch (phone vs phoneNumber in Employee model)
+- Import path errors in subscription service (../../prisma.js)
+- Auth middleware import name (authenticateToken vs authenticate)
+- Subscription expired modal blocking purchase page navigation
+- Purchase button not closing modal and navigating correctly
+- Warning modal showing on every page reload (now session-based)
+
+### Technical
+
+- **Frontend**:
+  - SubscriptionContext with useQuery polling (60s interval)
+  - SubscriptionGuard component wrapping all authenticated routes
+  - SubscriptionWarningModal with dismiss and purchase actions
+  - SubscriptionExpiredModal (un-dismissable, forces purchase)
+  - SubscriptionPurchasePage with plan selection and demo payment
+  - Session storage for warning dismissal tracking
+  - TypeScript interfaces for subscription status and API
+- **Backend**:
+  - Subscription model: status (TRIAL/ACTIVE/EXPIRED/CANCELLED), plan (MONTHLY/YEARLY/LIFETIME)
+  - Auto-expiry logic checking trial end date
+  - Days remaining calculation: Math.ceil((trialEndDate - now) / 86400000)
+  - Show warning when daysRemaining <= 3 and status === TRIAL
+  - Subscription routes with authenticate and authorizeRoles middleware
+- **Database**:
+  - Subscription table with unique storeId constraint
+  - Indexes on storeId and status for performance
+  - One-to-one relation with Store (cascade delete)
+  - Trial and subscription date tracking fields
+  - Payment method and last payment date fields
+- **Testing**:
+  - Test registration script (testRegister.js) for debugging
+  - Demo credentials file with 5 sample store setups
+  - Improved seed.js orchestrator with absolute path resolution
+
 ## [1.2.0] - 2025-12-10
 
 ### Added
