@@ -109,9 +109,9 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
         </div>
       }
     >
-      <div className="text-center">
+      <div className="py-4 text-center">
         {getIcon()}
-        <p className="mt-4 text-sm text-gray-600">{message}</p>
+        <p className="mt-4 text-sm leading-relaxed text-gray-600">{message}</p>
       </div>
     </Modal>
   );

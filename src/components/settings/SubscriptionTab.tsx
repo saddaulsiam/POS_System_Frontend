@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
   subscriptionAPI,
   type SubscriptionStatus,
 } from "../../services/subscriptionAPI";
+import { ConfirmModal } from "../common";
 
 const SubscriptionTab: React.FC = () => {
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(
@@ -11,6 +12,7 @@ const SubscriptionTab: React.FC = () => {
   );
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   useEffect(() => {
     fetchSubscription();
@@ -29,19 +31,16 @@ const SubscriptionTab: React.FC = () => {
     }
   };
 
-  const handleCancelSubscription = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to cancel your subscription? You will lose access when it expires.",
-      )
-    ) {
-      return;
-    }
+  const handleCancelClick = () => {
+    setShowCancelModal(true);
+  };
 
+  const handleCancelSubscription = async () => {
     try {
       setCancelling(true);
       const updated = await subscriptionAPI.cancel();
       setSubscription(updated);
+      setShowCancelModal(false);
       toast.success("Subscription cancelled successfully");
     } catch (error: any) {
       console.error("Failed to cancel subscription:", error);
@@ -293,7 +292,7 @@ const SubscriptionTab: React.FC = () => {
           {/* Cancel Subscription */}
           {subscription.status === "ACTIVE" && (
             <button
-              onClick={handleCancelSubscription}
+              onClick={handleCancelClick}
               disabled={cancelling}
               className="flex items-center gap-2 rounded-lg border border-red-300 bg-white px-6 py-3 font-semibold text-red-600 transition-all hover:bg-red-50 disabled:opacity-50"
             >
@@ -373,6 +372,19 @@ const SubscriptionTab: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Cancel Subscription Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        onConfirm={handleCancelSubscription}
+        title="Cancel Subscription"
+        message="Are you sure you want to cancel your subscription? You will lose access to all premium features when it expires. This action cannot be undone."
+        confirmText="Yes, Cancel Subscription"
+        cancelText="Keep Subscription"
+        variant="danger"
+        isLoading={cancelling}
+      />
     </div>
   );
 };

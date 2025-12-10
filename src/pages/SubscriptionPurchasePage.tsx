@@ -64,7 +64,7 @@ export default function SubscriptionPurchasePage() {
       setTimeout(() => {
         window.history.replaceState({}, "", "/subscription");
         setPaymentStatus({ type: null, message: "" });
-      }, 5000);
+      }, 10000);
     }
   }, [searchParams, navigate, refetch]);
 
@@ -128,7 +128,7 @@ export default function SubscriptionPurchasePage() {
         amount: isYearly ? yearlyBillAmount : price,
         customerName: user.name,
         customerEmail: user.email,
-        customerPhone: "01XXXXXXXXX", // Default placeholder - SSL Commerz required field
+        customerPhone: user.phone,
       };
 
       // Initiate payment with SSL Commerz
