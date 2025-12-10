@@ -41,7 +41,7 @@ export const SubscriptionGuard: React.FC<SubscriptionGuardProps> = ({
     setShowWarning(false);
     setHasShownWarning(true);
     sessionStorage.setItem("warningShownThisSession", "true");
-    navigate("/subscription/purchase");
+    navigate("/subscription");
   };
 
   if (isLoading) {
@@ -51,7 +51,7 @@ export const SubscriptionGuard: React.FC<SubscriptionGuardProps> = ({
   // If subscription is expired, force user to purchase
   if (subscription?.isExpired || (subscription && !subscription.isActive)) {
     // Allow access to purchase page
-    if (location.pathname === "/subscription/purchase") {
+    if (location.pathname === "/subscription") {
       return <>{children}</>;
     }
     // Block all other pages

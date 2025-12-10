@@ -9,6 +9,7 @@ import {
   ReceiptTab,
   SettingsPageSkeleton,
   SettingsTabs,
+  SubscriptionTab,
   SystemSettingsTab,
   UpdatesTab,
 } from "../components/settings";
@@ -309,6 +310,7 @@ const SettingsPage: React.FC = () => {
             handlePinChange={handlePinChange}
           />
         )}
+        {activeTab === "subscription" && <SubscriptionTab />}
         {activeTab === "system" && (
           <SystemSettingsTab
             settings={settings}

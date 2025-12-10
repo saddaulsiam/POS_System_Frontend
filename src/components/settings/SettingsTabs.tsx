@@ -11,6 +11,7 @@ const tabList = [
   { key: "finance", label: "💰 Tax & Currency" },
   { key: "alerts", label: "🔔 Alerts" },
   { key: "profile", label: "🙍 Profile" },
+  { key: "subscription", label: "💎 Subscription" },
   { key: "system", label: "⚙️ System" },
   { key: "updates", label: "🔄 Updates" },
 ];
