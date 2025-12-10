@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { BackButton } from "../components/common";
 import {
@@ -30,6 +30,7 @@ const SettingsPage: React.FC = () => {
   const { user, setUser } = useAuth();
   const [name, setName] = useState(user?.name || "");
   const [username, setUsername] = useState(user?.username || "");
+  const [email, setEmail] = useState(user?.email || "");
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState("");
   const [currentPin, setCurrentPin] = useState("");
@@ -37,16 +38,35 @@ const SettingsPage: React.FC = () => {
   const [pinMsg, setPinMsg] = useState("");
   const [pinSaving, setPinSaving] = useState(false);
 
+  // Sync profile state with user object when it changes
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setUsername(user.username || "");
+      setEmail(user.email || "");
+    }
+  }, [user]);
+
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingProfile(true);
     setProfileMsg("");
     try {
-      const updated = await authAPI.updateProfile({ name, username });
-      setUser && setUser(updated);
+      const updated = await authAPI.updateProfile({ name, username, email });
+
+      // Update user in context
+      if (setUser) {
+        setUser(updated);
+        // Also update localStorage so it persists on reload
+        localStorage.setItem("user", JSON.stringify(updated));
+      }
+
       setProfileMsg("Profile updated successfully.");
+      toast.success("Profile updated successfully");
     } catch (err: any) {
-      setProfileMsg(err?.response?.data?.error || "Failed to update profile");
+      const errorMsg = err?.response?.data?.error || "Failed to update profile";
+      setProfileMsg(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSavingProfile(false);
     }
@@ -275,6 +295,8 @@ const SettingsPage: React.FC = () => {
             setName={setName}
             username={username}
             setUsername={setUsername}
+            email={email}
+            setEmail={setEmail}
             savingProfile={savingProfile}
             profileMsg={profileMsg}
             handleProfileSave={handleProfileSave}

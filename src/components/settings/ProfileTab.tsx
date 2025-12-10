@@ -7,6 +7,8 @@ interface ProfileTabProps {
   setName: (v: string) => void;
   username: string;
   setUsername: (v: string) => void;
+  email: string;
+  setEmail: (v: string) => void;
   savingProfile: boolean;
   profileMsg: string;
   handleProfileSave: (e: React.FormEvent) => void;
@@ -24,6 +26,8 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
   setName,
   username,
   setUsername,
+  email,
+  setEmail,
   savingProfile,
   profileMsg,
   handleProfileSave,
@@ -73,6 +77,21 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
                 fullWidth
                 error={username === "" ? "Username is required" : undefined}
               />
+            </div>
+            <div className="md:col-span-2">
+              <Input
+                label="Email Address"
+                type="email"
+                id="email"
+                placeholder="your.email@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={savingProfile}
+                fullWidth
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Required for subscription payments and important notifications
+              </p>
             </div>
           </div>
         </div>
