@@ -7,6 +7,151 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2025-12-11
+
+### Added
+
+- **SSL Commerz Payment Gateway Integration**: Complete online payment system for subscriptions
+  - Real payment processing with SSL Commerz (Bangladesh's leading payment gateway)
+  - Support for multiple payment methods: bKash, Nagad, Rocket, DBBL Mobile Banking, cards
+  - Sandbox mode for testing with automatic validation
+  - Production-ready with live credentials support
+  - Payment transaction tracking with full audit trail
+- **Subscription Management Tab in Settings**: Complete subscription control center
+  - View current plan status (Trial, Active, Expired, Cancelled)
+  - Days remaining counter with visual warnings
+  - Subscription expiration date display
+  - Trial period start and end dates
+  - Upgrade/Renew subscription buttons
+  - Cancel subscription with confirmation modal
+  - Premium features list showcase
+  - Help section for support
+  - Beautiful gradient UI with status badges and icons
+- **Automated Subscription Expiration System**: Background checking and enforcement
+  - Automatic expiration detection for both TRIAL and ACTIVE subscriptions
+  - Daily scheduled task at midnight checking for expired subscriptions
+  - Real-time status updates when user accesses the system
+  - 7-day warning for paid subscriptions (MONTHLY/YEARLY)
+  - 3-day warning for trial subscriptions
+  - Automatic status change to EXPIRED when subscription ends
+- **Payment Status Display**: User-friendly payment feedback
+  - Success alert with transaction ID and auto-redirect
+  - Failure alert with error message
+  - Cancellation alert when user cancels payment
+  - Gradient colored cards with icons
+  - Auto-clear after 5 seconds
+  - Clean URL after status display
+- **Profile Email Management**: Complete email field support
+  - Email field added to profile management
+  - Backend validation and conflict checking
+  - Email saved to database and synced with localStorage
+  - Required for subscription payments
+  - Helper text: "Required for subscription payments and important notifications"
+  - Frontend-backend synchronization with useEffect
+
+### Changed
+
+- **Modal Component Enhancement**: Improved z-index and overlay rendering
+  - Modal now uses React Portal to render directly to document.body
+  - Z-index increased to 9999 for guaranteed top-level rendering
+  - Overlay always visible above all content including sticky elements
+  - Better isolation from parent component styles
+- **Confirmation Modal Improvement**: Enhanced spacing and readability
+  - Added vertical padding (py-4) to modal content
+  - Added leading-relaxed to message text for better readability
+  - More spacious and professional appearance
+- **Cancel Subscription UX**: Replaced browser alert with custom modal
+  - Beautiful danger-variant ConfirmModal instead of window.confirm()
+  - Clear warning about losing premium features
+  - "Yes, Cancel Subscription" and "Keep Subscription" buttons
+  - Loading state during cancellation process
+  - Professional modal UI with red danger theme
+- **Subscription Status Logic**: Enhanced expiration checking
+  - getSubscriptionStatus() now checks both TRIAL and ACTIVE subscription expiration
+  - Automatic database update when subscription expires
+  - Days remaining calculated for paid subscriptions
+  - Warning thresholds: 7 days for paid, 3 days for trial
+  - Proper handling of subscriptionEndDate for MONTHLY/YEARLY plans
+
+### Fixed
+
+- **SSL Commerz Sandbox Validation**: Fixed payment validation in sandbox mode
+  - Sandbox validation API unreliable - now trusts callback status directly
+  - Changed from tran_id to val_id for validation API calls (production)
+  - Accepts both "VALID" and "VALIDATED" status in sandbox
+  - Fixed "INVALID_TRANSACTION" error in sandbox testing
+  - Conditional validation: strict for production, lenient for sandbox
+- **Payment Flow Issues**: Resolved multiple payment integration bugs
+  - Fixed import path errors (prisma.js location)
+  - Fixed auth middleware import (authenticateToken vs authenticate)
+  - Fixed sendError parameter order (status, message)
+  - Fixed req.user property mapping (id vs userId)
+  - Added customerPhone placeholder for testing
+- **Subscription Expiration Gap**: Fixed missing expiration check for paid plans
+  - Previously only checked TRIAL expiration
+  - Now checks ACTIVE subscription expiration date
+  - Subscription end date properly compared against current date
+  - Status automatically updated to EXPIRED when date passes
+
+### Security
+
+- Removed debug console.log statements from production code
+- Payment validation uses proper SSL Commerz credentials
+- Secure callback handling with validation checks
+- Environment-based configuration (sandbox vs production)
+
+### Technical
+
+- **Backend - Payment Service**:
+  - sslcommerz-lts package integration (v1.10.0)
+  - Payment model: transactionId, validationId, status, amount, cardType, storeAmount
+  - Conditional validation logic based on is_live flag
+  - Success/Failure/Cancel/IPN callback handlers
+  - Payment record creation and status tracking
+- **Backend - Subscription Service**:
+  - Enhanced getSubscriptionStatus with dual expiration checking
+  - Days remaining calculation for both trial and paid subscriptions
+  - Show warning logic: 7 days for ACTIVE, 3 days for TRIAL
+  - Automatic status updates via database queries
+- **Backend - Scheduler**:
+  - checkExpiredSubscriptions() function for batch updates
+  - Cron job running daily at midnight (0 0 \* \* \*)
+  - Separate checks for TRIAL and ACTIVE subscriptions
+  - updateMany for efficient bulk status updates
+  - Test script: `node src/scripts/scheduler.js subscription`
+- **Frontend - Modal**:
+  - React Portal (createPortal from react-dom)
+  - Renders to document.body for proper layering
+  - z-index: 9999 for guaranteed visibility
+- **Frontend - Subscription Tab**:
+  - Real-time subscription status fetching
+  - Status badges with color coding (green/blue/red/gray)
+  - Conditional rendering based on subscription state
+  - Action buttons with proper loading states
+  - ConfirmModal integration for cancel action
+- **Frontend - Payment Flow**:
+  - SSL Commerz gateway redirect
+  - URL parameter parsing for status/message/transaction
+  - Payment status state management
+  - Auto-redirect after successful payment
+  - Clean URL after status display (history.replaceState)
+- **Database**:
+  - Payment table with SSL Commerz transaction details
+  - Subscription table with trial and subscription dates
+  - Store relationship for payment tracking
+  - Indexes on transactionId and status
+
+### Performance
+
+- **Scheduler Efficiency**: Batch updates instead of individual queries
+  - Uses updateMany for expired subscription marking
+  - Runs only once daily at midnight
+  - Minimal database load
+- **Real-time Checks**: Subscription status verified on every access
+  - No polling required for expiration detection
+  - Immediate status update when user logs in
+  - Database automatically updated on first access after expiration
+
 ## [1.5.0] - 2025-12-10
 
 ### Added
