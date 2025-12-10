@@ -85,7 +85,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
   children,
 }) => {
   const [settings, setSettings] = useState<POSSettings | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const loadSettings = async () => {
     // Don't load settings if no auth token exists
@@ -95,6 +95,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
       return;
     }
 
+    setLoading(true);
     try {
       const data = await posSettingsAPI.get();
       setSettings(data);

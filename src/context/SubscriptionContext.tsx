@@ -39,8 +39,9 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
     queryKey: ["subscription"],
     queryFn: subscriptionAPI.getStatus,
     enabled: isAuthenticated,
-    refetchInterval: 60000, // Check every minute
-    refetchOnWindowFocus: true,
+    refetchInterval: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    staleTime: 3 * 60 * 1000,
   });
 
   const value: SubscriptionContextType = {

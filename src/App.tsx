@@ -1,33 +1,39 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 import Navbar from "./components/common/Navbar";
 import Sidebar from "./components/common/Sidebar";
 import { SubscriptionGuard } from "./components/subscription";
 import { useAuth } from "./context/AuthContext";
-import AdminDashboard from "./pages/AdminDashboard";
-import AnalyticsPage from "./pages/AnalyticsPage";
-import AuditLogsPage from "./pages/AuditLogsPage";
-import CashDrawerPage from "./pages/CashDrawerPage";
-import CategoriesPage from "./pages/CategoriesPage";
-import CustomersPage from "./pages/CustomersPage";
-import EmployeesPage from "./pages/EmployeesPage";
-import InventoryPage from "./pages/InventoryPage";
+
+// Eager load critical pages (login, register, POS)
 import LoginPage from "./pages/LoginPage";
-import LoyaltyAdminPage from "./pages/LoyaltyAdminPage";
-import NewProductPage from "./pages/NewProductPage";
-import NotificationsPage from "./pages/NotificationsPage";
 import POSPage from "./pages/POSPage";
-import ProductDetailPage from "./pages/ProductDetailPage";
-import ProductsPage from "./pages/ProductsPage";
-import PurchaseOrdersPage from "./pages/PurchaseOrdersPage";
 import RegisterPage from "./pages/RegisterPage";
-import ReportsPage from "./pages/ReportsPage";
-import SalarySheetsPage from "./pages/SalarySheetsPage";
-import SalesPage from "./pages/SalesPage";
-import SettingsPage from "./pages/SettingsPage";
-import SubscriptionPurchasePage from "./pages/SubscriptionPurchasePage";
-import SuppliersPage from "./pages/SuppliersPage";
+
+// Lazy load admin/manager pages
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage"));
+const AuditLogsPage = lazy(() => import("./pages/AuditLogsPage"));
+const CashDrawerPage = lazy(() => import("./pages/CashDrawerPage"));
+const CategoriesPage = lazy(() => import("./pages/CategoriesPage"));
+const CustomersPage = lazy(() => import("./pages/CustomersPage"));
+const EmployeesPage = lazy(() => import("./pages/EmployeesPage"));
+const InventoryPage = lazy(() => import("./pages/InventoryPage"));
+const LoyaltyAdminPage = lazy(() => import("./pages/LoyaltyAdminPage"));
+const NewProductPage = lazy(() => import("./pages/NewProductPage"));
+const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
+const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
+const ProductsPage = lazy(() => import("./pages/ProductsPage"));
+const PurchaseOrdersPage = lazy(() => import("./pages/PurchaseOrdersPage"));
+const ReportsPage = lazy(() => import("./pages/ReportsPage"));
+const SalarySheetsPage = lazy(() => import("./pages/SalarySheetsPage"));
+const SalesPage = lazy(() => import("./pages/SalesPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const SuppliersPage = lazy(() => import("./pages/SuppliersPage"));
+const SubscriptionPurchasePage = lazy(
+  () => import("./pages/SubscriptionPurchasePage"),
+);
 
 const adminPaths = [
   "/admin",
@@ -85,52 +91,63 @@ const App: React.FC = () => {
           className={`flex-1 ${isAdminPath ? "pt-16" : ""} min-h-screen bg-gray-50`}
         >
           <SubscriptionGuard>
-            <Routes>
-              <Route
-                path="/subscription/purchase"
-                element={<SubscriptionPurchasePage />}
-              />
+            <Suspense fallback={<LoadingSpinner size="lg" />}>
+              <Routes>
+                <Route
+                  path="/subscription/purchase"
+                  element={<SubscriptionPurchasePage />}
+                />
 
-              {/* POS Interface - Main cashier interface */}
-              <Route path="/" element={<POSPage />} />
-              <Route path="/pos" element={<POSPage />} />
+                {/* POS Interface - Main cashier interface */}
+                <Route path="/" element={<POSPage />} />
+                <Route path="/pos" element={<POSPage />} />
 
-              {/* Admin/Manager Routes */}
-              {(user?.role === "OWNER" ||
-                user?.role === "ADMIN" ||
-                user?.role === "MANAGER") && (
-                <>
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/products" element={<ProductsPage />} />
-                  <Route path="/products/new" element={<NewProductPage />} />
-                  <Route path="/products/:id" element={<ProductDetailPage />} />
-                  <Route path="/categories" element={<CategoriesPage />} />
-                  <Route path="/suppliers" element={<SuppliersPage />} />
-                  <Route path="/employees" element={<EmployeesPage />} />
-                  <Route path="/salary-sheets" element={<SalarySheetsPage />} />
-                  <Route path="/customers" element={<CustomersPage />} />
-                  <Route path="/sales" element={<SalesPage />} />
-                  <Route path="/reports" element={<ReportsPage />} />
-                  <Route path="/analytics" element={<AnalyticsPage />} />
-                  <Route path="/inventory" element={<InventoryPage />} />
-                  <Route path="/audit-logs" element={<AuditLogsPage />} />
-                  <Route path="/loyalty-admin" element={<LoyaltyAdminPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/cash-drawer" element={<CashDrawerPage />} />
-                  <Route
-                    path="/purchase-orders"
-                    element={<PurchaseOrdersPage />}
-                  />
-                  <Route
-                    path="/notifications"
-                    element={<NotificationsPage />}
-                  />
-                </>
-              )}
+                {/* Admin/Manager Routes */}
+                {(user?.role === "OWNER" ||
+                  user?.role === "ADMIN" ||
+                  user?.role === "MANAGER") && (
+                  <>
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/products" element={<ProductsPage />} />
+                    <Route path="/products/new" element={<NewProductPage />} />
+                    <Route
+                      path="/products/:id"
+                      element={<ProductDetailPage />}
+                    />
+                    <Route path="/categories" element={<CategoriesPage />} />
+                    <Route path="/suppliers" element={<SuppliersPage />} />
+                    <Route path="/employees" element={<EmployeesPage />} />
+                    <Route
+                      path="/salary-sheets"
+                      element={<SalarySheetsPage />}
+                    />
+                    <Route path="/customers" element={<CustomersPage />} />
+                    <Route path="/sales" element={<SalesPage />} />
+                    <Route path="/reports" element={<ReportsPage />} />
+                    <Route path="/analytics" element={<AnalyticsPage />} />
+                    <Route path="/inventory" element={<InventoryPage />} />
+                    <Route path="/audit-logs" element={<AuditLogsPage />} />
+                    <Route
+                      path="/loyalty-admin"
+                      element={<LoyaltyAdminPage />}
+                    />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/cash-drawer" element={<CashDrawerPage />} />
+                    <Route
+                      path="/purchase-orders"
+                      element={<PurchaseOrdersPage />}
+                    />
+                    <Route
+                      path="/notifications"
+                      element={<NotificationsPage />}
+                    />
+                  </>
+                )}
 
-              {/* Redirect any unknown routes to home */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+                {/* Redirect any unknown routes to home */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
           </SubscriptionGuard>
         </main>
       </div>

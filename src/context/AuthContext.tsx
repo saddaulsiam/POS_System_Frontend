@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const initializeAuth = async () => {
+    const initializeAuth = () => {
       try {
         const storedToken = localStorage.getItem("token");
         const storedUser = localStorage.getItem("user");
@@ -49,18 +49,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (storedToken && storedUser) {
           setToken(storedToken);
           setUser(JSON.parse(storedUser));
-
-          // Verify token is still valid
-          try {
-            const currentUser = await authAPI.getCurrentUser();
-            setUser(currentUser);
-          } catch (error) {
-            // Token is invalid, clear storage
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            setToken(null);
-            setUser(null);
-          }
         }
       } catch (error) {
         console.error("Failed to initialize auth:", error);
