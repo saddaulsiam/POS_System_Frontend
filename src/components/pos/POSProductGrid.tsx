@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useSettings } from "../../context/SettingsContext";
 import { Category, Product } from "../../types";
 import { formatCurrency } from "../../utils/currencyUtils";
-import POSPageSkeleton from "./POSPageSkeleton";
+import POSPageSkeleton, { ProductsSkeleton } from "./POSPageSkeleton";
+import { Button } from "../common";
 
 interface POSProductGridProps {
   products: Product[];
@@ -12,6 +13,10 @@ interface POSProductGridProps {
   onCategoryClick: (categoryId: number | null) => void;
   onProductClick: (product: Product) => void;
   isLoading?: boolean;
+  isLoadingProducts?: boolean;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  onLoadMore?: () => void;
 }
 
 export const POSProductGrid: React.FC<POSProductGridProps> = ({
@@ -21,8 +26,41 @@ export const POSProductGrid: React.FC<POSProductGridProps> = ({
   onCategoryClick,
   onProductClick,
   isLoading = false,
+  isLoadingProducts = false,
+  hasNextPage = false,
+  isFetchingNextPage = false,
+  onLoadMore,
 }) => {
   const { settings } = useSettings();
+  const observerTarget = React.useRef<HTMLDivElement>(null);
+
+  // Intersection observer for infinite scroll
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          hasNextPage &&
+          !isFetchingNextPage &&
+          onLoadMore
+        ) {
+          onLoadMore();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, onLoadMore]);
 
   // Don't show empty state during initial loading
   if (isLoading) return <POSPageSkeleton />;
@@ -188,7 +226,16 @@ export const POSProductGrid: React.FC<POSProductGridProps> = ({
       </div>
 
       {/* Products Grid */}
-      {products.length > 0 ? (
+      {isLoadingProducts ? (
+        <div className="mt-6">
+          <h4 className="text-md mb-3 font-medium text-gray-900">
+            {selectedCategory
+              ? categories.find((c) => c.id === selectedCategory)?.name
+              : "All Products"}
+          </h4>
+          <ProductsSkeleton />
+        </div>
+      ) : products.length > 0 ? (
         <div className="mt-6">
           <h4 className="text-md mb-3 font-medium text-gray-900">
             {selectedCategory
@@ -274,6 +321,40 @@ export const POSProductGrid: React.FC<POSProductGridProps> = ({
               </button>
             ))}
           </div>
+
+          {/* Load More Indicator */}
+          {hasNextPage && (
+            <div ref={observerTarget} className="mt-4 flex justify-center">
+              {isFetchingNextPage ? (
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <svg
+                    className="h-5 w-5 animate-spin text-blue-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Loading more products...
+                </div>
+              ) : (
+                <Button onClick={onLoadMore} variant="ghost">
+                  Load More Products
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       ) : (
         <div className="mt-6 rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">

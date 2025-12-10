@@ -24,7 +24,7 @@ import {
   usePOSPayment,
 } from "../hooks";
 import { loyaltyAPI, receiptsAPI, salesAPI } from "../services";
-import { useCategories, useProducts } from "../services/queries";
+import { useCategories, useInfiniteProducts } from "../services/queries";
 import { Product } from "../types";
 import { formatCurrency } from "../utils/currencyUtils";
 import {
@@ -72,17 +72,22 @@ const POSPage: FC = () => {
     useCategories();
   const categories = categoriesResp || [];
   const {
-    data: productsResp,
+    data: productsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     refetch: refetchProducts,
     isLoading: isProductsLoading,
-  } = useProducts({
-    page: 1,
-    limit: 50,
+    isFetching: isProductsFetching,
+  } = useInfiniteProducts({
     categoryId: selectedCategory,
     isActive: true,
   });
-  const products = productsResp?.data || [];
-  const isLoadingData = isCategoriesLoading || isProductsLoading;
+  const products = productsData?.pages.flatMap(page => page?.data || []) || [];
+  // Only show full skeleton on initial load (both categories and products loading)
+  const isInitialLoading = isCategoriesLoading && isProductsLoading && products.length === 0;
+  // Show product loading indicator when switching categories
+  const isLoadingProducts = isProductsFetching && !isFetchingNextPage;
   const loadProducts = (_categoryId?: number) => {
     return refetchProducts();
   };
@@ -441,7 +446,11 @@ const POSPage: FC = () => {
             selectedCategory={selectedCategory}
             onCategoryClick={handleCategoryClick}
             onProductClick={handleAddToCart}
-            isLoading={isLoadingData}
+            isLoading={isInitialLoading}
+            isLoadingProducts={isLoadingProducts}
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            onLoadMore={fetchNextPage}
           />
         </div>
 
