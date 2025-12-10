@@ -16,6 +16,25 @@ export default defineConfig({
   },
   build: {
     outDir: "dist",
-    sourcemap: true,
+    sourcemap: false, // Disable sourcemaps in production for smaller size
+    minify: "terser", // Use terser for better minification
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate vendor chunks for better caching
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "query-vendor": ["@tanstack/react-query"],
+          "ui-vendor": ["react-hot-toast", "lucide-react"],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000, // Increase limit for better chunking
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.logs in production
+        drop_debugger: true,
+      },
+    },
   },
 });
+ 

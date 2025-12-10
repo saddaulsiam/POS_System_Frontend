@@ -62,23 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (credentials: LoginRequest): Promise<boolean> => {
     try {
-      console.log("🔐 AuthContext: Starting login process...", {
-        username: credentials.username,
-        hasPinCode: !!credentials.pinCode,
-      });
-
-      console.log("📤 AuthContext: Calling authAPI.login with:", {
-        username: credentials.username,
-        pinCodeLength: credentials.pinCode?.length,
-      });
-
       const response: AuthResponse = await authAPI.login(credentials);
-
-      console.log("✅ AuthContext: Login API response received:", {
-        hasToken: !!response.token,
-        tokenLength: response.token?.length,
-        user: response.user,
-      });
 
       setToken(response.token);
       setUser(response.user);
@@ -86,20 +70,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem("token", response.token);
       localStorage.setItem("user", JSON.stringify(response.user));
 
-      console.log("💾 AuthContext: Saved to localStorage");
       toast.success(`Welcome back, ${response.user.name} 👋`);
       return true;
     } catch (error: any) {
-      console.error("❌ AuthContext: Login failed:", {
-        error,
-        message: error?.message,
-        response: error?.response,
-        status: error?.response?.status,
-        data: error?.response?.data,
-      });
+      console.error(
+        "Login failed:",
+        error?.response?.data?.message || error.message,
+      );
       return false;
-    } finally {
-      console.log("🏁 AuthContext: Login process completed");
     }
   };
 

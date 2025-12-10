@@ -1,10 +1,12 @@
 import React, { Suspense, lazy } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import LoadingSpinner from "./components/common/LoadingSpinner";
-import Navbar from "./components/common/Navbar";
-import Sidebar from "./components/common/Sidebar";
 import { SubscriptionGuard } from "./components/subscription";
 import { useAuth } from "./context/AuthContext";
+
+// Lazy load layout components
+const Navbar = lazy(() => import("./components/common/Navbar"));
+const Sidebar = lazy(() => import("./components/common/Sidebar"));
 
 // Eager load critical pages (login, register, POS)
 import LoginPage from "./pages/LoginPage";
@@ -82,10 +84,18 @@ const App: React.FC = () => {
 
   return (
     <>
-      {isAdminPath && <Navbar />}
+      {isAdminPath && (
+        <Suspense fallback={null}>
+          <Navbar />
+        </Suspense>
+      )}
 
       <div className="flex">
-        {isAdminPath && <Sidebar />}
+        {isAdminPath && (
+          <Suspense fallback={null}>
+            <Sidebar />
+          </Suspense>
+        )}
 
         <main
           className={`flex-1 ${isAdminPath ? "pt-16" : ""} min-h-screen bg-gray-50`}

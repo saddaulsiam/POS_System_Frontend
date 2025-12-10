@@ -44,20 +44,21 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <App />
               <Toaster
                 position="top-right"
+                gutter={8}
                 toastOptions={{
-                  duration: 4000,
+                  duration: 3000, // Reduced from 4000ms
                   style: {
                     background: "#363636",
                     color: "#fff",
                   },
                   success: {
-                    duration: 3000,
+                    duration: 2000, // Reduced from 3000ms
                     style: {
                       background: "#10b981",
                     },
                   },
                   error: {
-                    duration: 5000,
+                    duration: 4000, // Reduced from 5000ms
                     style: {
                       background: "#ef4444",
                     },
