@@ -4,6 +4,7 @@ export interface User {
   username: string;
   role: "OWNER" | "ADMIN" | "MANAGER" | "CASHIER" | "STAFF";
   email: string;
+  phone: string;
   storeId: number;
   createdAt: string;
   updatedAt: string;

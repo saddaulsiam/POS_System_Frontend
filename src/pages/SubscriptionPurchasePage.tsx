@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../components/common";
 import { useSubscription } from "../context/SubscriptionContext";
 import { subscriptionAPI } from "../services/subscriptionAPI";
@@ -12,10 +12,61 @@ export default function SubscriptionPurchasePage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { refetch } = useSubscription();
+  const [searchParams] = useSearchParams();
   const [billingCycle, setBillingCycle] = useState<"MONTHLY" | "YEARLY">(
     "YEARLY",
   );
   const [loading, setLoading] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<{
+    type: "success" | "failed" | "cancelled" | "error" | null;
+    message: string;
+    transactionId?: string;
+  }>({ type: null, message: "" });
+
+  // Handle payment callback from SSL Commerz
+  useEffect(() => {
+    const status = searchParams.get("status");
+    const message = searchParams.get("message");
+    const transaction = searchParams.get("transaction");
+    const transactionId = searchParams.get("transactionId");
+
+    if (status === "success") {
+      setPaymentStatus({
+        type: "success",
+        message: "Payment successful! Your subscription is now active.",
+        transactionId: transaction || transactionId || "",
+      });
+      toast.success("Payment successful! Your subscription is now active.");
+      refetch(); // Refresh subscription data
+      setTimeout(() => navigate("/"), 3000);
+    } else if (status === "failed") {
+      setPaymentStatus({
+        type: "failed",
+        message: message || "Payment failed. Please try again.",
+      });
+      toast.error(message || "Payment failed. Please try again.");
+    } else if (status === "cancelled") {
+      setPaymentStatus({
+        type: "cancelled",
+        message: "Payment was cancelled. You can try again anytime.",
+      });
+      toast.error("Payment was cancelled.");
+    } else if (status === "error") {
+      setPaymentStatus({
+        type: "error",
+        message: message || "Payment processing failed. Please try again.",
+      });
+      toast.error(message || "Payment processing failed.");
+    }
+
+    // Clear URL parameters after 5 seconds
+    if (status) {
+      setTimeout(() => {
+        window.history.replaceState({}, "", "/subscription");
+        setPaymentStatus({ type: null, message: "" });
+      }, 5000);
+    }
+  }, [searchParams, navigate, refetch]);
 
   // --- Configuration & Pricing Logic ---
   const isYearly = billingCycle === "YEARLY";
@@ -53,22 +104,48 @@ export default function SubscriptionPurchasePage() {
   const handlePurchase = async () => {
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Validate user is logged in
+      if (!user) {
+        toast.error("Please login to continue");
+        setLoading(false);
+        navigate("/login");
+        return;
+      }
 
-      await subscriptionAPI.activate({
+      // Validate user information
+      if (!user.name || !user.email) {
+        toast.error(
+          "Please complete your profile before purchasing. Add your name and email in profile settings.",
+        );
+        setLoading(false);
+        navigate("/settings");
+        return;
+      }
+
+      // Prepare payment data
+      const paymentData = {
         plan: billingCycle,
-        paymentMethod: "SSL_COMMERZ",
-      });
+        amount: isYearly ? yearlyBillAmount : price,
+        customerName: user.name,
+        customerEmail: user.email,
+        customerPhone: "01XXXXXXXXX", // Default placeholder - SSL Commerz required field
+      };
 
-      toast.success(
-        `Subscription activated! Welcome to the ${isYearly ? "Yearly" : "Monthly"} plan.`,
-      );
+      // Initiate payment with SSL Commerz
+      const response = await subscriptionAPI.initiatePayment(paymentData);
 
-      await refetch();
-      setTimeout(() => navigate("/"), 1000);
+      // Redirect to SSL Commerz payment gateway
+      if (response.gatewayUrl) {
+        window.location.href = response.gatewayUrl;
+      } else {
+        toast.error("Failed to initiate payment. Please try again.");
+        setLoading(false);
+      }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Activation failed");
-    } finally {
+      console.error("Payment initiation error:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to initiate payment",
+      );
       setLoading(false);
     }
   };
@@ -90,6 +167,116 @@ export default function SubscriptionPurchasePage() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+        {/* --- Payment Status Alert --- */}
+        {paymentStatus.type && (
+          <div className="mx-auto mb-8 max-w-3xl">
+            <div
+              className={`rounded-lg border-2 p-6 shadow-lg ${
+                paymentStatus.type === "success"
+                  ? "border-green-200 bg-gradient-to-r from-green-50 to-emerald-50"
+                  : paymentStatus.type === "cancelled"
+                    ? "border-yellow-200 bg-gradient-to-r from-yellow-50 to-amber-50"
+                    : "border-red-200 bg-gradient-to-r from-red-50 to-rose-50"
+              }`}
+            >
+              <div className="flex items-start gap-4">
+                <div
+                  className={`flex-shrink-0 rounded-full p-2 ${
+                    paymentStatus.type === "success"
+                      ? "bg-green-100"
+                      : paymentStatus.type === "cancelled"
+                        ? "bg-yellow-100"
+                        : "bg-red-100"
+                  }`}
+                >
+                  {paymentStatus.type === "success" ? (
+                    <svg
+                      className="h-6 w-6 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  ) : paymentStatus.type === "cancelled" ? (
+                    <svg
+                      className="h-6 w-6 text-yellow-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="h-6 w-6 text-red-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3
+                    className={`text-lg font-semibold ${
+                      paymentStatus.type === "success"
+                        ? "text-green-900"
+                        : paymentStatus.type === "cancelled"
+                          ? "text-yellow-900"
+                          : "text-red-900"
+                    }`}
+                  >
+                    {paymentStatus.type === "success"
+                      ? "Payment Successful!"
+                      : paymentStatus.type === "cancelled"
+                        ? "Payment Cancelled"
+                        : "Payment Failed"}
+                  </h3>
+                  <p
+                    className={`mt-1 text-sm ${
+                      paymentStatus.type === "success"
+                        ? "text-green-700"
+                        : paymentStatus.type === "cancelled"
+                          ? "text-yellow-700"
+                          : "text-red-700"
+                    }`}
+                  >
+                    {paymentStatus.message}
+                  </p>
+                  {paymentStatus.transactionId && (
+                    <p
+                      className={`mt-2 font-mono text-xs ${
+                        paymentStatus.type === "success"
+                          ? "text-green-600"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      Transaction ID: {paymentStatus.transactionId}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* --- Header Section --- */}
         <div className="mb-10 text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-1.5 shadow-sm ring-1 ring-inset ring-blue-700/10 backdrop-blur-sm">

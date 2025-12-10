@@ -104,7 +104,7 @@ const App: React.FC = () => {
             <Suspense fallback={<LoadingSpinner size="lg" />}>
               <Routes>
                 <Route
-                  path="/subscription/purchase"
+                  path="/subscription"
                   element={<SubscriptionPurchasePage />}
                 />
 

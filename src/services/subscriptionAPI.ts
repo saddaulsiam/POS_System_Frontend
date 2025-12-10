@@ -19,10 +19,31 @@ export interface ActivateSubscriptionRequest {
   duration?: number;
 }
 
+export interface InitiatePaymentRequest {
+  plan: "MONTHLY" | "YEARLY";
+  amount: number;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+}
+
+export interface InitiatePaymentResponse {
+  gatewayUrl: string;
+  transactionId: string;
+  paymentId: number;
+}
+
 export const subscriptionAPI = {
   getStatus: async (): Promise<SubscriptionStatus> => {
     const response = await api.get("/subscription/status");
     return response.data.subscription;
+  },
+
+  initiatePayment: async (
+    data: InitiatePaymentRequest,
+  ): Promise<InitiatePaymentResponse> => {
+    const response = await api.post("/payment/sslcommerz/initiate", data);
+    return response.data;
   },
 
   activate: async (data: ActivateSubscriptionRequest) => {

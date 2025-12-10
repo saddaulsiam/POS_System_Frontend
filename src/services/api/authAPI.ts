@@ -35,7 +35,11 @@ export const authAPI = {
     return response.data;
   },
 
-  updateProfile: async (data: { name?: string; username?: string }) => {
+  updateProfile: async (data: {
+    name?: string;
+    username?: string;
+    email?: string;
+  }) => {
     const response = await api.put("/profile/me", data);
     return response.data;
   },
