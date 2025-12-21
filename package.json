@@ -1,6 +1,6 @@
 {
   "name": "pos-system-frontend",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Modern Point of Sale System - Electron Desktop Application",
   "private": true,
   "main": "main.js",

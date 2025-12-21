@@ -7,6 +7,125 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2025-12-22
+
+### Added
+
+- **JWT Refresh Token System**: Complete dual-token authentication with auto-refresh
+  - Access token with 15-minute expiration for API requests
+  - Refresh token with 7-day expiration stored in database
+  - Automatic token refresh when access token expires
+  - Auto-logout when refresh token expires
+  - Database-based token revocation for instant logout across all devices
+  - Protection against stolen tokens with server-side validation
+- **Refresh Token Endpoints**: New backend authentication routes
+  - POST /auth/refresh - Get new access token using refresh token
+  - POST /auth/logout - Revoke refresh token and logout user
+  - Token rotation on refresh (old refresh token remains valid until expiry)
+- **Auto-Refresh Interceptor**: Frontend automatic token renewal
+  - Axios response interceptor detects 401 errors
+  - Automatically calls refresh endpoint with stored refresh token
+  - Queues concurrent failed requests during refresh process
+  - Retries all queued requests with new access token
+  - Falls back to logout if refresh fails
+- **Enhanced Security**: Server-side token validation and revocation
+  - Refresh tokens stored in Employee database table
+  - Server validates token exists in database before refresh
+  - Logout clears refresh token from database (instant revocation)
+  - Stolen tokens can be invalidated by user logging out from any device
+  - Multi-device logout capability
+
+### Changed
+
+- **Authentication Flow**: Improved from single-token to dual-token system
+  - Login now returns both accessToken and refreshToken
+  - Both tokens stored in localStorage for client access
+  - Refresh token also stored in database for server validation
+  - Logout now calls backend API to clear server-side token
+- **Token Expiration Strategy**: Balanced security and user experience
+  - Access token: 15 minutes (frequent rotation for security)
+  - Refresh token: 7 days (convenient for users)
+  - Test configuration: 30s access, 1m refresh (for development testing)
+- **Error Handling**: Better distinction between authentication failures
+  - 401 errors now trigger auto-refresh before logout
+  - Login failures don't trigger auto-refresh logic
+  - Token expiry handled gracefully with automatic renewal
+  - Clear error messages for different failure scenarios
+
+### Fixed
+
+- **Login Issues**: Resolved multiple authentication bugs
+  - Fixed PrismaClientValidationError during login (logAudit storeId parameter)
+  - Fixed async/await error in Axios response interceptor
+  - Fixed 403 vs 401 response codes for expired tokens (now returns 401)
+  - Added validation for employees without storeId assignment
+- **Database Migration**: Resolved deployment issues
+  - Created migration for refreshToken column in Employee table
+  - Fixed Prisma client generation to recognize new field
+  - Applied migration to production database
+  - Documented manual SQL migration for Render/Neon deployment
+
+### Security
+
+- **Token Revocation**: Instant invalidation capability
+  - Logout from one device invalidates all sessions
+  - Stolen tokens can be revoked by user action
+  - Database acts as single source of truth for token validity
+  - No reliance on client-side token expiry alone
+- **Refresh Token Validation**: Server-side security checkpoint
+  - All refresh requests validated against database
+  - Deleted/missing tokens rejected immediately
+  - Inactive or deleted employees cannot refresh
+  - JWT verification plus database existence check
+
+### Technical
+
+- **Backend - Token Generation**:
+  - generateToken(): Access token with userId, role, storeId (15min)
+  - generateRefreshToken(): Refresh token with userId, type marker (7 days)
+  - verifyRefreshToken(): Validates JWT and checks type field
+  - JWT_REFRESH_SECRET environment variable for separate signing key
+- **Backend - Authentication Service**:
+  - loginService(): Generates both tokens, stores refresh in database
+  - refreshTokenService(): Validates refresh token, returns new access token
+  - logoutService(): Clears refresh token from database
+  - Enhanced audit logging with storeId parameter
+- **Backend - Authentication Routes**:
+  - POST /auth/refresh - Public endpoint (no auth required)
+  - POST /auth/logout - Protected endpoint (requires valid access token)
+  - Validation for employee storeId assignment
+- **Backend - Database**:
+  - Employee.refreshToken field (nullable TEXT)
+  - Migration: 20251221000000_add_refresh_token
+  - Update on login, clear on logout, validate on refresh
+- **Frontend - API Interceptor**:
+  - Async error handler in Axios response interceptor
+  - Request queue management during token refresh
+  - Prevents multiple simultaneous refresh attempts
+  - Silent error handling for refresh endpoint calls
+- **Frontend - Auth API**:
+  - refreshToken(refreshToken: string) method
+  - logout() method with backend API call
+  - Enhanced login to store both tokens
+- **Frontend - Auth Context**:
+  - Stores refreshToken in localStorage on login
+  - Async logout with API call and error handling
+  - Clears all auth data: token, refreshToken, user
+- **Frontend - Type System**:
+  - AuthResponse interface updated with refreshToken field
+  - TypeScript types for token refresh flow
+
+### Performance
+
+- **Request Optimization**: Reduced unnecessary logout redirects
+  - Auto-refresh extends user session transparently
+  - Users stay logged in for 7 days with active use
+  - Only 1 refresh request per token expiry (queued requests)
+- **Security vs UX Balance**: Smart token expiration strategy
+  - Frequent access token rotation (15min) for security
+  - Long refresh token validity (7 days) for convenience
+  - Request-triggered logout (not polling-based)
+
 ## [1.6.0] - 2025-12-11
 
 ### Added
