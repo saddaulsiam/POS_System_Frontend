@@ -35,6 +35,16 @@ export const authAPI = {
     return response.data;
   },
 
+  refreshToken: async (refreshToken: string) => {
+    const response = await api.post("/auth/refresh", { refreshToken });
+    return response.data;
+  },
+
+  logout: async () => {
+    const response = await api.post("/auth/logout");
+    return response.data;
+  },
+
   updateProfile: async (data: {
     name?: string;
     username?: string;
