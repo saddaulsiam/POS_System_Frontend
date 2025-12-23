@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2025-12-24
+
+### Added
+
+- **Enhanced Payment Error Handling**: Comprehensive validation and user-friendly error messages
+  - Input validation for all payment fields (storeId, userId, plan, amount, customer info)
+  - SSL Commerz credentials validation before payment initiation
+  - Network error and timeout handling with specific messages
+  - Database error handling (connection issues, constraint violations)
+  - SSL Commerz API error message extraction and display
+  - Transaction validation with already-processed checks
+
+### Changed
+
+- **Payment Gateway Mode Configuration**: Explicit sandbox vs live mode control
+  - Changed from automatic NODE_ENV-based mode selection
+  - New SSLCOMMERZ_IS_LIVE environment variable for explicit control
+  - Allows sandbox credentials to work in production environment
+  - Better separation of concerns for environment configuration
+- **Payment Service Error Messages**: All functions now provide specific, actionable error messages
+  - initiatePayment: Validates all inputs and credentials before API call
+  - validatePayment: Handles empty responses and network failures
+  - handlePaymentSuccess: Validates transaction IDs and checks for duplicates
+  - handlePaymentFailure: Records failure reasons with proper error handling
+  - handlePaymentCancellation: Prevents cancelling successful payments
+
+### Fixed
+
+- **Production Payment Gateway Issues**: Resolved SSL Commerz credential errors
+  - Fixed "Payment gateway is not configured" error (missing env vars)
+  - Fixed "Store Credential Error Or Store is De-active" (sandbox mode in production)
+  - Proper environment variable configuration for deployment platforms
+  - Conditional validation: strict for production, lenient for sandbox mode
+- **Payment Validation Logic**: Enhanced validation and error recovery
+  - Amount validation ensures positive numeric values
+  - Transaction ID validation prevents null/undefined processing
+  - Already processed checks prevent duplicate payment processing
+  - Clear error messages for each validation failure scenario
+
+### Security
+
+- Payment gateway credentials validation before processing
+- Environment-based mode selection (SSLCOMMERZ_IS_LIVE)
+- Secure handling of sensitive payment data
+- Validation ID required for production payment verification
+
+### Technical
+
+- **Backend - Payment Service**:
+  - is_live configuration: `process.env.SSLCOMMERZ_IS_LIVE === "true"`
+  - Comprehensive error handling in all payment functions
+  - Specific validation for required fields and data types
+  - Network error detection and user-friendly messaging
+  - Database error handling with Prisma error code checks
+- **Environment Variables**:
+  - SSLCOMMERZ_STORE_ID - Store credentials from SSL Commerz
+  - SSLCOMMERZ_STORE_PASSWORD - Store password from SSL Commerz
+  - SSLCOMMERZ_IS_LIVE - Explicit mode control ("true" for live, "false" for sandbox)
+- **Deployment**:
+  - Render/Vercel compatible configuration
+  - Sandbox mode support in production environment
+  - Clear documentation for environment setup
+
 ## [1.8.0] - 2025-12-23
 
 ### Added
