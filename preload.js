@@ -23,4 +23,5 @@ contextBridge.exposeInMainWorld("electron", {
   },
   installUpdate: () => ipcRenderer.send("install-update"),
   quitAndInstall: () => ipcRenderer.send("quit-and-install"),
+  isElectron: true,
 });

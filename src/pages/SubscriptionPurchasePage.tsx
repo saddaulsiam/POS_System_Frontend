@@ -129,6 +129,7 @@ export default function SubscriptionPurchasePage() {
         customerName: user.name,
         customerEmail: user.email,
         customerPhone: user.phone || "",
+        platform: window.electron ? "electron" : "web", // Detect if running in Electron
       };
 
       // Initiate payment with SSL Commerz

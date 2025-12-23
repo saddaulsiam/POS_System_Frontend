@@ -25,6 +25,7 @@ export interface InitiatePaymentRequest {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  platform?: "web" | "electron";
 }
 
 export interface InitiatePaymentResponse {

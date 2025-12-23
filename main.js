@@ -300,9 +300,82 @@ ipcMain.on("get-app-version", (event) => {
   event.reply("app-version", app.getVersion());
 });
 
+// Register custom protocol for payment redirects
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('possystem', process.execPath, [path.resolve(process.argv[1])]);
+  }
+} else {
+  app.setAsDefaultProtocolClient('possystem');
+}
+
+// Handle the protocol for Windows
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, focus our window and handle protocol
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+      
+      // Handle protocol URL
+      const url = commandLine.find(arg => arg.startsWith('possystem://'));
+      if (url) {
+        handleProtocolUrl(url);
+      }
+    }
+  });
+}
+
+// Handle protocol URL on macOS
+app.on('open-url', (event, url) => {
+  event.preventDefault();
+  handleProtocolUrl(url);
+});
+
+// Function to handle protocol URLs
+function handleProtocolUrl(url) {
+  log.info('Protocol URL received:', url);
+  
+  if (!mainWindow) return;
+  
+  // Parse the URL: possystem://subscription?status=success&transaction=TXN_123
+  const urlObj = new URL(url);
+  const params = new URLSearchParams(urlObj.search);
+  
+  // Navigate to the subscription page with the query parameters
+  const status = params.get('status');
+  const transaction = params.get('transaction');
+  const message = params.get('message');
+  
+  let route = '/subscription';
+  const queryParams = [];
+  if (status) queryParams.push(`status=${status}`);
+  if (transaction) queryParams.push(`transaction=${transaction}`);
+  if (message) queryParams.push(`message=${encodeURIComponent(message)}`);
+  
+  if (queryParams.length > 0) {
+    route += '?' + queryParams.join('&');
+  }
+  
+  // Use hash routing for Electron
+  mainWindow.loadURL(`file://${path.join(__dirname, 'dist', 'index.html')}#${route}`);
+}
+
 // App lifecycle events
 app.whenReady().then(() => {
   createWindow();
+  
+  // Check if app was opened with a protocol URL
+  if (process.platform === 'win32' && process.argv.length >= 2) {
+    const url = process.argv.find(arg => arg.startsWith('possystem://'));
+    if (url) {
+      handleProtocolUrl(url);
+    }
+  }
 });
 
 app.on("activate", () => {

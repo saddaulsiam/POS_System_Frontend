@@ -96,6 +96,12 @@
         "releaseType": "release"
       }
     ],
+    "protocols": [
+      {
+        "name": "POS System",
+        "schemes": ["possystem"]
+      }
+    ],
     "win": {
       "target": [
         {
