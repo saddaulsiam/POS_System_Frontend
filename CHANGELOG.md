@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2025-12-23
+
+### Added
+
+- **URL-Based Tab System for Settings Page**: Enhanced navigation with shareable URLs
+  - Settings tabs now use query parameters (e.g., `/settings?tab=profile`)
+  - Direct access to specific settings tabs via URL
+  - Browser back/forward button support for tab navigation
+  - Bookmarkable settings pages for quick access
+  - Shareable direct links to specific configuration tabs
+  - URL reflects current tab state automatically
+
+### Changed
+
+- **Settings Navigation**: Switched from state-based to URL parameter-based tabs
+  - Replaced useState with useSearchParams from react-router-dom
+  - Tab changes now update URL instead of just component state
+  - Default tab remains "features" when no ?tab= parameter present
+  - Improved user experience with persistent tab selection
+
+### Technical
+
+- **Frontend - Settings Page**:
+  - Imported useSearchParams from react-router-dom
+  - Active tab read from URL: `searchParams.get('tab') || 'features'`
+  - Tab switching updates URL: `setSearchParams({ tab: 'profile' })`
+  - Browser navigation (back/forward) automatically handled
+  - Tab state persists across page refreshes
+
 ## [1.7.0] - 2025-12-22
 
 ### Added

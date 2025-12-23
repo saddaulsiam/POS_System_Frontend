@@ -38,7 +38,7 @@ export default function SubscriptionPurchasePage() {
       });
       toast.success("Payment successful! Your subscription is now active.");
       refetch(); // Refresh subscription data
-      setTimeout(() => navigate("/"), 3000);
+      setTimeout(() => navigate("/settings?tab=subscription"), 3000);
     } else if (status === "failed") {
       setPaymentStatus({
         type: "failed",
@@ -113,12 +113,12 @@ export default function SubscriptionPurchasePage() {
       }
 
       // Validate user information
-      if (!user.name || !user.email) {
+      if (!user.name || !user.email || !user.phone) {
         toast.error(
-          "Please complete your profile before purchasing. Add your name and email in profile settings.",
+          "Please complete your profile before purchasing. Add your name, email, and phone number in profile settings.",
         );
         setLoading(false);
-        navigate("/settings");
+        navigate("/settings?tab=profile");
         return;
       }
 
@@ -128,7 +128,7 @@ export default function SubscriptionPurchasePage() {
         amount: isYearly ? yearlyBillAmount : price,
         customerName: user.name,
         customerEmail: user.email,
-        customerPhone: user.phone,
+        customerPhone: user.phone || "",
       };
 
       // Initiate payment with SSL Commerz

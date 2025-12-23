@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import { useSearchParams } from "react-router-dom";
 import { BackButton } from "../components/common";
 import {
   AlertsTab,
@@ -19,6 +20,14 @@ import { usePOSSettings, useUpdatePOSSettings } from "../services/queries";
 import type { POSSettings } from "../types/POSSettings";
 
 const SettingsPage: React.FC = () => {
+  // Use URL search params for active tab
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "features";
+
+  const setActiveTab = (tab: string) => {
+    setSearchParams({ tab });
+  };
+
   // Use React Query for settings
   const { data: settings, isLoading, error, refetch } = usePOSSettings();
   const updateSettingsMutation = useUpdatePOSSettings();
@@ -26,12 +35,12 @@ const SettingsPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("features");
   // Profile management state
   const { user, setUser } = useAuth();
   const [name, setName] = useState(user?.name || "");
   const [username, setUsername] = useState(user?.username || "");
   const [email, setEmail] = useState(user?.email || "");
+  const [phone, setPhone] = useState(user?.phone || "");
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState("");
   const [currentPin, setCurrentPin] = useState("");
@@ -45,6 +54,7 @@ const SettingsPage: React.FC = () => {
       setName(user.name || "");
       setUsername(user.username || "");
       setEmail(user.email || "");
+      setPhone(user.phone || "");
     }
   }, [user]);
 
@@ -53,7 +63,14 @@ const SettingsPage: React.FC = () => {
     setSavingProfile(true);
     setProfileMsg("");
     try {
-      const updated = await authAPI.updateProfile({ name, username, email });
+      const updated = await authAPI.updateProfile({
+        name,
+        username,
+        email,
+        phone,
+      });
+
+      console.log("✅ Profile updated:", updated);
 
       // Update user in context
       if (setUser) {
@@ -298,6 +315,8 @@ const SettingsPage: React.FC = () => {
             setUsername={setUsername}
             email={email}
             setEmail={setEmail}
+            phone={phone}
+            setPhone={setPhone}
             savingProfile={savingProfile}
             profileMsg={profileMsg}
             handleProfileSave={handleProfileSave}

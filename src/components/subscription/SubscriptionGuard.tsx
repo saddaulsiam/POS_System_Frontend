@@ -50,8 +50,11 @@ export const SubscriptionGuard: React.FC<SubscriptionGuardProps> = ({
 
   // If subscription is expired, force user to purchase
   if (subscription?.isExpired || (subscription && !subscription.isActive)) {
-    // Allow access to purchase page
-    if (location.pathname === "/subscription") {
+    // Allow access to purchase page and settings page
+    if (
+      location.pathname === "/subscription" ||
+      location.pathname === "/settings"
+    ) {
       return <>{children}</>;
     }
     // Block all other pages

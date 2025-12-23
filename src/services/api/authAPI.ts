@@ -49,6 +49,7 @@ export const authAPI = {
     name?: string;
     username?: string;
     email?: string;
+    phone?: string;
   }) => {
     const response = await api.put("/profile/me", data);
     return response.data;

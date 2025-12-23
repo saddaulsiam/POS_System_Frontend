@@ -9,6 +9,8 @@ interface ProfileTabProps {
   setUsername: (v: string) => void;
   email: string;
   setEmail: (v: string) => void;
+  phone: string;
+  setPhone: (v: string) => void;
   savingProfile: boolean;
   profileMsg: string;
   handleProfileSave: (e: React.FormEvent) => void;
@@ -28,6 +30,8 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
   setUsername,
   email,
   setEmail,
+  phone,
+  setPhone,
   savingProfile,
   profileMsg,
   handleProfileSave,
@@ -91,6 +95,21 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
               />
               <p className="mt-1 text-xs text-gray-500">
                 Required for subscription payments and important notifications
+              </p>
+            </div>
+            <div className="md:col-span-2">
+              <Input
+                label="Phone Number"
+                type="tel"
+                id="phone"
+                placeholder="017012345678"
+                value={phone || ""}
+                onChange={(e) => setPhone(e.target.value)}
+                disabled={savingProfile}
+                fullWidth
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Required for subscription payments (e.g., 01712345678)
               </p>
             </div>
           </div>
