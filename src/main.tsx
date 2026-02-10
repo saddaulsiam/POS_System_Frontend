@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import React from "react";
 import ReactDOM from "react-dom/client";
 import { Toaster } from "react-hot-toast";
 import { BrowserRouter, HashRouter } from "react-router-dom";
@@ -17,10 +16,11 @@ const Router =
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 10 * 60 * 1000,
+      staleTime: 5 * 60 * 1000, // Reduced from 10 minutes
       gcTime: 30 * 60 * 1000,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
+      refetchOnMount: false, // Don't refetch on mount
       retry: (failureCount, error: any) => {
         if (error?.response?.status === 401) {
           return false;
@@ -35,41 +35,39 @@ const queryClient = new QueryClient({
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <AuthProvider>
-          <SubscriptionProvider>
-            <SettingsProvider>
-              <App />
-              <Toaster
-                position="top-right"
-                gutter={8}
-                toastOptions={{
-                  duration: 3000, // Reduced from 4000ms
+  <QueryClientProvider client={queryClient}>
+    <Router>
+      <AuthProvider>
+        <SubscriptionProvider>
+          <SettingsProvider>
+            <App />
+            <Toaster
+              position="top-right"
+              gutter={8}
+              toastOptions={{
+                duration: 3000, // Reduced from 4000ms
+                style: {
+                  background: "#363636",
+                  color: "#fff",
+                },
+                success: {
+                  duration: 2000, // Reduced from 3000ms
                   style: {
-                    background: "#363636",
-                    color: "#fff",
+                    background: "#10b981",
                   },
-                  success: {
-                    duration: 2000, // Reduced from 3000ms
-                    style: {
-                      background: "#10b981",
-                    },
+                },
+                error: {
+                  duration: 4000, // Reduced from 5000ms
+                  style: {
+                    background: "#ef4444",
                   },
-                  error: {
-                    duration: 4000, // Reduced from 5000ms
-                    style: {
-                      background: "#ef4444",
-                    },
-                  },
-                }}
-              />
-            </SettingsProvider>
-          </SubscriptionProvider>
-        </AuthProvider>
-      </Router>
-      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
-    </QueryClientProvider>
-  </React.StrictMode>,
+                },
+              }}
+            />
+          </SettingsProvider>
+        </SubscriptionProvider>
+      </AuthProvider>
+    </Router>
+    {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+  </QueryClientProvider>,
 );

@@ -146,7 +146,11 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
   };
 
   useEffect(() => {
-    loadSettings();
+    // Only load settings if user is authenticated
+    const token = localStorage.getItem("token");
+    if (token) {
+      loadSettings();
+    }
   }, []); // Only run once on mount
 
   const refreshSettings = async () => {

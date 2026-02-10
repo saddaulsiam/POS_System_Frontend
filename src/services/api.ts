@@ -34,19 +34,14 @@ const processQueue = (error: any, token: string | null = null) => {
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    console.log("🔄 API Request:", {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      baseURL: config.baseURL,
-      fullURL: `${config.baseURL}${config.url}`,
-      data: config.data,
-      params: config.params,
-    });
+    // Only log in development mode
+    if (import.meta.env.DEV) {
+      console.log("🔄 API Request:", config.method?.toUpperCase(), config.url);
+    }
 
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log("🔑 Token added to request");
     } else {
       console.log("⚠️ No token found in localStorage");
     }
@@ -61,22 +56,17 @@ api.interceptors.request.use(
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.log("✅ API Response:", {
-      status: response.status,
-      statusText: response.statusText,
-      url: response.config.url,
-      data: response.data,
-    });
+    // Only log in development mode
+    if (import.meta.env.DEV) {
+      console.log("✅ Response:", response.config.url, response.status);
+    }
     return response;
   },
   async (error) => {
-    console.error("❌ API Error Response:", {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      url: error.config?.url,
-      data: error.response?.data,
-      message: error.message,
-    });
+    // Only log errors in development mode
+    if (import.meta.env.DEV) {
+      console.error("❌ API Error:", error.config?.url, error.response?.status);
+    }
 
     // Check if request should suppress error toasts
     const silentError = error.config?.headers?.["X-Silent-Error"] === "true";
@@ -112,8 +102,6 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      console.log("🚪 401 Unauthorized");
-
       // Check if this is a login attempt (no token in request)
       const hasToken = error.config?.headers?.Authorization;
       const originalRequest = error.config;
@@ -131,7 +119,9 @@ api.interceptors.response.use(
 
       if (hasToken) {
         // Token exists but is invalid/expired - try to refresh
-        console.log("🔄 Attempting to refresh token");
+        if (import.meta.env.DEV) {
+          console.log("🔄 Attempting token refresh");
+        }
 
         if (isRefreshing) {
           // Queue this request until refresh completes
@@ -152,7 +142,6 @@ api.interceptors.response.use(
         const refreshToken = localStorage.getItem("refreshToken");
 
         if (!refreshToken) {
-          console.log("🚪 No refresh token - Logging out");
           isRefreshing = false;
           processQueue(new Error("No refresh token"), null);
           localStorage.removeItem("token");
@@ -177,8 +166,6 @@ api.interceptors.response.use(
 
           const { token: newAccessToken } = response.data;
 
-          console.log("✅ Token refreshed successfully");
-
           // Update token in localStorage
           localStorage.setItem("token", newAccessToken);
 
@@ -193,7 +180,6 @@ api.interceptors.response.use(
           // Retry original request
           return api(originalRequest);
         } catch (refreshError) {
-          console.log("❌ Token refresh failed - Logging out");
           isRefreshing = false;
           processQueue(refreshError, null);
 
