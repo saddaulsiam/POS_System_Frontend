@@ -40,6 +40,60 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
     onClose();
   };
 
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
+
+  // Reset selectedIndex when modal opens or variants change
+  React.useEffect(() => {
+    if (isOpen) {
+      setSelectedIndex(0);
+    }
+  }, [isOpen, variants]);
+
+  // Keyboard navigation inside VariantSelectorModal
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (variants.length === 0) return;
+
+      // 1. Arrow Down to move selection
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev < variants.length - 1 ? prev + 1 : prev));
+        return;
+      }
+
+      // 2. Arrow Up to move selection
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : 0));
+        return;
+      }
+
+      // 3. Enter to select the highlighted variant
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (selectedIndex >= 0 && selectedIndex < variants.length) {
+          handleSelectVariant(variants[selectedIndex]);
+        }
+        return;
+      }
+
+      // 4. Number keys 1-9 to select directly
+      const keyNum = parseInt(e.key);
+      if (!isNaN(keyNum) && keyNum >= 1 && keyNum <= 9) {
+        const targetIndex = keyNum - 1;
+        if (targetIndex < variants.length) {
+          e.preventDefault();
+          handleSelectVariant(variants[targetIndex]);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, variants, selectedIndex, onClose]);
+
   // Compute totals for header context
   const availableCount = variants.length;
   const totalStock = variants.reduce(
@@ -173,12 +227,18 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
             </div>
 
             <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-2">
-              {variants.map((variant: ProductVariant) => (
-                <button
-                  key={variant.id}
-                  onClick={() => handleSelectVariant(variant)}
-                  className="group relative w-full rounded-xl border-2 border-gray-200 bg-white p-2.5 text-left transition-all duration-200 hover:border-blue-500 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-blue-200"
-                >
+              {variants.map((variant: ProductVariant, index: number) => {
+                const isSelected = index === selectedIndex;
+                return (
+                  <button
+                    key={variant.id}
+                    onClick={() => handleSelectVariant(variant)}
+                    className={`group relative w-full rounded-xl border-2 p-2.5 text-left transition-all duration-200 hover:shadow-md focus:outline-none ${
+                      isSelected
+                        ? "border-blue-600 ring-2 ring-blue-100 shadow-md"
+                        : "border-gray-200 bg-white hover:border-blue-500"
+                    }`}
+                  >
                   {/* Hover Effect Background */}
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
 
@@ -210,7 +270,12 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <h3 className="text-base font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
+                        <h3 className="text-base font-semibold text-gray-900 transition-colors group-hover:text-blue-600 flex items-center gap-2">
+                          {index < 9 && (
+                            <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-gray-100 text-xs font-bold text-gray-500 border border-gray-200">
+                              {index + 1}
+                            </span>
+                          )}
                           {variant.name}
                         </h3>
                         {variant.sku && (
@@ -275,8 +340,9 @@ export const VariantSelectorModal: React.FC<VariantSelectorModalProps> = ({
                       </div>
                     </div>
                   </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}

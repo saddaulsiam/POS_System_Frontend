@@ -31,6 +31,19 @@ These hotkeys are active only when the **Process Payment** modal is open.
 
 ---
 
+## 📦 Variant Selector Modal Shortcuts
+
+These hotkeys are active only when the **Select Variant** modal is open.
+
+| Key | Action | Target Component | Notes |
+| :--- | :--- | :--- | :--- |
+| **`1`** to **`9`** | Select corresponding variant directly | [VariantSelectorModal](file:///e:/All%20Project/POS-System/frontend/src/components/pos/VariantSelectorModal.tsx) | Pressing `2` selects the 2nd variant, etc. |
+| **`ArrowUp`** / **`ArrowDown`** | Navigate selection | [VariantSelectorModal](file:///e:/All%20Project/POS-System/frontend/src/components/pos/VariantSelectorModal.tsx) | Moves the active highlight up or down. |
+| **`Enter`** | Add highlighted variant to cart | [VariantSelectorModal](file:///e:/All%20Project/POS-System/frontend/src/components/pos/VariantSelectorModal.tsx) | Adds the currently highlighted variant. |
+| **`Escape`** | Cancel / Close Modal | [VariantSelectorModal](file:///e:/All%20Project/POS-System/frontend/src/components/pos/VariantSelectorModal.tsx) | Closes the modal. |
+
+---
+
 ## ⚡ Recommended Cashier Checkout Flow
 
 1. **Start Sale**: Scan products using a barcode scanner or search manually using **`s`** or **`/`**.

@@ -49,7 +49,7 @@ export const POSCustomerSearch: React.FC<POSCustomerSearchProps> = ({
             </button>
           </div>
 
-          <div className="mb-3 flex space-x-2">
+          <div className="flex space-x-2">
             <div className="flex-1">
               <Input
                 id="customer-phone-input"
@@ -155,15 +155,6 @@ export const POSCustomerSearch: React.FC<POSCustomerSearchProps> = ({
               </Button>
             </div>
           </div>
-        </div>
-      )}
-
-      {!customer && !customerNotFound && customerPhone.trim() === "" && (
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-2 text-center">
-          <p className="text-xs text-blue-700">
-            💡 <strong>Tip:</strong> Search for existing customer or continue as
-            guest
-          </p>
         </div>
       )}
     </div>

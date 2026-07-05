@@ -71,8 +71,8 @@ export const POSCart: React.FC<POSCartProps> = ({
     <>
       {/* Cart Items */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4">
-          <h3 className="mb-4 text-lg font-medium text-gray-900">
+        <div className="px-4 pt-3">
+          <h3 className="mb-2 text-lg font-medium text-gray-900">
             Cart ({cart.length} items)
           </h3>
 
