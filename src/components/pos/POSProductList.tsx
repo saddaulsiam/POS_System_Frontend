@@ -124,32 +124,32 @@ export const POSProductList: React.FC<POSProductListProps> = ({
 
   return (
     <div className="mt-6">
-      <h4 className="text-md mb-3 font-medium text-gray-900">{categoryName}</h4>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+      <h4 className="text-md mb-3 font-semibold tracking-tight text-slate-800">{categoryName}</h4>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 p-1 -m-1">
         {products.map((product) => (
           <button
             key={product.id}
             onClick={() => onProductClick(product)}
             disabled={product.stockQuantity <= 0 && !product.hasVariants}
-            className="overflow-hidden rounded-xl border border-gray-200 bg-white p-0 text-left shadow transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+            className="group overflow-hidden rounded-xl border border-slate-200 bg-white p-0 text-left shadow-[0_4px_12px_rgba(0,0,0,0.02)] transition-all duration-300 transform hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <div className="flex h-20 md:h-28">
               {/* Product Image - Full Height on Left */}
-              <div className="h-full w-20 flex-shrink-0 bg-gray-100 p-1.5 md:w-28 md:p-2.5">
+              <div className="h-full w-20 flex-shrink-0 bg-slate-50 p-1.5 md:w-28 md:p-2.5 overflow-hidden relative">
                 {product.image ? (
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="h-full w-full rounded-md object-cover"
+                    className="h-full w-full rounded-md object-cover transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => {
                       e.currentTarget.src =
                         "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f3f4f6'/%3E%3Ctext x='50' y='50' font-size='40' text-anchor='middle' dy='.3em' fill='%239ca3af'%3E📦%3C/text%3E%3C/svg%3E";
                     }}
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xl text-gray-400 md:text-2xl">
+                  <div className="flex h-full w-full items-center justify-center text-xl text-gray-400 md:text-2xl transition-transform duration-300 group-hover:scale-105">
                     <svg
-                      className="h-6 w-6 text-gray-400"
+                      className="h-6 w-6 text-gray-300"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -166,38 +166,40 @@ export const POSProductList: React.FC<POSProductListProps> = ({
               </div>
 
               {/* Product Info */}
-              <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-2.5 md:p-3.5">
+              <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 p-3 md:p-4">
                 <p
-                  className="flex items-center gap-2 truncate text-sm font-medium text-gray-900"
+                  className="truncate text-sm font-semibold tracking-tight text-slate-800"
                   title={product.name}
                 >
                   {product.name}
                 </p>
-                <p className="truncate text-xs text-gray-500">
+                <p className="truncate text-[10px] font-medium text-slate-400 font-mono tracking-wider">
                   {product.sku}
                 </p>
                 {product.hasVariants ||
                 (product.variants && product.variants.length > 0) ? (
-                  <p className="mt-1 w-fit rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700">
-                    Variant
-                  </p>
+                  <span className="w-fit rounded bg-purple-50 px-1.5 py-0.5 text-[10px] font-bold text-purple-700 border border-purple-100">
+                    Variants
+                  </span>
                 ) : (
-                  <>
-                    <p className="mt-1 text-sm font-semibold text-green-600">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-sm font-extrabold text-blue-600">
                       {formatCurrency(product.sellingPrice, settings)}
-                    </p>
-                    <p
-                      className={`mt-1 text-xs ${
+                    </span>
+                    <span
+                      className={`text-[10px] ${
                         product.stockQuantity <= 0
-                          ? "font-medium text-red-500"
-                          : "text-gray-500"
+                          ? "font-bold text-red-500"
+                          : product.stockQuantity <= 10
+                          ? "font-semibold text-amber-600"
+                          : "text-slate-400 font-medium"
                       }`}
                     >
                       {product.stockQuantity <= 0
                         ? "Out of Stock"
                         : `Stock: ${product.stockQuantity}`}
-                    </p>
-                  </>
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
