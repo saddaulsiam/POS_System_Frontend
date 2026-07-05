@@ -29,7 +29,7 @@ function createWindow() {
     process.env.NODE_ENV === "development" || !!process.env.ELECTRON_START_URL;
 
   if (isDev) {
-    const devUrl = process.env.ELECTRON_START_URL || "http://localhost:5173";
+    const devUrl = process.env.ELECTRON_START_URL || "http://localhost:3000";
     mainWindow.loadURL(devUrl).catch(() => {
       mainWindow.loadFile(path.join(__dirname, "dist", "index.html"));
     });
@@ -294,6 +294,37 @@ ipcMain.on("quit-and-install", () => {
 // IPC Handlers for version
 ipcMain.handle("get-version", () => {
   return app.getVersion();
+});
+
+ipcMain.on("print-silent", (event, { htmlContent, printerName }) => {
+  let workerWindow = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+
+  workerWindow.loadURL(
+    `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`
+  );
+
+  workerWindow.webContents.on("did-finish-load", () => {
+    workerWindow.webContents.print(
+      {
+        silent: true,
+        printBackground: true,
+        deviceName: printerName || "",
+      },
+      (success, errorType) => {
+        if (!success) {
+          log.error("Silent printing failed:", errorType);
+        }
+        workerWindow.close();
+        workerWindow = null;
+      }
+    );
+  });
 });
 
 ipcMain.on("get-app-version", (event) => {

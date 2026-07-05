@@ -23,10 +23,11 @@ import {
   usePOSHandlers,
   usePOSPayment,
 } from "../hooks";
-import { loyaltyAPI, receiptsAPI, salesAPI } from "../services";
+import { loyaltyAPI, salesAPI } from "../services";
 import { useCategories, useInfiniteProducts } from "../services/queries";
 import { Product } from "../types";
 import { formatCurrency } from "../utils/currencyUtils";
+import { generateHTMLReceipt, generateThermalReceipt } from "../utils/receiptGenerator";
 import {
   calculateChange,
   calculateSubtotal,
@@ -298,7 +299,12 @@ const POSPage: FC = () => {
         }
       }
       // Build sale data - only include cashReceived for CASH payments
+      const timestamp = Date.now().toString();
+      const random = Math.floor(Math.random() * 1000).toString().padStart(3, "0");
+      const clientReceiptId = `R${timestamp.slice(-6)}${random}`;
+
       const saleData: any = {
+        receiptId: clientReceiptId,
         customerId: customer?.id,
         items: cart.map((item) => ({
           productId: item.product.id,
@@ -317,12 +323,77 @@ const POSPage: FC = () => {
       if (paymentMethod === "CASH") {
         saleData.cashReceived = parseFloat(cashReceived);
       }
-      const sale = await salesAPI.create(saleData);
 
-      // Show success immediately and clear cart
-      toast.success(`Sale completed! Receipt ID: ${sale.receiptId}`);
+      const cashierName = user?.name || "Cashier";
+      const customerName = customer?.name || null;
 
-      // Clear cart and reset form immediately
+      const localSaleObj = {
+        receiptId: clientReceiptId,
+        createdAt: new Date().toISOString(),
+        employeeName: cashierName,
+        customerName: customerName,
+        items: cart.map((item) => ({
+          productName: item.product.name,
+          variantName: item.variant?.name || null,
+          quantity: item.quantity,
+          price: item.price,
+          subtotal: item.subtotal,
+        })),
+        subtotal: subtotal,
+        loyaltyDiscount: loyaltyDiscount,
+        offerDiscount: _offerDiscount,
+        taxAmount: tax,
+        finalAmount: finalTotal,
+        paymentMethod: paymentMethod,
+        cashReceived: paymentMethod === "CASH" ? parseFloat(cashReceived) : null,
+        changeGiven: paymentMethod === "CASH" ? changeAmount : null,
+      };
+
+      // Handle receipt printing immediately on the client side (non-blocking)
+      const isElectron = (window as any).electron?.isElectron;
+
+      if (settings?.printReceiptAuto) {
+        const htmlContent = generateHTMLReceipt(localSaleObj, settings);
+        if (isElectron) {
+          (window as any).electronAPI.send("print-silent", {
+            htmlContent,
+            printerName: "",
+          });
+        } else {
+          const printWindow = window.open("", "_blank", "width=800,height=600");
+          if (printWindow) {
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+            setTimeout(() => {
+              printWindow.print();
+            }, 300);
+          }
+        }
+      }
+
+      if (settings?.autoPrintThermal) {
+        const thermalContent = generateThermalReceipt(localSaleObj, settings);
+        if (isElectron) {
+          const thermalHTML = `<html><body style="margin:0; padding:0;"><pre style='font-size:14px; font-family:monospace; margin:0;'>${thermalContent}</pre></body></html>`;
+          (window as any).electronAPI.send("print-silent", {
+            htmlContent: thermalHTML,
+            printerName: "",
+          });
+        } else {
+          const printWindow = window.open("", "_blank", "width=400,height=600");
+          if (printWindow) {
+            printWindow.document.write(
+              `<pre style='font-size:14px; font-family:monospace; margin:0;'>${thermalContent}</pre>`,
+            );
+            printWindow.document.close();
+            setTimeout(() => {
+              printWindow.print();
+            }, 300);
+          }
+        }
+      }
+
+      // Clear cart and reset form immediately (Optimistic UI)
       setCart([]);
       setCustomer(null);
       setCustomerPhone("");
@@ -333,78 +404,19 @@ const POSPage: FC = () => {
       setOfferDiscount(0);
       setAppliedOffer(null);
 
-      // Reload products to update stock quantities
-      loadProducts(selectedCategory || undefined);
+      toast.success("Checkout completed! Printing receipt...");
 
-      // Handle receipt printing asynchronously (non-blocking)
-      if (settings?.printReceiptAuto) {
-        // Show generating toast
-        const loadingToast = toast.loading("Generating receipt...", {
-          icon: "🖨️",
+      // Save sale to database asynchronously in the background
+      salesAPI.create(saleData)
+        .then((createdSale) => {
+          toast.success(`Sale synced with server! ID: ${createdSale.receiptId}`);
+          // Reload products to update stock quantities
+          loadProducts(selectedCategory || undefined);
+        })
+        .catch((err) => {
+          console.error("Failed to sync sale to database:", err);
+          toast.error(`Database sync failed for Receipt ID: ${clientReceiptId}. Please check network connection.`, { duration: 10000 });
         });
-
-        receiptsAPI
-          .getHTML(sale.id)
-          .then((htmlContent) => {
-            toast.dismiss(loadingToast);
-            const printWindow = window.open(
-              "",
-              "_blank",
-              "width=800,height=600",
-            );
-            if (printWindow) {
-              printWindow.document.write(htmlContent);
-              printWindow.document.close();
-              setTimeout(() => {
-                printWindow.print();
-              }, 500);
-            }
-            toast.success("Receipt ready to print!", {
-              duration: 2000,
-              icon: "✅",
-            });
-          })
-          .catch((printError) => {
-            toast.dismiss(loadingToast);
-            console.error("Error printing receipt:", printError);
-            toast.error("Failed to generate receipt");
-          });
-      }
-
-      // Handle thermal receipt printing asynchronously (non-blocking)
-      if (settings?.autoPrintThermal) {
-        const thermalToast = toast.loading("Generating thermal receipt...", {
-          icon: "🧾",
-        });
-
-        receiptsAPI
-          .getThermal(sale.id)
-          .then((thermalContent) => {
-            toast.dismiss(thermalToast);
-            const printWindow = window.open(
-              "",
-              "_blank",
-              "width=400,height=600",
-            );
-            if (printWindow) {
-              printWindow.document.write(
-                `<pre style='font-size:16px; font-family:monospace;'>${thermalContent}</pre>`,
-              );
-              printWindow.document.close();
-              setTimeout(() => {
-                printWindow.print();
-              }, 300);
-            }
-            toast.success("Thermal receipt ready!", { icon: "✅" });
-          })
-          .catch((err) => {
-            toast.dismiss(thermalToast);
-            console.error("Error printing thermal receipt:", err);
-            toast.error("Failed to generate thermal receipt");
-          });
-      }
-
-      // Reset processing state early since sale is complete
     } catch (error: any) {
       console.error("Error processing payment:", error);
       // Show meaningful error message
