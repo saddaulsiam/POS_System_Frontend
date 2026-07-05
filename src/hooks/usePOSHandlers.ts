@@ -61,24 +61,21 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
       const barcode = (e.target as any).barcode?.value || "";
       if (!barcode.trim()) return;
       try {
-        if (barcode.match(/^\d+$/)) {
-          try {
-            const variant = await lookupVariant.mutateAsync({
-              barcode,
-              silent: true,
-            });
-            if (variant && variant.productId) {
-              const product = await productsAPI.getById(variant.productId);
-              addVariantToCart(variant, product);
-              args.setBarcode && args.setBarcode("");
-              return;
-            }
-          } catch (variantError: any) {
-            // Silently fall through to product lookup - no error toast needed
-            // If 404, fall through to product lookup
+        try {
+          const variant = await lookupVariant.mutateAsync({
+            barcode,
+            silent: true,
+          });
+          if (variant && variant.productId) {
+            const product = await productsAPI.getById(variant.productId);
+            addVariantToCart(variant, product);
+            args.setBarcode && args.setBarcode("");
+            return;
           }
+        } catch (variantError: any) {
+          // Silently fall through to product lookup - no error toast needed
         }
-        // Try product lookup if variant not found or not a number barcode
+        // Try product lookup if variant not found
         let product;
         try {
           product = await productsAPI.getByBarcode(barcode, true); // silent mode
