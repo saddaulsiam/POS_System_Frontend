@@ -30,10 +30,13 @@ export function useCreateSale() {
 }
 
 export function useSaleByReceiptId(receiptId?: string) {
+  const normalizedReceiptId = receiptId?.trim() || "";
+  const canSearchByReceiptId = normalizedReceiptId.length >= 10;
+
   return useQuery({
     queryKey: ["sale", "receipt", receiptId] as const,
-    queryFn: () => salesAPI.getByReceiptId(receiptId as string),
-    enabled: !!receiptId && receiptId.trim() !== "",
+    queryFn: () => salesAPI.getByReceiptId(normalizedReceiptId),
+    enabled: canSearchByReceiptId,
   });
 }
 

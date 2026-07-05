@@ -36,24 +36,26 @@ const SalesPage: React.FC = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<number | "">("");
   const [currentPage, setCurrentPage] = useState(1);
   const [receiptId, setReceiptId] = useState("");
+  const trimmedReceiptId = receiptId.trim();
+  const isReceiptSearchActive = trimmedReceiptId.length >= 10;
 
   // React Query hooks
-  const salesParams =
-    receiptId.trim() !== ""
-      ? undefined
-      : {
-          page: currentPage,
-          limit: 20,
-          startDate: dateFrom || undefined,
-          endDate: dateTo || undefined,
-          customerId: selectedCustomer || undefined,
-          employeeId: selectedEmployee || undefined,
-        };
+  const salesParams = isReceiptSearchActive
+    ? undefined
+    : {
+        page: currentPage,
+        limit: 20,
+        startDate: dateFrom || undefined,
+        endDate: dateTo || undefined,
+        customerId: selectedCustomer || undefined,
+        employeeId: selectedEmployee || undefined,
+      };
 
   const { data: salesResponse, isLoading: salesLoading } =
     useSales(salesParams);
-  const { data: receiptSale, isLoading: receiptLoading } =
-    useSaleByReceiptId(receiptId);
+  const { data: receiptSale, isLoading: receiptLoading } = useSaleByReceiptId(
+    isReceiptSearchActive ? trimmedReceiptId : undefined,
+  );
   const { data: selectedSale } = useSale(selectedSaleId ?? undefined);
   const { data: customersResponse } = useCustomers({ limit: 100 });
   const { data: employeesData } = useEmployees();
@@ -62,21 +64,21 @@ const SalesPage: React.FC = () => {
   const voidSale = useVoidSale();
 
   // Derive state
-  const isLoading = receiptId.trim() !== "" ? receiptLoading : salesLoading;
+  const isLoading = isReceiptSearchActive ? receiptLoading : salesLoading;
   const sales =
-    receiptId.trim() !== "" && receiptSale
+    isReceiptSearchActive && receiptSale
       ? [receiptSale]
       : salesResponse?.data || [];
   const customers = customersResponse?.data || [];
   const employees = Array.isArray(employeesData) ? employeesData : [];
-  const totalPages =
-    receiptId.trim() !== "" ? 1 : salesResponse?.pagination?.totalPages || 1;
-  const totalItems =
-    receiptId.trim() !== ""
-      ? receiptSale
-        ? 1
-        : 0
-      : salesResponse?.pagination?.totalItems || 0;
+  const totalPages = isReceiptSearchActive
+    ? 1
+    : salesResponse?.pagination?.totalPages || 1;
+  const totalItems = isReceiptSearchActive
+    ? receiptSale
+      ? 1
+      : 0
+    : salesResponse?.pagination?.totalItems || 0;
 
   const handleViewDetails = async (sale: Sale) => {
     setSelectedSaleId(sale.id);

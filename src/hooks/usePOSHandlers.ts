@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
+import { useAuth } from "../context";
 import { productsAPI, productVariantsAPI } from "../services";
 import {
   useCreateCustomer,
@@ -39,6 +40,7 @@ interface UsePOSHandlersArgs {
 
 export function usePOSHandlers(args: UsePOSHandlersArgs) {
   const { addToCart, addVariantToCart } = args;
+  const { user } = useAuth();
 
   // Use a ref to always have the latest cart
   const cartRef = useRef(args.cart);
@@ -132,6 +134,7 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
   // Handler: Customer form submit (matches CustomerModal prop signature)
   const handleCustomerFormSubmit = useCallback(async (formData: any) => {
     try {
+      const storeId = args.settings?.storeId || user?.storeId;
       const customerData = {
         name: formData.name.trim(),
         phoneNumber:
@@ -139,7 +142,7 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
         email: formData.email.trim() || undefined,
         dateOfBirth: formData.dateOfBirth.trim() || undefined,
         address: formData.address.trim() || undefined,
-        storeIds: args.settings?.storeId ? [args.settings.storeId] : [],
+        storeIds: storeId ? [storeId] : [],
       };
       const newCustomer = await createCustomer.mutateAsync(customerData);
       args.setCustomer(newCustomer);
@@ -158,7 +161,7 @@ export function usePOSHandlers(args: UsePOSHandlersArgs) {
       }
       throw error;
     }
-  }, []);
+  }, [createCustomer, args.customerPhone, args.settings, args.setCustomer, args.setCustomerPhone, args.setCustomerNotFound, args.setShowCreateCustomerModal, user?.storeId]);
 
   // Handler: Confirm park sale (matches ParkSaleDialog prop signature)
   const confirmParkSale = useCallback(async (notes: string) => {

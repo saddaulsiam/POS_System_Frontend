@@ -10,7 +10,7 @@ import {
   RewardsGallery,
 } from "../components/loyalty";
 import { Pagination } from "../components/sales/Pagination";
-import { useSettings } from "../context";
+import { useAuth, useSettings } from "../context";
 import {
   useCreateCustomer,
   useCustomer,
@@ -34,6 +34,7 @@ interface CustomerFormData {
 
 const CustomersPage: React.FC = () => {
   const { settings } = useSettings();
+  const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -84,13 +85,14 @@ const CustomersPage: React.FC = () => {
     }
 
     try {
+      const storeId = settings?.storeId || user?.storeId;
       const customerData: CreateCustomerRequest | UpdateCustomerRequest = {
         name: formData.name.trim(),
         phoneNumber: formData.phoneNumber.trim() || undefined,
         email: formData.email.trim() || undefined,
         dateOfBirth: formData.dateOfBirth.trim() || undefined,
         address: formData.address.trim() || undefined,
-        storeIds: settings?.storeId ? [settings.storeId] : [],
+        storeIds: storeId ? [storeId] : [],
       };
 
       let updatedCustomerId: number | null = null;
