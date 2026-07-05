@@ -32,8 +32,10 @@ const CashDrawerPage: React.FC = () => {
     page,
     limit: 10,
   });
-  const drawerHistory = historyData?.drawers || [];
-  const totalPages = historyData?.pagination?.totalPages || 1;
+  const drawerHistory = historyData?.cashDrawers || [];
+  console.log(historyData);
+
+  const totalPages = historyData?.pagination?.pages || 1;
 
   const openCashDrawer = useOpenCashDrawer();
   const closeCashDrawer = useCloseCashDrawer();
@@ -341,18 +343,17 @@ const CashDrawerPage: React.FC = () => {
                   />
                   {actualCash && (
                     <p
-                      className={`mt-1 text-sm ${
-                        parseFloat(actualCash) -
-                          reconciliation.expectedCashBalance >=
+                      className={`mt-1 text-sm ${parseFloat(actualCash) -
+                        reconciliation.expectedCashBalance >=
                         0
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
+                        ? "text-green-600"
+                        : "text-red-600"
+                        }`}
                     >
                       Difference:{" "}
                       {formatCurrency(
                         parseFloat(actualCash) -
-                          reconciliation.expectedCashBalance,
+                        reconciliation.expectedCashBalance,
                         settings,
                       )}
                     </p>
@@ -406,11 +407,10 @@ const CashDrawerPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Status:</span>
                 <span
-                  className={`rounded-full px-3 py-1 text-sm font-medium ${
-                    currentDrawer
-                      ? "bg-green-100 text-green-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
+                  className={`rounded-full px-3 py-1 text-sm font-medium ${currentDrawer
+                    ? "bg-green-100 text-green-800"
+                    : "bg-gray-100 text-gray-800"
+                    }`}
                 >
                   {currentDrawer ? "Open" : "Closed"}
                 </span>
@@ -547,13 +547,12 @@ const CashDrawerPage: React.FC = () => {
                             : "-"}
                         </td>
                         <td
-                          className={`px-4 py-3 text-right text-sm font-medium ${
-                            drawer.difference === null
-                              ? "text-gray-400"
-                              : drawer.difference >= 0
-                                ? "text-green-600"
-                                : "text-red-600"
-                          }`}
+                          className={`px-4 py-3 text-right text-sm font-medium ${drawer.difference === null
+                            ? "text-gray-400"
+                            : drawer.difference >= 0
+                              ? "text-green-600"
+                              : "text-red-600"
+                            }`}
                         >
                           {drawer.difference !== null
                             ? formatCurrency(drawer.difference, settings)
@@ -561,11 +560,10 @@ const CashDrawerPage: React.FC = () => {
                         </td>
                         <td className="px-4 py-3 text-center">
                           <span
-                            className={`rounded-full px-3 py-1 text-xs font-medium ${
-                              drawer.status === "OPEN"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
+                            className={`rounded-full px-3 py-1 text-xs font-medium ${drawer.status === "OPEN"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                              }`}
                           >
                             {drawer.status}
                           </span>
