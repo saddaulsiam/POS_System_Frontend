@@ -115,6 +115,7 @@ export const POSBarcodeScanner: React.FC<POSBarcodeScannerProps> = ({
       <form onSubmit={onSubmit} className="flex space-x-2">
         <div className="relative flex-1">
           <input
+            id="barcode-input"
             ref={inputRef}
             type="text"
             name="barcode"

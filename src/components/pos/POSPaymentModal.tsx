@@ -41,6 +41,42 @@ export const POSPaymentModal: React.FC<POSPaymentModalProps> = ({
 }) => {
   const { settings } = useSettings();
 
+  // Listen to keyboard shortcuts inside the Modal
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const handleModalKeyDown = (e: KeyboardEvent) => {
+      // 1. Finalize payment on Enter
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const isCashValid = paymentMethod === "CASH" && parseFloat(cashReceived) >= total;
+        const isCardValid = paymentMethod === "CARD";
+
+        if (!isProcessing && (isCashValid || isCardValid)) {
+          onConfirm();
+        }
+        return;
+      }
+
+      // 2. Ctrl + 1: Switch to Cash
+      if (e.key === "1" && e.ctrlKey) {
+        e.preventDefault();
+        onPaymentMethodChange("CASH");
+        return;
+      }
+
+      // 3. Ctrl + 2: Switch to Card
+      if (e.key === "2" && e.ctrlKey) {
+        e.preventDefault();
+        onPaymentMethodChange("CARD");
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", handleModalKeyDown);
+    return () => window.removeEventListener("keydown", handleModalKeyDown);
+  }, [isOpen, paymentMethod, cashReceived, total, isProcessing, onConfirm, onPaymentMethodChange]);
+
   if (!isOpen) return null;
 
   return (
@@ -139,6 +175,7 @@ export const POSPaymentModal: React.FC<POSPaymentModalProps> = ({
               placeholder="0.00"
               min={total}
               fullWidth
+              autoFocus
             />
           )}
           {cashReceived && (

@@ -52,6 +52,7 @@ export const POSCustomerSearch: React.FC<POSCustomerSearchProps> = ({
           <div className="mb-3 flex space-x-2">
             <div className="flex-1">
               <Input
+                id="customer-phone-input"
                 type="tel"
                 placeholder="Enter phone number..."
                 value={customerPhone}

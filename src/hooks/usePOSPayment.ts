@@ -21,7 +21,7 @@ export function usePOSPayment({
 
   // Handler: Clear Cart
   const handleClearCart = () => {
-    if (confirm("Clear the entire cart?")) {
+    if (window.confirm("Are you sure you want to clear the entire cart?")) {
       setCart([]);
       setLoyaltyDiscount(0);
     }

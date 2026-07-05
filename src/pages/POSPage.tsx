@@ -183,6 +183,99 @@ const POSPage: FC = () => {
     return () => window.removeEventListener("online", handleOnline);
   }, []);
 
+  // Listen to keyboard shortcuts for mouse-less operation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isInputActive =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA";
+
+      // Escape: Always active (closes modal or blurs active inputs)
+      if (e.key === "Escape") {
+        if (showPaymentModal) {
+          setShowPaymentModal(false);
+          e.preventDefault();
+        } else if (isInputActive) {
+          (document.activeElement as HTMLElement).blur();
+          e.preventDefault();
+        } else if (cart.length > 0) {
+          e.preventDefault();
+          handleClearCart();
+        }
+        return;
+      }
+
+      // F-keys are always active (Global hotkeys to switch focus at any time)
+      if (e.key === "F2") {
+        e.preventDefault();
+        const scannerInput = document.getElementById("barcode-input");
+        if (scannerInput) {
+          (scannerInput as HTMLInputElement).focus();
+          (scannerInput as HTMLInputElement).select();
+        }
+        return;
+      }
+
+      if (e.key === "F3") {
+        e.preventDefault();
+        const customerInput = document.getElementById("customer-phone-input");
+        if (customerInput) {
+          (customerInput as HTMLInputElement).focus();
+          (customerInput as HTMLInputElement).select();
+        }
+        return;
+      }
+
+      // If typing in any input field, do not trigger letter shortcuts
+      if (isInputActive) return;
+
+      // 1. 's' or '/': Focus Barcode Scanner
+      if (e.key === "s" || e.key === "/") {
+        e.preventDefault();
+        const scannerInput = document.getElementById("barcode-input");
+        if (scannerInput) {
+          (scannerInput as HTMLInputElement).focus();
+          (scannerInput as HTMLInputElement).select();
+        }
+        return;
+      }
+
+      // 2. 'c': Focus Customer Phone Search
+      if (e.key === "c") {
+        e.preventDefault();
+        const customerInput = document.getElementById("customer-phone-input");
+        if (customerInput) {
+          (customerInput as HTMLInputElement).focus();
+          (customerInput as HTMLInputElement).select();
+        }
+        return;
+      }
+
+      // 3. 'p' or 'Space': Pay / Open Payment Modal
+      if (e.key === "p" || e.key === " ") {
+        e.preventDefault();
+        if (cart.length > 0) {
+          setShowPaymentModal(true);
+        } else {
+          toast.error("Cart is empty. Scan products first!");
+        }
+        return;
+      }
+
+      // 4. 'x': Clear Cart shortcut (alternative to Esc)
+      if (e.key === "x") {
+        e.preventDefault();
+        if (cart.length > 0) {
+          handleClearCart();
+        }
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [cart, showPaymentModal, handleClearCart, setShowPaymentModal]);
+
   // Fetch and update offers when customer or cart changes
   useEffect(() => {
     const updateOffers = async () => {
@@ -580,7 +673,7 @@ const POSPage: FC = () => {
         loyaltyDiscount={loyaltyDiscount}
         offerDiscount={offerDiscount}
         customer={customer}
-        // offerTitle={appliedOffer?.title || null}
+      // offerTitle={appliedOffer?.title || null}
       />
 
       {/* Split Payment Modal */}
