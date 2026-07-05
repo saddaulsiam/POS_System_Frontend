@@ -87,7 +87,7 @@ export function generateThermalReceipt(saleData: any, settings: any = {}): strin
   });
 
   receipt += "\n" + "-".repeat(width) + "\n";
-  
+
   // Totals
   receipt += formatLine("Subtotal:", `${currency}${saleData.subtotal.toFixed(2)}`, width) + "\n";
   if (saleData.loyaltyDiscount > 0) {
@@ -117,7 +117,7 @@ export function generateThermalReceipt(saleData: any, settings: any = {}): strin
 export function generateHTMLReceipt(saleData: any, settings: any = {}): string {
   const currency = settings.currencySymbol || "$";
   const receiptDate = new Date(saleData.createdAt);
-  
+
   return `
 <!DOCTYPE html>
 <html>
@@ -173,11 +173,11 @@ export function generateHTMLReceipt(saleData: any, settings: any = {}): string {
     </thead>
     <tbody>
       ${saleData.items
-        .map((item: any) => {
-          const itemName = item.variantName
-            ? `${item.productName} - ${item.variantName}`
-            : item.productName;
-          return `
+      .map((item: any) => {
+        const itemName = item.variantName
+          ? `${item.productName} - ${item.variantName}`
+          : item.productName;
+        return `
         <tr>
           <td>${itemName}</td>
           <td style="text-align: center;">${item.quantity}</td>
@@ -185,8 +185,8 @@ export function generateHTMLReceipt(saleData: any, settings: any = {}): string {
           <td style="text-align: right;">${currency}${item.subtotal.toFixed(2)}</td>
         </tr>
         `;
-        })
-        .join("")}
+      })
+      .join("")}
     </tbody>
   </table>
 
@@ -195,25 +195,23 @@ export function generateHTMLReceipt(saleData: any, settings: any = {}): string {
       <div class="totals-label">Subtotal:</div>
       <div>${currency}${saleData.subtotal.toFixed(2)}</div>
     </div>
-    ${
-      saleData.loyaltyDiscount > 0
-        ? `
+    ${saleData.loyaltyDiscount > 0
+      ? `
     <div class="totals-row">
       <div class="totals-label">Loyalty Discount:</div>
       <div>-${currency}${saleData.loyaltyDiscount.toFixed(2)}</div>
     </div>
     `
-        : ""
+      : ""
     }
-    ${
-      saleData.offerDiscount > 0
-        ? `
+    ${saleData.offerDiscount > 0
+      ? `
     <div class="totals-row">
       <div class="totals-label">Offer Discount:</div>
       <div>-${currency}${saleData.offerDiscount.toFixed(2)}</div>
     </div>
     `
-        : ""
+      : ""
     }
     <div class="totals-row">
       <div class="totals-label">Tax:</div>
