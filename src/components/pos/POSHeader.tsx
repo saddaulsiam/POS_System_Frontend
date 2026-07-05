@@ -7,12 +7,16 @@ interface POSHeaderProps {
   storeName?: string;
   user?: { name?: string; role?: string };
   onLogout: () => void;
+  pendingSyncCount?: number;
+  onSync?: () => void;
 }
 
 export const POSHeader: React.FC<POSHeaderProps> = ({
   storeName,
   user,
   onLogout,
+  pendingSyncCount = 0,
+  onSync,
 }) => (
   <header className="h-16 border-b border-gray-200 bg-white shadow-sm">
     <div className="flex h-full items-center justify-between px-4">
@@ -31,16 +35,29 @@ export const POSHeader: React.FC<POSHeaderProps> = ({
 
       {/* Right: User Info and Actions */}
       <div className="flex items-center space-x-4">
+        {/* Sync Status Badge */}
+        <div className="flex items-center">
+          {pendingSyncCount > 0 && (
+            <button
+              onClick={onSync}
+              className="flex items-center space-x-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 border border-amber-200 shadow-sm transition-all hover:bg-amber-100 hover:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 animate-pulse cursor-pointer"
+              title="Click to sync offline sales to server"
+            >
+              <span className="text-xs">🔄</span>
+              <span>{pendingSyncCount} Pending Sync</span>
+            </button>
+          )}
+        </div>
         <span className="hidden text-sm font-medium text-gray-700 sm:inline">
           Welcome, {user?.name}
         </span>
         {(user?.role === "OWNER" ||
           user?.role === "ADMIN" ||
           user?.role === "MANAGER") && (
-          <Link to="/admin">
-            <Button>Admin Panel</Button>
-          </Link>
-        )}
+            <Link to="/admin">
+              <Button>Admin Panel</Button>
+            </Link>
+          )}
         <Button
           onClick={onLogout}
           variant="ghost"

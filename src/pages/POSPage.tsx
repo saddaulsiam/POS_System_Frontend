@@ -28,6 +28,7 @@ import { useCategories, useInfiniteProducts } from "../services/queries";
 import { Product } from "../types";
 import { formatCurrency } from "../utils/currencyUtils";
 import { generateHTMLReceipt, generateThermalReceipt } from "../utils/receiptGenerator";
+import { addToOfflineQueue, getOfflineQueue, syncOfflineSales } from "../utils/offlineQueue";
 import {
   calculateChange,
   calculateSubtotal,
@@ -168,6 +169,19 @@ const POSPage: FC = () => {
   // Track offer discount and applied offer in state for UI
   const [offerDiscount, setOfferDiscount] = useState(0);
   const [appliedOffer, setAppliedOffer] = useState<any>(null);
+  const [pendingSyncCount, setPendingSyncCount] = useState(0);
+
+  // Load initial queue length and set up online listener for automatic sync
+  useEffect(() => {
+    setPendingSyncCount(getOfflineQueue().length);
+    const handleOnline = () => {
+      syncOfflineSales(setPendingSyncCount);
+    };
+    window.addEventListener("online", handleOnline);
+    // Also trigger initial sync when mounting (if online)
+    handleOnline();
+    return () => window.removeEventListener("online", handleOnline);
+  }, []);
 
   // Fetch and update offers when customer or cart changes
   useEffect(() => {
@@ -415,7 +429,19 @@ const POSPage: FC = () => {
         })
         .catch((err) => {
           console.error("Failed to sync sale to database:", err);
-          toast.error(`Database sync failed for Receipt ID: ${clientReceiptId}. Please check network connection.`, { duration: 10000 });
+          const apiError = err.response?.data;
+          const isDuplicate =
+            apiError?.details?.code === "P2002" &&
+            (apiError?.details?.meta?.target?.includes("receiptId") ||
+              apiError?.error?.includes("receiptId"));
+
+          if (isDuplicate) {
+            toast.success(`Sale synced with server! ID: ${clientReceiptId}`);
+          } else {
+            addToOfflineQueue(saleData, clientReceiptId);
+            setPendingSyncCount(getOfflineQueue().length);
+            toast.error(`Database sync failed for Receipt ID: ${clientReceiptId}. Order saved offline!`, { duration: 10000 });
+          }
         });
     } catch (error: any) {
       console.error("Error processing payment:", error);
@@ -461,6 +487,8 @@ const POSPage: FC = () => {
         storeName={settings?.storeName}
         user={user || undefined}
         onLogout={logout}
+        pendingSyncCount={pendingSyncCount}
+        onSync={() => syncOfflineSales(setPendingSyncCount)}
       />
 
       <div className="flex flex-1 overflow-hidden">
