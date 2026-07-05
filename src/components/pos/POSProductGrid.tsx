@@ -16,6 +16,7 @@ interface POSProductGridProps {
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
   onLoadMore?: () => void;
+  onLoadMoreCategories?: () => void;
 }
 
 export const POSProductGrid: React.FC<POSProductGridProps> = ({
@@ -29,6 +30,7 @@ export const POSProductGrid: React.FC<POSProductGridProps> = ({
   hasNextPage = false,
   isFetchingNextPage = false,
   onLoadMore,
+  onLoadMoreCategories,
 }) => {
   // Don't show empty state during initial loading
   if (isLoading) return <POSPageSkeleton />;
@@ -46,6 +48,7 @@ export const POSProductGrid: React.FC<POSProductGridProps> = ({
         categories={categories}
         selectedCategory={selectedCategory}
         onCategoryClick={onCategoryClick}
+        onLoadMoreCategories={onLoadMoreCategories}
       />
 
       {/* Product List Grid */}
