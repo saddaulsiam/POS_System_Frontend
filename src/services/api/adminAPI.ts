@@ -103,6 +103,7 @@ export const adminAPI = {
     page?: number;
     limit?: number;
     search?: string;
+    status?: string;
   }): Promise<{
     data: AdminStore[];
     pagination: {
@@ -174,6 +175,18 @@ export const adminAPI = {
     },
   ): Promise<{ message: string; subscription: any }> => {
     const response = await api.put(`/admin/stores/${id}/subscription`, params);
+    return response.data;
+  },
+
+  impersonateStore: async (
+    id: number,
+  ): Promise<{ token: string; refreshToken: string; user: any }> => {
+    const response = await api.post(`/admin/stores/${id}/impersonate`);
+    return response.data;
+  },
+
+  deleteStore: async (id: number): Promise<{ message: string }> => {
+    const response = await api.delete(`/admin/stores/${id}`);
     return response.data;
   },
 };

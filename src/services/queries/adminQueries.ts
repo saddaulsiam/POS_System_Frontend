@@ -19,6 +19,7 @@ export function useAdminStores(params?: {
   page?: number;
   limit?: number;
   search?: string;
+  status?: string;
 }) {
   return useQuery({
     queryKey: adminQueryKeys.stores(params),
@@ -81,6 +82,22 @@ export function useUpdateSubscription() {
       plan: string;
       endDate: string | null;
     }) => adminAPI.updateSubscription(id, { status, plan, endDate }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+  });
+}
+
+export function useImpersonateStore() {
+  return useMutation({
+    mutationFn: (id: number) => adminAPI.impersonateStore(id),
+  });
+}
+
+export function useDeleteStore() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => adminAPI.deleteStore(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
