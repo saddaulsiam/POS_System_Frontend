@@ -3,16 +3,19 @@ import { Button } from "../common";
 
 interface SubscriptionWarningModalProps {
   daysRemaining: number;
+  planType?: string | null;
   onClose: () => void;
   onPurchase: () => void;
 }
 
 export const SubscriptionWarningModal: React.FC<
   SubscriptionWarningModalProps
-> = ({ daysRemaining, onClose, onPurchase }) => {
+> = ({ daysRemaining, planType, onClose, onPurchase }) => {
   const handleDismiss = () => {
     onClose();
   };
+
+  const isTrial = !planType;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -36,25 +39,25 @@ export const SubscriptionWarningModal: React.FC<
         </div>
 
         <h2 className="mb-2 text-center text-2xl font-bold text-gray-900">
-          Trial Ending Soon
+          {isTrial ? "Trial Ending Soon" : "Subscription Ending Soon"}
         </h2>
 
         <p className="mb-6 text-center text-gray-600">
-          Your trial period will expire in{" "}
+          Your {isTrial ? "trial period" : "subscription"} will expire in{" "}
           <span className="font-bold text-yellow-600">
             {daysRemaining} day{daysRemaining !== 1 ? "s" : ""}
           </span>
-          . Purchase a subscription to continue using all features.
+          . Renew or purchase a plan to prevent system interruption.
         </p>
 
         <div className="mb-4 rounded-lg bg-yellow-50 p-4">
           <h3 className="mb-2 font-semibold text-gray-900">
-            What happens after trial expires?
+            What happens after expiration?
           </h3>
           <ul className="space-y-1 text-sm text-gray-700">
-            <li>• All features will be locked</li>
-            <li>• You won't be able to process sales</li>
-            <li>• Your data will be safe and waiting</li>
+            <li>• POS register and checkout will be locked</li>
+            <li>• Employees won't be able to log in or process sales</li>
+            <li>• Your store data and parameters remain secure</li>
           </ul>
         </div>
 

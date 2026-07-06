@@ -11,6 +11,9 @@ export interface SubscriptionStatus {
   warningShown: boolean;
   isExpired: boolean;
   isActive: boolean;
+  isGracePeriod?: boolean;
+  gracePeriodDays?: number;
+  graceDaysRemaining?: number;
 }
 
 export interface ActivateSubscriptionRequest {

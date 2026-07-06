@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Modal, SkeletonTableRow } from "../../components/common";
+import { Badge, Modal, SkeletonTableRow } from "../../components/common";
 import { Pagination } from "../../components/sales/Pagination";
 import { useAuth } from "../../context/AuthContext";
 import { AdminStore } from "../../services/api/adminAPI";
@@ -310,48 +310,78 @@ const SuperAdminStores: React.FC = () => {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <span
-                          className={`text-2xs inline-flex rounded-full px-2 py-0.5 font-bold ${
-                            subscriptionStatus === "ACTIVE"
-                              ? "bg-green-100 text-green-800"
+                        <div className="space-x-0.5">
+                          <Badge
+                            variant={
+                              subscriptionStatus === "ACTIVE"
+                                ? "success"
+                                : subscriptionStatus === "TRIAL"
+                                  ? "info"
+                                  : "danger"
+                            }
+                            rounded
+                            size="sm"
+                          >
+                            {subscriptionStatus === "ACTIVE"
+                              ? " Paid Active"
                               : subscriptionStatus === "TRIAL"
-                                ? "bg-indigo-100 text-indigo-800"
-                                : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {subscriptionStatus}
-                        </span>
-                        {store.subscription?.status === "TRIAL" && (
-                          <p className="text-2xs mt-1 text-gray-400">
-                            Ends:{" "}
-                            {new Date(
-                              store.subscription.trialEndDate,
-                            ).toLocaleDateString()}
-                          </p>
-                        )}
-                        {store.subscription?.status === "ACTIVE" &&
-                          store.subscription?.subscriptionEndDate && (
-                            <p className="text-2xs mt-1 text-gray-400">
-                              Ends:{" "}
-                              {new Date(
-                                store.subscription.subscriptionEndDate,
-                              ).toLocaleDateString()}
+                                ? " Trial Mode"
+                                : ` ${subscriptionStatus}`}
+                          </Badge>
+                          {store.subscription?.plan && (
+                            <Badge
+                              variant="default"
+                              rounded
+                              size="sm"
+                              className="uppercase"
+                            >
+                              {store.subscription.plan}
+                            </Badge>
+                          )}
+                          {store.subscription?.status === "TRIAL" && (
+                            <p className="mt-1 text-xs font-semibold text-indigo-600">
+                              Trial ends in{" "}
+                              {Math.max(
+                                0,
+                                Math.ceil(
+                                  (new Date(
+                                    store.subscription.trialEndDate,
+                                  ).getTime() -
+                                    new Date().getTime()) /
+                                    (1000 * 60 * 60 * 24),
+                                ),
+                              )}{" "}
+                              days
                             </p>
                           )}
+                          {store.subscription?.status === "ACTIVE" &&
+                            store.subscription?.subscriptionEndDate && (
+                              <p className="mt-1 text-xs font-semibold text-slate-400">
+                                Cycle Ends •{" "}
+                                {new Date(
+                                  store.subscription.subscriptionEndDate,
+                                ).toLocaleDateString()}
+                              </p>
+                            )}
+                          {store.subscription?.status === "ACTIVE" &&
+                            !store.subscription?.subscriptionEndDate && (
+                              <p className="mt-1 text-xs font-semibold text-green-600">
+                                Lifetime Active
+                              </p>
+                            )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-xs text-gray-500">
                         {new Date(store.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4">
-                        <span
-                          className={`text-2xs inline-flex rounded-full px-2 py-0.5 font-bold ${
-                            isStoreActive
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
+                        <Badge
+                          variant={isStoreActive ? "success" : "danger"}
+                          rounded
+                          size="sm"
                         >
                           {isStoreActive ? "Active" : "Suspended"}
-                        </span>
+                        </Badge>
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-center">
                         <button
@@ -369,7 +399,9 @@ const SuperAdminStores: React.FC = () => {
                                     .split("T")[0]
                                 : "",
                             );
-                            setSubGracePeriod(store.subscription?.gracePeriodDays || 0);
+                            setSubGracePeriod(
+                              store.subscription?.gracePeriodDays || 0,
+                            );
                           }}
                           className="mr-2 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-sm transition-all hover:bg-indigo-100"
                         >
@@ -479,34 +511,84 @@ const SuperAdminStores: React.FC = () => {
                       <span className="font-semibold text-gray-400">
                         Store Name:
                       </span>{" "}
-                      {selectedStore.name}
+                      <span className="font-bold text-slate-800">
+                        {selectedStore.name}
+                      </span>
                     </p>
                     <p>
                       <span className="font-semibold text-gray-400">
                         Store ID:
                       </span>{" "}
-                      #{selectedStore.id}
+                      <span className="font-mono text-slate-800">
+                        #{selectedStore.id}
+                      </span>
                     </p>
                     <p>
                       <span className="font-semibold text-gray-400">
                         Registered Date:
                       </span>{" "}
-                      {new Date(selectedStore.createdAt).toLocaleDateString()}
+                      <span className="font-medium text-slate-800">
+                        {new Date(selectedStore.createdAt).toLocaleDateString()}
+                      </span>
                     </p>
                     <p>
                       <span className="font-semibold text-gray-400">
-                        Status:
+                        Active Status:
                       </span>{" "}
-                      <span
-                        className={`text-3xs inline-flex rounded-full px-2 py-0.5 font-bold ${
-                          selectedStore.owner.isActive
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
+                      <Badge
+                        variant={
+                          selectedStore.owner.isActive ? "success" : "danger"
+                        }
+                        rounded
+                        size="sm"
                       >
                         {selectedStore.owner.isActive ? "Active" : "Suspended"}
-                      </span>
+                      </Badge>
                     </p>
+                  </div>
+                </div>
+
+                {/* SaaS Subscription Info */}
+                <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+                  <h4 className="border-b border-slate-200 pb-2 text-sm font-bold uppercase tracking-wider text-slate-800">
+                    🔁 SaaS Plan Details
+                  </h4>
+                  <div className="mt-3 grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <span className="text-2xs mb-1 block font-bold uppercase tracking-wider text-gray-400">
+                        Plan Level
+                      </span>
+                      <span className="rounded border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-bold uppercase text-indigo-700">
+                        {selectedStore.subscription?.plan || "TRIAL"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-2xs mb-1 block font-bold uppercase tracking-wider text-gray-400">
+                        Grace Period
+                      </span>
+                      <span className="border-slate-150 block rounded border bg-slate-50 px-2.5 py-1 text-center text-xs font-bold text-slate-800">
+                        {selectedStore.subscription?.gracePeriodDays || 0} days
+                        buffer
+                      </span>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-2xs mb-1 block font-bold uppercase tracking-wider text-gray-400">
+                        {selectedStore.subscription?.status === "TRIAL"
+                          ? "Trial Ends On"
+                          : "Billing Cycle Ends"}
+                      </span>
+                      <span className="text-slate-850 border-slate-150 block rounded border bg-slate-50 px-2.5 py-1 text-center text-xs font-bold">
+                        {selectedStore.subscription?.status === "TRIAL"
+                          ? new Date(
+                              selectedStore.subscription.trialEndDate,
+                            ).toLocaleDateString()
+                          : selectedStore.subscription?.subscriptionEndDate
+                            ? new Date(
+                                selectedStore.subscription.subscriptionEndDate,
+                              ).toLocaleDateString()
+                            : "Lifetime Access"}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -675,7 +757,9 @@ const SuperAdminStores: React.FC = () => {
                         min="0"
                         className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none"
                         value={subGracePeriod}
-                        onChange={(e) => setSubGracePeriod(parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          setSubGracePeriod(parseInt(e.target.value) || 0)
+                        }
                       />
                     </div>
 

@@ -60,6 +60,7 @@ export interface AdminStore {
 
 export interface AdminSubscription {
   id: number;
+  storeId: number;
   status: string;
   trialStartDate: string;
   trialEndDate: string;
