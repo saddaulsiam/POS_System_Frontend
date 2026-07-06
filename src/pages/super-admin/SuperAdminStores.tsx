@@ -12,6 +12,7 @@ import {
   useResetOwnerPin,
   useToggleStoreStatus,
   useUpdateSubscription,
+  useAdminStats,
 } from "../../services/queries/adminQueries";
 
 const SuperAdminStores: React.FC = () => {
@@ -53,6 +54,14 @@ const SuperAdminStores: React.FC = () => {
   const [subPlan, setSubPlan] = useState("");
   const [subEndDate, setSubEndDate] = useState("");
   const [subGracePeriod, setSubGracePeriod] = useState(0);
+
+  const { data: statsData } = useAdminStats();
+  const stats = statsData?.stats || {
+    totalStores: 0,
+    activeSubs: 0,
+    trialSubs: 0,
+    expiredSubs: 0,
+  };
 
   const { data, isLoading, error, isFetching, refetch } = useAdminStores({
     page,
@@ -235,6 +244,81 @@ const SuperAdminStores: React.FC = () => {
             View registered store details, check active plans, and manage
             status.
           </p>
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Total Tenants */}
+        <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Total Tenants
+            </span>
+            <span className="text-3xs border-slate-200 rounded-full border bg-slate-50 px-2 py-0.5 font-bold text-slate-600">
+              🏢 Stores
+            </span>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-slate-800">
+              {stats.totalStores}
+            </span>
+            <span className="text-xs text-slate-400">Registered</span>
+          </div>
+        </div>
+
+        {/* Paid Tenants */}
+        <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Paid Active
+            </span>
+            <span className="text-3xs border-green-150 rounded-full border bg-green-50 px-2 py-0.5 font-bold text-green-700">
+              🟢 Paid
+            </span>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-slate-800">
+              {stats.activeSubs}
+            </span>
+            <span className="text-xs text-slate-400">Stores</span>
+          </div>
+        </div>
+
+        {/* Trial Tenants */}
+        <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Trial Mode
+            </span>
+            <span className="text-3xs border-indigo-150 rounded-full border bg-indigo-50 px-2 py-0.5 font-bold text-indigo-700">
+              🧪 Testing
+            </span>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-slate-800">
+              {stats.trialSubs}
+            </span>
+            <span className="text-xs text-slate-400">Stores</span>
+          </div>
+        </div>
+
+        {/* Expired Tenants */}
+        <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Expired
+            </span>
+            <span className="text-3xs border-red-150 rounded-full border bg-red-50 px-2 py-0.5 font-bold text-red-700">
+              🔴 Inactive
+            </span>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-slate-800">
+              {stats.expiredSubs}
+            </span>
+            <span className="text-xs text-slate-400">Stores</span>
+          </div>
         </div>
       </div>
 
