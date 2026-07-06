@@ -50,7 +50,13 @@ export function useAdminSubscriptions(params?: {
   });
 }
 
-export function useAdminPayments(params?: { page?: number; limit?: number }) {
+export function useAdminPayments(params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  plan?: string;
+}) {
   return useQuery({
     queryKey: adminQueryKeys.payments(params),
     queryFn: () => adminAPI.getPayments(params),

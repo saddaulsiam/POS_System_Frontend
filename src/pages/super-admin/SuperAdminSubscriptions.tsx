@@ -7,6 +7,7 @@ import {
 import { Pagination } from "../../components/sales/Pagination";
 import { SkeletonTableRow, Modal } from "../../components/common";
 import toast from "react-hot-toast";
+import { Filter } from "lucide-react";
 
 const SuperAdminSubscriptions: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState("");
@@ -277,21 +278,29 @@ const SuperAdminSubscriptions: React.FC = () => {
 
       {/* Filter and select */}
       <div className="flex rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
-        <div className="flex items-center gap-3">
-          <label className="text-sm font-semibold text-gray-700">
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+          <label
+            htmlFor="subscription-status-filter"
+            className="whitespace-nowrap text-sm font-semibold text-gray-700"
+          >
             Filter Status:
           </label>
-          <select
-            className="rounded-lg border border-gray-300 bg-slate-50 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            value={statusFilter}
-            onChange={handleStatusFilterChange}
-          >
-            <option value="">All Statuses</option>
-            <option value="TRIAL">Trial Mode</option>
-            <option value="ACTIVE">Paid / Active</option>
-            <option value="EXPIRED">Expired</option>
-            <option value="CANCELLED">Cancelled</option>
-          </select>
+          <div className="relative w-full max-w-[125px]">
+            <select
+              id="subscription-status-filter"
+              className="block w-full appearance-none rounded-lg border border-gray-300 bg-white py-2 pl-3 pr-8 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={statusFilter}
+              onChange={handleStatusFilterChange}
+            >
+              <option value="">All Statuses</option>
+              <option value="SUCCESS">Success</option>
+              <option value="PENDING">Pending</option>
+              <option value="FAILED">Failed</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+              <Filter className="h-4 w-4 text-gray-400" />
+            </div>
+          </div>
         </div>
       </div>
 

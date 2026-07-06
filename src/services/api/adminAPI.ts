@@ -154,6 +154,9 @@ export const adminAPI = {
   getPayments: async (params?: {
     page?: number;
     limit?: number;
+    search?: string;
+    status?: string;
+    plan?: string;
   }): Promise<{
     data: AdminPayment[];
     pagination: {
