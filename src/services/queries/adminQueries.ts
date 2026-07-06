@@ -20,6 +20,9 @@ export function useAdminStores(params?: {
   limit?: number;
   search?: string;
   status?: string;
+  plan?: string;
+  sortBy?: string;
+  dateJoined?: string;
 }) {
   return useQuery({
     queryKey: adminQueryKeys.stores(params),
@@ -42,7 +45,9 @@ export function useToggleStoreStatus() {
 export function useAdminSubscriptions(params?: {
   page?: number;
   limit?: number;
+  search?: string;
   status?: string;
+  plan?: string;
 }) {
   return useQuery({
     queryKey: adminQueryKeys.subscriptions(params),

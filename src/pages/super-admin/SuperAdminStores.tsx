@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Badge, Modal, SkeletonTableRow } from "../../components/common";
 import { Pagination } from "../../components/sales/Pagination";
+import { Search, Filter, RefreshCw, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { AdminStore } from "../../services/api/adminAPI";
 import {
@@ -17,8 +18,21 @@ const SuperAdminStores: React.FC = () => {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [planFilter, setPlanFilter] = useState("");
+  const [sortBy, setSortBy] = useState("");
+  const [dateJoined, setDateJoined] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
+
+  const handleClearFilters = () => {
+    setSearch("");
+    setDebouncedSearch("");
+    setStatusFilter("");
+    setPlanFilter("");
+    setSortBy("");
+    setDateJoined("");
+    setPage(1);
+  };
 
   const { setUser } = useAuth();
 
@@ -40,11 +54,14 @@ const SuperAdminStores: React.FC = () => {
   const [subEndDate, setSubEndDate] = useState("");
   const [subGracePeriod, setSubGracePeriod] = useState(0);
 
-  const { data, isLoading, error, isFetching } = useAdminStores({
+  const { data, isLoading, error, isFetching, refetch } = useAdminStores({
     page,
     limit,
     search: debouncedSearch || undefined,
     status: statusFilter || undefined,
+    plan: planFilter || undefined,
+    sortBy: sortBy || undefined,
+    dateJoined: dateJoined || undefined,
   });
 
   const toggleStatus = useToggleStoreStatus();
@@ -222,38 +239,120 @@ const SuperAdminStores: React.FC = () => {
       </div>
 
       {/* Filter and Search */}
-      <div className="flex flex-col justify-between gap-4 rounded-xl bg-white p-4 shadow sm:flex-row sm:items-center">
-        <div className="relative max-w-md flex-1">
+      <div className="flex flex-col gap-4 rounded-xl border border-slate-100 bg-white p-4 shadow-sm xl:flex-row xl:items-center xl:justify-between">
+        <div className="relative w-full max-w-md">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <Search className="h-4 w-4 text-gray-400" />
+          </div>
           <input
             type="text"
-            className="w-full rounded-lg border border-gray-300 bg-slate-50 py-2.5 pl-10 pr-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="block w-full rounded-lg border border-gray-300 bg-slate-50 py-2 pl-10 pr-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             placeholder="Search by store name, owner, or email..."
             value={search}
             onChange={handleSearchChange}
           />
-          <span className="absolute left-3 top-3 text-lg text-gray-400">
-            🔍
-          </span>
         </div>
-        <div className="flex items-center gap-2">
-          <label className="whitespace-nowrap text-xs font-bold uppercase text-gray-500">
-            Filter Status:
-          </label>
-          <select
-            className="rounded-lg border border-gray-300 bg-slate-50 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setPage(1);
-            }}
+        <div className="flex flex-wrap gap-2">
+          {/* Status Filter */}
+          <div className="relative">
+            <select
+              className="block w-full appearance-none rounded-lg border border-gray-300 bg-slate-50 py-2 pl-3 pr-8 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">All Statuses</option>
+              <option value="TRIAL">Trial Mode</option>
+              <option value="ACTIVE">Active / Paid</option>
+              <option value="EXPIRED">Expired</option>
+              <option value="CANCELLED">Cancelled</option>
+              <option value="SUSPENDED">Suspended (Deactivated)</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+              <Filter className="h-4 w-4 text-gray-400" />
+            </div>
+          </div>
+
+          {/* Plan Filter */}
+          <div className="relative">
+            <select
+              className="block w-full appearance-none rounded-lg border border-gray-300 bg-slate-50 py-2 pl-3 pr-8 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              value={planFilter}
+              onChange={(e) => {
+                setPlanFilter(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">All Plans</option>
+              <option value="MONTHLY">Monthly</option>
+              <option value="YEARLY">Yearly</option>
+              <option value="LIFETIME">Lifetime</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+              <Filter className="h-4 w-4 text-gray-400" />
+            </div>
+          </div>
+
+          {/* Date Joined Filter */}
+          <div className="relative">
+            <select
+              className="block w-full appearance-none rounded-lg border border-gray-300 bg-slate-50 py-2 pl-3 pr-8 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              value={dateJoined}
+              onChange={(e) => {
+                setDateJoined(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">All Time</option>
+              <option value="7days">Joined Last 7 Days</option>
+              <option value="30days">Joined Last 30 Days</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+              <Filter className="h-4 w-4 text-gray-400" />
+            </div>
+          </div>
+
+          {/* Sort By */}
+          <div className="relative">
+            <select
+              className="block w-full appearance-none rounded-lg border border-gray-300 bg-slate-50 py-2 pl-3 pr-8 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">Sort By: Newest</option>
+              <option value="oldest">Sort By: Oldest</option>
+              <option value="name_asc">Name: A-Z</option>
+              <option value="name_desc">Name: Z-A</option>
+              <option value="sales_desc">Most Checkouts</option>
+              <option value="products_desc">Largest Catalog</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+              <Filter className="h-4 w-4 text-gray-400" />
+            </div>
+          </div>
+
+          {/* Reset button */}
+          <button
+            onClick={handleClearFilters}
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white p-2 text-red-500 hover:bg-red-50 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            title="Clear Filters"
           >
-            <option value="">All Statuses</option>
-            <option value="TRIAL">Trial Mode</option>
-            <option value="ACTIVE">Active / Paid</option>
-            <option value="EXPIRED">Expired</option>
-            <option value="CANCELLED">Cancelled</option>
-            <option value="SUSPENDED">Suspended (Deactivated)</option>
-          </select>
+            <X className="h-4 w-4" />
+          </button>
+          
+          {/* Refresh button */}
+          <button
+            onClick={() => refetch()}
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-slate-50 p-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            title="Refresh"
+          >
+            <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+          </button>
         </div>
       </div>
 

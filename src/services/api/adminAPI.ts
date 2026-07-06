@@ -107,6 +107,9 @@ export const adminAPI = {
     limit?: number;
     search?: string;
     status?: string;
+    plan?: string;
+    sortBy?: string;
+    dateJoined?: string;
   }): Promise<{
     data: AdminStore[];
     pagination: {
@@ -131,7 +134,9 @@ export const adminAPI = {
   getSubscriptions: async (params?: {
     page?: number;
     limit?: number;
+    search?: string;
     status?: string;
+    plan?: string;
   }): Promise<{
     data: AdminSubscription[];
     summary: {
