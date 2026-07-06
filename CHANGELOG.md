@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Vercel Routing Configuration**: Added `vercel.json` rewrite rules to handle React Router client-side routing on Vercel.
 - **Receipt Generation & POS Page Utilities**: Implemented receipt generation utilities and POS page optimizations.
 - **Real-Time Username Validation**: Implemented debounced real-time checks when adding or editing employees, giving immediate visual feedback (red border and error text) if the entered username is already taken globally.
+- **Register Page Real-Time Username Validation**: Added a public `/auth/check-username` API endpoint on the backend and implemented real-time, debounced availability checks on the public store registration page (`/register`) to warn owners immediately if their chosen username is already taken.
+- **Register Page Real-Time Email Validation**: Added a public `/auth/check-email` API endpoint on the backend and implemented real-time, debounced availability checks for the owner's email address on the public store registration page (`/register`) to warn them immediately if the email is already in use.
+- **Global Password Reveal Option**: Enhanced the base `Input` component with a secure, self-contained show/hide password toggle (eye icon) visible whenever `type="password"` is used, automatically applying to the Login page, Store Registration page, and Employee Creation PIN fields.
 
 ### Fixed
 

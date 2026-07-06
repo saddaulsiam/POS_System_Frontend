@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { authAPI } from "../services/api/authAPI";
 import { Input } from "../components/common/Input";
 import { Button } from "../components/common";
 
@@ -25,6 +26,76 @@ export default function RegisterPage() {
     storeCity: "",
     storeCountry: "",
   });
+  const [usernameError, setUsernameError] = useState("");
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+
+  // Debounced check for username availability
+  useEffect(() => {
+    const username = formData.ownerUsername.trim();
+    if (username.length < 3 || !/^[a-zA-Z0-9_]+$/.test(username)) {
+      setUsernameError("");
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsCheckingUsername(true);
+      try {
+        const res = await authAPI.checkUsername(username);
+        console.log("🔍 Owner username check response:", res);
+        if (!res.available) {
+          setUsernameError("Username is already taken.");
+        } else {
+          setUsernameError("");
+        }
+      } catch (err: any) {
+        console.error("❌ Owner username check failed:", err.response?.data || err.message);
+      } finally {
+        setIsCheckingUsername(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [formData.ownerUsername]);
+
+  // Debounced check for email availability
+  useEffect(() => {
+    const email = formData.ownerEmail.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError("");
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsCheckingEmail(true);
+      try {
+        const res = await authAPI.checkEmail(email);
+        console.log("🔍 Owner email check response:", res);
+        if (!res.available) {
+          setEmailError("Email is already registered.");
+        } else {
+          setEmailError("");
+        }
+      } catch (err: any) {
+        console.error("❌ Owner email check failed:", err.response?.data || err.message);
+      } finally {
+        setIsCheckingEmail(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [formData.ownerEmail]);
+
+  // Clear usernameError immediately on keystroke
+  useEffect(() => {
+    setUsernameError("");
+  }, [formData.ownerUsername]);
+
+  // Clear emailError immediately on keystroke
+  useEffect(() => {
+    setEmailError("");
+  }, [formData.ownerEmail]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -43,6 +114,10 @@ export default function RegisterPage() {
       toast.error("Please enter a valid email address");
       return;
     }
+    if (emailError) {
+      toast.error("Please choose a different email address");
+      return;
+    }
     if (!formData.ownerUsername.trim() || formData.ownerUsername.length < 3) {
       toast.error("Username must be at least 3 characters");
       return;
@@ -51,6 +126,10 @@ export default function RegisterPage() {
       toast.error(
         "Username can only contain letters, numbers, and underscores",
       );
+      return;
+    }
+    if (usernameError) {
+      toast.error("Please choose a different username");
       return;
     }
     if (!/^\d{4,6}$/.test(formData.ownerPin)) {
@@ -198,10 +277,11 @@ export default function RegisterPage() {
                     name="ownerEmail"
                     value={formData.ownerEmail}
                     onChange={handleChange}
+                    error={emailError}
                     required
                     fullWidth
                     placeholder="karim@example.com"
-                    helperText="Your personal email"
+                    helperText={isCheckingEmail ? "Checking availability..." : "Your personal email"}
                   />
 
                   <Input
@@ -222,11 +302,12 @@ export default function RegisterPage() {
                   name="ownerUsername"
                   value={formData.ownerUsername}
                   onChange={handleChange}
+                  error={usernameError}
                   required
                   fullWidth
                   minLength={3}
                   placeholder="karim123"
-                  helperText="Minimum 3 characters. Letters, numbers, and underscores only."
+                  helperText={isCheckingUsername ? "Checking availability..." : "Minimum 3 characters. Letters, numbers, and underscores only."}
                 />
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

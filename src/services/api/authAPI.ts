@@ -54,4 +54,18 @@ export const authAPI = {
     const response = await api.put("/profile/me", data);
     return response.data;
   },
+
+  checkUsername: async (username: string): Promise<{ available: boolean }> => {
+    const response = await api.get("/auth/check-username", {
+      params: { username },
+    });
+    return response.data;
+  },
+
+  checkEmail: async (email: string): Promise<{ available: boolean }> => {
+    const response = await api.get("/auth/check-email", {
+      params: { email },
+    });
+    return response.data;
+  },
 };
