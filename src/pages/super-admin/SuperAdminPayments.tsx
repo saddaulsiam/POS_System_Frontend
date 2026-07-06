@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useAdminPayments } from "../../services/queries/adminQueries";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { Pagination } from "../../components/sales/Pagination";
+import { SkeletonTableRow } from "../../components/common";
 
 const SuperAdminPayments: React.FC = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data, isLoading, error } = useAdminPayments({
+  const { data, isLoading, error, isFetching } = useAdminPayments({
     page,
     limit,
   });
@@ -19,15 +19,7 @@ const SuperAdminPayments: React.FC = () => {
     }).format(amount);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
-  if (error || !data) {
+  if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-red-700">
         <h3 className="text-lg font-bold">Error</h3>
@@ -36,7 +28,8 @@ const SuperAdminPayments: React.FC = () => {
     );
   }
 
-  const { data: payments, pagination } = data;
+  const payments = data?.data || [];
+  const pagination = data?.pagination || { totalPages: 1 };
 
   return (
     <div className="space-y-6">
@@ -66,7 +59,11 @@ const SuperAdminPayments: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
-              {payments.length === 0 ? (
+              {isLoading || isFetching ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <SkeletonTableRow key={index} columns={7} />
+                ))
+              ) : payments.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-10 text-center text-gray-400">
                     No payment logs recorded yet.

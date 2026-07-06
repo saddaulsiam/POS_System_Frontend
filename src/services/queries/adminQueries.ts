@@ -76,12 +76,14 @@ export function useUpdateSubscription() {
       status,
       plan,
       endDate,
+      gracePeriodDays,
     }: {
       id: number;
       status: string;
       plan: string;
       endDate: string | null;
-    }) => adminAPI.updateSubscription(id, { status, plan, endDate }),
+      gracePeriodDays?: number;
+    }) => adminAPI.updateSubscription(id, { status, plan, endDate, gracePeriodDays }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
@@ -98,6 +100,17 @@ export function useDeleteStore() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => adminAPI.deleteStore(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+  });
+}
+
+export function useExtendSubscription() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, days }: { id: number; days: number }) =>
+      adminAPI.extendSubscription(id, days),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin"] });
     },

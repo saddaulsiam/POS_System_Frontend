@@ -48,6 +48,7 @@ export interface AdminStore {
     trialEndDate: string;
     subscriptionEndDate: string | null;
     plan: string | null;
+    gracePeriodDays?: number;
   } | null;
   metrics?: {
     employeeCount: number;
@@ -65,6 +66,7 @@ export interface AdminSubscription {
   subscriptionStartDate: string | null;
   subscriptionEndDate: string | null;
   plan: string | null;
+  gracePeriodDays?: number;
   createdAt: string;
   updatedAt: string;
   store: {
@@ -131,6 +133,12 @@ export const adminAPI = {
     status?: string;
   }): Promise<{
     data: AdminSubscription[];
+    summary: {
+      totalPaid: number;
+      totalTrial: number;
+      totalExpired: number;
+      totalExpiringSoon: number;
+    };
     pagination: {
       page: number;
       limit: number;
@@ -162,7 +170,11 @@ export const adminAPI = {
     id: number,
     pinCode: string,
   ): Promise<{ message: string }> => {
-    const response = await api.put(`/admin/stores/${id}/reset-pin`, { pinCode });
+    const response = await api.put(
+      `/admin/stores/${id}/reset-pin`,
+      { pinCode },
+      { headers: { "X-Silent-Error": "true" } }
+    );
     return response.data;
   },
 
@@ -172,21 +184,45 @@ export const adminAPI = {
       status: string;
       plan: string;
       endDate: string | null;
+      gracePeriodDays?: number;
     },
   ): Promise<{ message: string; subscription: any }> => {
-    const response = await api.put(`/admin/stores/${id}/subscription`, params);
+    const response = await api.put(
+      `/admin/stores/${id}/subscription`,
+      params,
+      { headers: { "X-Silent-Error": "true" } }
+    );
     return response.data;
   },
 
   impersonateStore: async (
     id: number,
   ): Promise<{ token: string; refreshToken: string; user: any }> => {
-    const response = await api.post(`/admin/stores/${id}/impersonate`);
+    const response = await api.post(
+      `/admin/stores/${id}/impersonate`,
+      null,
+      { headers: { "X-Silent-Error": "true" } }
+    );
     return response.data;
   },
 
   deleteStore: async (id: number): Promise<{ message: string }> => {
-    const response = await api.delete(`/admin/stores/${id}`);
+    const response = await api.delete(
+      `/admin/stores/${id}`,
+      { headers: { "X-Silent-Error": "true" } }
+    );
+    return response.data;
+  },
+
+  extendSubscription: async (
+    id: number,
+    days: number,
+  ): Promise<{ message: string; subscription: any }> => {
+    const response = await api.post(
+      `/admin/subscriptions/${id}/extend`,
+      { days },
+      { headers: { "X-Silent-Error": "true" } }
+    );
     return response.data;
   },
 };

@@ -38,6 +38,7 @@ const SuperAdminStores: React.FC = () => {
   const [subStatus, setSubStatus] = useState("");
   const [subPlan, setSubPlan] = useState("");
   const [subEndDate, setSubEndDate] = useState("");
+  const [subGracePeriod, setSubGracePeriod] = useState(0);
 
   const { data, isLoading, error, isFetching } = useAdminStores({
     page,
@@ -148,6 +149,7 @@ const SuperAdminStores: React.FC = () => {
         status: subStatus,
         plan: subPlan,
         endDate: subEndDate || null,
+        gracePeriodDays: subGracePeriod,
       });
       toast.success("Subscription updated successfully");
 
@@ -156,12 +158,21 @@ const SuperAdminStores: React.FC = () => {
         prev
           ? {
               ...prev,
-              subscription: {
-                status: subStatus,
-                trialEndDate: prev.subscription?.trialEndDate || "",
-                subscriptionEndDate: subEndDate || null,
-                plan: subPlan,
-              },
+              subscription: prev.subscription
+                ? {
+                    ...prev.subscription,
+                    status: subStatus,
+                    subscriptionEndDate: subEndDate || null,
+                    plan: subPlan,
+                    gracePeriodDays: subGracePeriod,
+                  }
+                : {
+                    status: subStatus,
+                    trialEndDate: "",
+                    subscriptionEndDate: subEndDate || null,
+                    plan: subPlan,
+                    gracePeriodDays: subGracePeriod,
+                  },
             }
           : null,
       );
@@ -358,6 +369,7 @@ const SuperAdminStores: React.FC = () => {
                                     .split("T")[0]
                                 : "",
                             );
+                            setSubGracePeriod(store.subscription?.gracePeriodDays || 0);
                           }}
                           className="mr-2 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-sm transition-all hover:bg-indigo-100"
                         >
@@ -650,6 +662,20 @@ const SuperAdminStores: React.FC = () => {
                         className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none"
                         value={subEndDate}
                         onChange={(e) => setSubEndDate(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Grace Period Input */}
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600">
+                        Grace Period (Days)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none"
+                        value={subGracePeriod}
+                        onChange={(e) => setSubGracePeriod(parseInt(e.target.value) || 0)}
                       />
                     </div>
 
