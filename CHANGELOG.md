@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Released]
 
+## [1.11.0] - 2026-07-06
+
+### Added
+
+- **Multi-Store Customer Isolation**: Restricts customer list, search, and details lookups so that stores only see customers associated with their specific store.
+- **Vercel Routing Configuration**: Added `vercel.json` rewrite rules to handle React Router client-side routing on Vercel.
+- **Receipt Generation & POS Page Utilities**: Implemented receipt generation utilities and POS page optimizations.
+
+### Fixed
+
+- **POST /sales Prisma Schema Validation**: Fixed Prisma Client validation errors where the backend attempted to access `storeId`, `loyaltyPoints`, and `loyaltyTier` directly on the global `Customer` model instead of the store-specific `CustomerStore` relation.
+- **Loyalty Operations & Birthday Scheduler**: Updated points redemption, points award, tier checks, statistics calculations, and automated birthday rewards script to query and update `customerStore` records and audit transactions correctly.
+- **Points Refund on Voided Sales**: Implemented dynamic calculations to refund loyalty points from voided sales based on the recorded loyalty discount.
+
+### Changed
+
+- **Vite Bundle Splitting**: Optimized bundle splitting in Vite configuration for POS Page and layout chunks.
+
 ## [1.10.0] - 2026-02-10
 
 ### Added
