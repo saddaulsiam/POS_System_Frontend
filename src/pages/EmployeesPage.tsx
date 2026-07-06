@@ -83,7 +83,6 @@ const EmployeesPage: React.FC = () => {
       }
       setShowModal(false);
     } catch (error: any) {
-      toast.error(error.response?.data?.error || "Failed to save employee");
       throw error;
     }
   };

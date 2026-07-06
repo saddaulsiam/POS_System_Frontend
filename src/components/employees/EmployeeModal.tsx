@@ -47,6 +47,71 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     notes: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [usernameError, setUsernameError] = useState<string>("");
+  const [emailError, setEmailError] = useState<string>("");
+  const [phoneError, setPhoneError] = useState<string>("");
+  const [formError, setFormError] = useState<string>("");
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setUsernameError("");
+      setEmailError("");
+      setPhoneError("");
+      setFormError("");
+      setIsCheckingUsername(false);
+      return;
+    }
+    if (!formData.username.trim()) {
+      setUsernameError("");
+      return;
+    }
+    if (
+      editingEmployee &&
+      formData.username.trim() === editingEmployee.username
+    ) {
+      setUsernameError("");
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsCheckingUsername(true);
+      try {
+        const res = await employeesAPI.checkUsername(formData.username.trim());
+        console.log("🔍 Username check response:", res);
+        if (!res.available) {
+          setUsernameError("Username is already taken.");
+        } else {
+          setUsernameError("");
+        }
+      } catch (err: any) {
+        console.error(
+          "❌ Username check failed:",
+          err.response?.data || err.message,
+        );
+      } finally {
+        setIsCheckingUsername(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [formData.username, editingEmployee, isOpen]);
+
+  useEffect(() => {
+    setUsernameError("");
+  }, [formData.username]);
+
+  useEffect(() => {
+    setEmailError("");
+  }, [formData.email]);
+
+  useEffect(() => {
+    setPhoneError("");
+  }, [formData.phone]);
+
+  useEffect(() => {
+    setFormError("");
+  }, [formData.username, formData.email, formData.phone]);
 
   useEffect(() => {
     if (editingEmployee) {
@@ -103,8 +168,9 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (isSubmitting || usernameError || emailError || phoneError) return;
     setIsSubmitting(true);
+    setFormError("");
     try {
       let dataToSubmit: EmployeeFormData | Omit<EmployeeFormData, "pinCode">;
 
@@ -124,6 +190,17 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
           photoFile,
         );
         setPhotoPreview(res.url);
+      }
+    } catch (err: any) {
+      const errMsg = err.response?.data?.error || err.message || "";
+      if (errMsg.toLowerCase().includes("username")) {
+        setUsernameError("Username is already taken.");
+      } else if (errMsg.toLowerCase().includes("email")) {
+        setEmailError("Email is already registered.");
+      } else if (errMsg.toLowerCase().includes("phone")) {
+        setPhoneError("Phone number is already registered.");
+      } else {
+        setFormError(errMsg || "Failed to save employee");
       }
     } finally {
       setIsSubmitting(false);
@@ -185,6 +262,10 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                   name="username"
                   value={formData.username}
                   onChange={handleInputChange}
+                  error={usernameError}
+                  helperText={
+                    isCheckingUsername ? "Checking availability..." : undefined
+                  }
                   required
                   fullWidth
                   placeholder="Unique username"
@@ -223,6 +304,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
+                  error={emailError}
                   fullWidth
                   required
                   placeholder="Email address"
@@ -234,6 +316,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
+                  error={phoneError}
                   fullWidth
                   required
                   placeholder="Phone number"
@@ -327,6 +410,11 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             </div>
           </div>
         </div>
+        {formError && (
+          <div className="rounded-md border border-red-200 bg-red-50 p-3">
+            <p className="text-sm font-medium text-red-800">{formError}</p>
+          </div>
+        )}
         {/* Action Buttons */}
         <div className="flex justify-end space-x-3 border-t border-gray-200 pt-4">
           <Button

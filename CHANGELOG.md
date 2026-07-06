@@ -16,16 +16,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Multi-Store Customer Isolation**: Restricts customer list, search, and details lookups so that stores only see customers associated with their specific store.
 - **Vercel Routing Configuration**: Added `vercel.json` rewrite rules to handle React Router client-side routing on Vercel.
 - **Receipt Generation & POS Page Utilities**: Implemented receipt generation utilities and POS page optimizations.
+- **Real-Time Username Validation**: Implemented debounced real-time checks when adding or editing employees, giving immediate visual feedback (red border and error text) if the entered username is already taken globally.
 
 ### Fixed
 
 - **POST /sales Prisma Schema Validation**: Fixed Prisma Client validation errors where the backend attempted to access `storeId`, `loyaltyPoints`, and `loyaltyTier` directly on the global `Customer` model instead of the store-specific `CustomerStore` relation.
 - **Loyalty Operations & Birthday Scheduler**: Updated points redemption, points award, tier checks, statistics calculations, and automated birthday rewards script to query and update `customerStore` records and audit transactions correctly.
 - **Points Refund on Voided Sales**: Implemented dynamic calculations to refund loyalty points from voided sales based on the recorded loyalty discount.
+- **Employee Unique Username/Email Validation**: Caught Prisma unique constraint validation errors (`P2002`) during employee creation and profile updates to present friendly and clear validation messages to the user.
 
 ### Changed
 
 - **Vite Bundle Splitting**: Optimized bundle splitting in Vite configuration for POS Page and layout chunks.
+- **Inline Employee Form Error Handling**: Replaced floating error toasts with inline validation errors shown directly under the respective form inputs (Username, Email, Phone) and generic messages styled at the bottom of the modal, blocking submission until corrected.
 
 ## [1.10.0] - 2026-02-10
 

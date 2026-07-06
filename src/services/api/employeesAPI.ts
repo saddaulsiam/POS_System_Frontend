@@ -64,4 +64,11 @@ export const employeesAPI = {
     const response = await api.put(`/employees/${id}/reset-pin`, { newPin });
     return response.data;
   },
+
+  checkUsername: async (username: string): Promise<{ available: boolean }> => {
+    const response = await api.get("/employees/check-username", {
+      params: { username },
+    });
+    return response.data;
+  },
 };
