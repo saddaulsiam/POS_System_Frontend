@@ -17,3 +17,4 @@ export { reportsAPI } from "./api/reportsAPI";
 export { returnsAPI } from "./api/returnsAPI";
 export { salesAPI } from "./api/salesAPI";
 export { suppliersAPI } from "./api/suppliersAPI";
+export { adminAPI } from "./api/adminAPI";

@@ -17,3 +17,4 @@ export * from "./reportsQueries";
 export * from "./salaryQueries";
 export * from "./salesQueries";
 export * from "./settingsQueries";
+export * from "./adminQueries";

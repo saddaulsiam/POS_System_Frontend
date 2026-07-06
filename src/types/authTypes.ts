@@ -2,10 +2,10 @@ export interface User {
   id: number;
   name: string;
   username: string;
-  role: "OWNER" | "ADMIN" | "MANAGER" | "CASHIER" | "STAFF";
+  role: "OWNER" | "ADMIN" | "MANAGER" | "CASHIER" | "STAFF" | "SUPER_ADMIN";
   email: string;
   phone: string | null;
-  storeId: number;
+  storeId: number | null;
   createdAt: string;
   updatedAt: string;
 }

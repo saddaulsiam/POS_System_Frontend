@@ -37,6 +37,13 @@ const SubscriptionPurchasePage = lazy(
   () => import("./pages/SubscriptionPurchasePage"),
 );
 
+// Super Admin Layout and Pages
+const SuperAdminLayout = lazy(() => import("./components/super-admin/SuperAdminLayout"));
+const SuperAdminDashboard = lazy(() => import("./pages/super-admin/SuperAdminDashboard"));
+const SuperAdminStores = lazy(() => import("./pages/super-admin/SuperAdminStores"));
+const SuperAdminSubscriptions = lazy(() => import("./pages/super-admin/SuperAdminSubscriptions"));
+const SuperAdminPayments = lazy(() => import("./pages/super-admin/SuperAdminPayments"));
+
 const adminPaths = [
   "/admin",
   "/products",
@@ -76,6 +83,29 @@ const App: React.FC = () => {
       return <RegisterPage />;
     }
     return <LoginPage />;
+  }
+
+  // Intercept routing if the user is a platform Super Admin
+  if (user?.role === "SUPER_ADMIN") {
+    return (
+      <Suspense fallback={<LoadingSpinner size="lg" />}>
+        <SuperAdminLayout>
+          <Routes>
+            <Route path="/super-admin" element={<SuperAdminDashboard />} />
+            <Route path="/super-admin/stores" element={<SuperAdminStores />} />
+            <Route
+              path="/super-admin/subscriptions"
+              element={<SuperAdminSubscriptions />}
+            />
+            <Route
+              path="/super-admin/payments"
+              element={<SuperAdminPayments />}
+            />
+            <Route path="*" element={<Navigate to="/super-admin" replace />} />
+          </Routes>
+        </SuperAdminLayout>
+      </Suspense>
+    );
   }
 
   const isAdminPath = adminPaths.some(
