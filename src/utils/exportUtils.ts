@@ -1,6 +1,3 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-
 interface ExportTableToPDFOptions {
   title: string;
   columns: string[];
@@ -8,12 +5,24 @@ interface ExportTableToPDFOptions {
   filename?: string;
 }
 
-export function exportTableToPDF({
+export async function exportTableToPDF({
   title,
   columns,
   data,
   filename = "report.pdf",
 }: ExportTableToPDFOptions) {
+  const [{ default: jsPDF }, autoTableModule] = await Promise.all([
+    import("jspdf"),
+    import("jspdf-autotable"),
+  ]);
+
+  const autoTable =
+    (autoTableModule as any).default ?? (autoTableModule as any).autoTable;
+
+  if (!autoTable) {
+    throw new Error("Failed to load PDF table export support.");
+  }
+
   const doc = new jsPDF();
   doc.setFontSize(18);
   doc.text(title, 14, 18);
