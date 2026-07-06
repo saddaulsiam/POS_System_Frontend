@@ -1,20 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { Modal, SkeletonTableRow } from "../../components/common";
+import { Pagination } from "../../components/sales/Pagination";
+import { useAuth } from "../../context/AuthContext";
+import { AdminStore } from "../../services/api/adminAPI";
 import {
   useAdminStores,
-  useToggleStoreStatus,
+  useDeleteStore,
+  useImpersonateStore,
   useResetOwnerPin,
+  useToggleStoreStatus,
   useUpdateSubscription,
 } from "../../services/queries/adminQueries";
-import { AdminStore } from "../../services/api/adminAPI";
-import { Pagination } from "../../components/sales/Pagination";
-import { Modal, SkeletonTableRow } from "../../components/common";
 
 const SuperAdminStores: React.FC = () => {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
+
+  const { setUser } = useAuth();
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -37,11 +43,57 @@ const SuperAdminStores: React.FC = () => {
     page,
     limit,
     search: debouncedSearch || undefined,
+    status: statusFilter || undefined,
   });
 
   const toggleStatus = useToggleStoreStatus();
   const resetPinMutation = useResetOwnerPin();
   const updateSubMutation = useUpdateSubscription();
+  const impersonateMutation = useImpersonateStore();
+  const deleteMutation = useDeleteStore();
+
+  const handleImpersonate = async (storeId: number) => {
+    try {
+      const response = await impersonateMutation.mutateAsync(storeId);
+
+      // Save credentials to localStorage
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("refreshToken", response.refreshToken);
+      localStorage.setItem("user", JSON.stringify(response.user));
+
+      // Update Context
+      setUser(response.user);
+
+      toast.success(`Impersonation active: Logged in as ${response.user.name}`);
+      window.location.href = "/";
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Impersonation failed");
+    }
+  };
+
+  const handleDeleteStore = async (storeId: number) => {
+    if (!selectedStore) return;
+    const confirm1 = window.confirm(
+      "⚠️ WARNING: Are you sure you want to permanently delete this store?\n\nThis will purge all employees, sales transactions, products, and categories. This action CANNOT be undone.",
+    );
+    if (!confirm1) return;
+
+    const confirm2 = window.prompt(
+      `To confirm deletion, please type this store's name: "${selectedStore.name}"`,
+    );
+    if (confirm2 !== selectedStore.name) {
+      toast.error("Store name did not match. Deletion cancelled.");
+      return;
+    }
+
+    try {
+      await deleteMutation.mutateAsync(storeId);
+      toast.success("Store and all associated data purged successfully");
+      setSelectedStore(null);
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Failed to purge store");
+    }
+  };
 
   const handleStatusToggle = async (id: number, currentActive: boolean) => {
     const action = currentActive ? "suspend" : "activate";
@@ -159,8 +211,8 @@ const SuperAdminStores: React.FC = () => {
       </div>
 
       {/* Filter and Search */}
-      <div className="flex rounded-xl bg-white p-4 shadow">
-        <div className="relative w-full max-w-md">
+      <div className="flex flex-col justify-between gap-4 rounded-xl bg-white p-4 shadow sm:flex-row sm:items-center">
+        <div className="relative max-w-md flex-1">
           <input
             type="text"
             className="w-full rounded-lg border border-gray-300 bg-slate-50 py-2.5 pl-10 pr-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
@@ -171,6 +223,26 @@ const SuperAdminStores: React.FC = () => {
           <span className="absolute left-3 top-3 text-lg text-gray-400">
             🔍
           </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="whitespace-nowrap text-xs font-bold uppercase text-gray-500">
+            Filter Status:
+          </label>
+          <select
+            className="rounded-lg border border-gray-300 bg-slate-50 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">All Statuses</option>
+            <option value="TRIAL">Trial Mode</option>
+            <option value="ACTIVE">Active / Paid</option>
+            <option value="EXPIRED">Expired</option>
+            <option value="CANCELLED">Cancelled</option>
+            <option value="SUSPENDED">Suspended (Deactivated)</option>
+          </select>
         </div>
       </div>
 
@@ -385,34 +457,29 @@ const SuperAdminStores: React.FC = () => {
             <div className="mt-8 grid grid-cols-1 gap-6 border-t border-gray-100 pt-6 md:grid-cols-2">
               {/* Left Column: Owner & Security */}
               <div className="space-y-6">
-                <div>
+                {/* Store Profile */}
+                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
                   <h4 className="border-b border-gray-100 pb-2 text-sm font-bold uppercase tracking-wider text-gray-500">
-                    Owner Profile
+                    🏢 Store Profile
                   </h4>
-                  <div className="mt-3 space-y-2 text-sm text-gray-700">
+                  <div className="mt-3 space-y-2 text-xs text-gray-700">
                     <p>
                       <span className="font-semibold text-gray-400">
-                        Full Name:
+                        Store Name:
                       </span>{" "}
-                      {selectedStore.owner.name}
+                      {selectedStore.name}
                     </p>
                     <p>
                       <span className="font-semibold text-gray-400">
-                        Username:
+                        Store ID:
                       </span>{" "}
-                      @{selectedStore.owner.username}
+                      #{selectedStore.id}
                     </p>
                     <p>
                       <span className="font-semibold text-gray-400">
-                        Email:
+                        Registered Date:
                       </span>{" "}
-                      {selectedStore.owner.email || "No email"}
-                    </p>
-                    <p>
-                      <span className="font-semibold text-gray-400">
-                        Phone:
-                      </span>{" "}
-                      {selectedStore.owner.phone || "No phone"}
+                      {new Date(selectedStore.createdAt).toLocaleDateString()}
                     </p>
                     <p>
                       <span className="font-semibold text-gray-400">
@@ -460,78 +527,144 @@ const SuperAdminStores: React.FC = () => {
                     </button>
                   </form>
                 </div>
-              </div>
 
-              {/* Right Column: SaaS Subscription Override */}
-              <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-5">
-                <h4 className="border-b border-slate-200 pb-2 text-sm font-bold uppercase tracking-wider text-slate-800">
-                  🔁 Subscription Settings
-                </h4>
-                <p className="text-2xs mt-1 text-gray-500">
-                  Manually adjust subscription levels and date lifecycles.
-                </p>
-
-                <form
-                  onSubmit={handleUpdateSubSubmit}
-                  className="mt-4 space-y-4"
-                >
-                  {/* Status Toggle */}
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600">
-                      Subscription Status
-                    </label>
-                    <select
-                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none"
-                      value={subStatus}
-                      onChange={(e) => setSubStatus(e.target.value)}
-                    >
-                      <option value="TRIAL">Trial Mode</option>
-                      <option value="ACTIVE">Active / Paid</option>
-                      <option value="EXPIRED">Expired</option>
-                      <option value="CANCELLED">Cancelled</option>
-                    </select>
-                  </div>
-
-                  {/* Plan Selection */}
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600">
-                      Plan Type
-                    </label>
-                    <select
-                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none"
-                      value={subPlan}
-                      onChange={(e) => setSubPlan(e.target.value)}
-                    >
-                      <option value="MONTHLY">Monthly Billing</option>
-                      <option value="YEARLY">Yearly Billing</option>
-                      <option value="LIFETIME">Lifetime Billing</option>
-                    </select>
-                  </div>
-
-                  {/* End Date Input */}
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600">
-                      Expiration Date (Optional)
-                    </label>
-                    <input
-                      type="date"
-                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none"
-                      value={subEndDate}
-                      onChange={(e) => setSubEndDate(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Submit Override */}
-                  <div className="pt-2 text-right">
+                {/* Danger Zone: Purge Store */}
+                <div className="rounded-xl border border-red-200 bg-red-50/50 p-4 shadow-sm">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-red-700">
+                    ⚠️ Danger Zone
+                  </h4>
+                  <p className="text-2xs mt-1 text-gray-500">
+                    Permanently delete this store and all associated sales
+                    transactions, products, and employees.
+                  </p>
+                  <div className="mt-3">
                     <button
-                      type="submit"
-                      disabled={updateSubMutation.isPending}
-                      className="rounded-lg bg-indigo-600 px-5 py-2 text-xs font-bold text-white shadow transition-colors hover:bg-indigo-700 disabled:opacity-50"
+                      onClick={() => handleDeleteStore(selectedStore.id)}
+                      disabled={deleteMutation.isPending}
+                      className="w-full rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white shadow transition-colors hover:bg-red-700 disabled:opacity-50"
                     >
-                      Save Override
+                      🗑️ Purge Store Data
                     </button>
                   </div>
-                </form>
+                </div>
+              </div>
+
+              {/* Right Column: Owner & SaaS Subscription Settings */}
+              <div className="space-y-6">
+                {/* Owner Profile */}
+                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="border-b border-gray-100 pb-2 text-sm font-bold uppercase tracking-wider text-gray-500">
+                      👤 Owner Profile
+                    </h4>
+                    <button
+                      onClick={() => handleImpersonate(selectedStore.id)}
+                      disabled={impersonateMutation.isPending}
+                      className="gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-sm transition-all hover:bg-indigo-100"
+                    >
+                      👤 Login As Owner
+                    </button>
+                  </div>
+
+                  <div className="mt-3 space-y-2 text-xs text-gray-700">
+                    <p>
+                      <span className="font-semibold text-gray-400">
+                        Full Name:
+                      </span>{" "}
+                      {selectedStore.owner.name}
+                    </p>
+                    <p>
+                      <span className="font-semibold text-gray-400">
+                        Username:
+                      </span>{" "}
+                      @{selectedStore.owner.username}
+                    </p>
+                    <p>
+                      <span className="font-semibold text-gray-400">
+                        Email:
+                      </span>{" "}
+                      {selectedStore.owner.email || "No email"}
+                    </p>
+                    <p>
+                      <span className="font-semibold text-gray-400">
+                        Phone:
+                      </span>{" "}
+                      {selectedStore.owner.phone || "No phone"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* SaaS Subscription Override */}
+                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-5">
+                  <h4 className="border-b border-slate-200 pb-2 text-sm font-bold uppercase tracking-wider text-slate-800">
+                    🔁 Subscription Settings
+                  </h4>
+                  <p className="text-2xs mt-1 text-gray-500">
+                    Manually adjust subscription levels and date lifecycles.
+                  </p>
+
+                  <form
+                    onSubmit={handleUpdateSubSubmit}
+                    className="mt-4 space-y-4"
+                  >
+                    {/* Status Toggle */}
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600">
+                        Subscription Status
+                      </label>
+                      <select
+                        className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none"
+                        value={subStatus}
+                        onChange={(e) => setSubStatus(e.target.value)}
+                      >
+                        <option value="TRIAL">Trial Mode</option>
+                        <option value="ACTIVE">Active / Paid</option>
+                        <option value="EXPIRED">Expired</option>
+                        <option value="CANCELLED">Cancelled</option>
+                      </select>
+                    </div>
+
+                    {/* Plan Selection */}
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600">
+                        Plan Type
+                      </label>
+                      <select
+                        className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none"
+                        value={subPlan}
+                        onChange={(e) => setSubPlan(e.target.value)}
+                      >
+                        <option value="MONTHLY">Monthly Billing</option>
+                        <option value="YEARLY">Yearly Billing</option>
+                        <option value="LIFETIME">Lifetime Billing</option>
+                      </select>
+                    </div>
+
+                    {/* End Date Input */}
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600">
+                        Expiration Date (Optional)
+                      </label>
+                      <input
+                        type="date"
+                        className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none"
+                        value={subEndDate}
+                        onChange={(e) => setSubEndDate(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Submit Override */}
+                    <div className="pt-2 text-right">
+                      <button
+                        type="submit"
+                        disabled={updateSubMutation.isPending}
+                        className="rounded-lg bg-indigo-600 px-5 py-2 text-xs font-bold text-white shadow transition-colors hover:bg-indigo-700 disabled:opacity-50"
+                      >
+                        Save Override
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
