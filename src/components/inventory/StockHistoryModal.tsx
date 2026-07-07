@@ -76,6 +76,9 @@ export const StockHistoryModal: React.FC<StockHistoryModalProps> = ({
                     Type
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">
+                    Product / Variant
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">
                     Qty
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">
@@ -92,7 +95,16 @@ export const StockHistoryModal: React.FC<StockHistoryModalProps> = ({
                     <td className="px-4 py-2 text-gray-700">
                       {m.movementType}
                     </td>
-                    <td className="px-4 py-2 text-gray-900">{m.quantity}</td>
+                    <td className="px-4 py-2 text-gray-700">
+                      {m.productVariant ? (
+                        <span className="rounded bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-xs text-indigo-700 font-semibold font-mono">
+                          Variant: {m.productVariant.name}
+                        </span>
+                      ) : (
+                        <span className="text-gray-500 text-xs">Main Product</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 text-gray-900 font-bold">{m.quantity}</td>
                     <td className="px-4 py-2 text-gray-600">
                       {m.reason || "-"}
                     </td>

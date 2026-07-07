@@ -4,6 +4,7 @@ export const inventoryAPI = {
   updateStock: async (
     productId: number,
     data: {
+      productVariantId?: number;
       quantity: number;
       movementType:
         | "PURCHASE"

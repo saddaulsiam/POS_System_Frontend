@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Product } from "../../types";
+import { Product, ProductVariant } from "../../types";
 import { Button, Modal } from "../common";
 
 type AllowedMovementType =
@@ -20,6 +20,7 @@ const movementTypes: { label: string; value: AllowedMovementType }[] = [
 interface StockAdjustModalProps {
   isOpen: boolean;
   product: Product | null;
+  variant?: ProductVariant | null;
   onClose: () => void;
   onSubmit: (data: {
     quantity: number;
@@ -32,6 +33,7 @@ interface StockAdjustModalProps {
 export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
   isOpen,
   product,
+  variant,
   onClose,
   onSubmit,
   loading = false,
@@ -92,8 +94,18 @@ export const StockAdjustModal: React.FC<StockAdjustModalProps> = ({
             </svg>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Adjust Stock</h2>
-            <p className="text-sm text-gray-600">{product.name}</p>
+            <h2 className="text-xl font-bold text-gray-900">
+              {variant ? "Adjust Variant Stock" : "Adjust Stock"}
+            </h2>
+            <p className="text-sm text-gray-600">
+              {product.name}
+              {variant && (
+                <span>
+                  {" — "}
+                  <span className="font-semibold text-indigo-600">{variant.name}</span>
+                </span>
+              )}
+            </p>
           </div>
         </div>
       }

@@ -23,6 +23,7 @@ export interface StockMovement {
   reference?: string;
   product?: Product;
   productVariantId?: number;
+  productVariant?: any;
   fromLocation?: string;
   toLocation?: string;
   createdBy?: number;
