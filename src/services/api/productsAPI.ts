@@ -128,8 +128,17 @@ export const productsAPI = {
     return response.data;
   },
 
-  getBarcodeImage: (id: number): string => {
-    return `/api/products/${id}/barcode`;
+  getBarcodeImage: async (id: number): Promise<string> => {
+    const response = await api.get(`/products/${id}/barcode`, {
+      responseType: "blob",
+    });
+
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(String(reader.result || ""));
+      reader.onerror = () => reject(new Error("Failed to read barcode image"));
+      reader.readAsDataURL(response.data);
+    });
   },
 
   regenerateBarcode: async (id: number): Promise<Product> => {
