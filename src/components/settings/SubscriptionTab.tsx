@@ -13,6 +13,24 @@ const SubscriptionTab: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [trialCode, setTrialCode] = useState("");
+  const [applyingCode, setApplyingCode] = useState(false);
+
+  const handleApplyTrialCode = async () => {
+    if (!trialCode.trim()) return;
+    setApplyingCode(true);
+    try {
+      const { adminAPI } = await import("../../services/api/adminAPI");
+      const response = await adminAPI.applyTrialPromo(trialCode.trim());
+      toast.success(response.message || "Promo applied successfully!");
+      setTrialCode("");
+      fetchSubscription();
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Invalid or expired promo code");
+    } finally {
+      setApplyingCode(false);
+    }
+  };
 
   useEffect(() => {
     fetchSubscription();
@@ -269,6 +287,35 @@ const SubscriptionTab: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Apply Trial Promo Code */}
+      {(subscription.status === "TRIAL" || subscription.status === "EXPIRED") && (
+        <div className="rounded-lg bg-white p-6 shadow-sm border border-slate-200/60">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-2">
+            🎟️ Redeem Promo Code
+          </h3>
+          <p className="text-xs text-gray-500 mb-4">
+            Have a trial extension code? Apply it below to extend your free trial instantly.
+          </p>
+          <div className="flex gap-2 max-w-md">
+            <input
+              type="text"
+              placeholder="e.g. FREE30"
+              value={trialCode}
+              onChange={(e) => setTrialCode(e.target.value.toUpperCase())}
+              className="block flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+            />
+            <button
+              type="button"
+              disabled={applyingCode || !trialCode.trim()}
+              onClick={handleApplyTrialCode}
+              className="rounded-lg bg-indigo-600 px-5 py-2 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {applyingCode ? "Applying..." : "Apply Code"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="rounded-lg bg-white p-6 shadow-sm">

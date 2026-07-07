@@ -273,7 +273,62 @@ export const adminAPI = {
     const response = await api.post("/admin/settings/test-smtp", settings);
     return response.data;
   },
+
+  getPromoCodes: async (): Promise<PromoCode[]> => {
+    const response = await api.get("/promo");
+    return response.data.data;
+  },
+
+  createPromoCode: async (promo: Partial<PromoCode>): Promise<PromoCode> => {
+    const response = await api.post("/promo", promo);
+    return response.data.data;
+  },
+
+  togglePromoCode: async (id: number): Promise<PromoCode> => {
+    const response = await api.put(`/promo/${id}/toggle`);
+    return response.data.data;
+  },
+
+  deletePromoCode: async (id: number): Promise<PromoCode> => {
+    const response = await api.delete(`/promo/${id}`);
+    return response.data.data;
+  },
+
+  validatePromoCode: async (params: {
+    code: string;
+    plan: string;
+  }): Promise<{
+    id: number;
+    code: string;
+    type: string;
+    value: number;
+    originalAmount: number;
+    discountAmount: number;
+    extendedTrialDays: number;
+    finalAmount: number;
+  }> => {
+    const response = await api.post("/promo/validate", params);
+    return response.data.data;
+  },
+
+  applyTrialPromo: async (code: string): Promise<any> => {
+    const response = await api.post("/promo/apply-trial-promo", { code });
+    return response.data;
+  },
 };
+
+export interface PromoCode {
+  id: number;
+  code: string;
+  type: string;
+  value: number;
+  maxUses: number | null;
+  usedCount: number;
+  expiresAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface SystemSettings {
   id: number;

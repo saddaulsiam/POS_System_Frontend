@@ -33,6 +33,11 @@ const adminLinks = [
     label: "Broadcaster",
     icon: "📢",
   },
+  {
+    to: "/super-admin/promo",
+    label: "Promo Codes",
+    icon: "🎟️",
+  },
 ];
 
 interface SuperAdminLayoutProps {

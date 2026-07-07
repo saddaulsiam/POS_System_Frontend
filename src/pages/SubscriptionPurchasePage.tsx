@@ -6,7 +6,7 @@ import { useSubscription } from "../context/SubscriptionContext";
 import { subscriptionAPI } from "../services/subscriptionAPI";
 import { POSHeader } from "../components/pos";
 import { useAuth, useSettings } from "../context";
-import { usePublicSettings } from "../services/queries/adminQueries";
+import { usePublicSettings, useValidatePromoCode } from "../services/queries/adminQueries";
 
 export default function SubscriptionPurchasePage() {
   const { settings } = useSettings();
@@ -18,6 +18,46 @@ export default function SubscriptionPurchasePage() {
     "YEARLY",
   );
   const [loading, setLoading] = useState(false);
+
+  // Promo Code States
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponError, setCouponError] = useState("");
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+
+  const validatePromoMutation = useValidatePromoCode();
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setValidatingCoupon(true);
+    setCouponError("");
+    try {
+      const result = await validatePromoMutation.mutateAsync({
+        code: couponCode.trim(),
+        plan: billingCycle,
+      });
+
+      if (result.type === "TRIAL_EXTENSION") {
+        setCouponError("This trial extension coupon is only valid for trial signups, not billing checkout.");
+        setAppliedCoupon(null);
+      } else {
+        setAppliedCoupon(result);
+        toast.success(`Coupon applied! You saved $${result.discountAmount.toFixed(2)}.`);
+      }
+    } catch (err: any) {
+      setCouponError(err.response?.data?.error || "Invalid coupon code");
+      setAppliedCoupon(null);
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
+
+  // Reset coupon if billingCycle toggled
+  useEffect(() => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError("");
+  }, [billingCycle]);
   const [paymentStatus, setPaymentStatus] = useState<{
     type: "success" | "failed" | "cancelled" | "error" | null;
     message: string;
@@ -129,12 +169,15 @@ export default function SubscriptionPurchasePage() {
       }
 
       // Prepare payment data
+      const finalAmount = appliedCoupon ? appliedCoupon.finalAmount : (isYearly ? yearlyBillAmount : price);
+      
       const paymentData = {
         plan: billingCycle,
-        amount: isYearly ? yearlyBillAmount : price,
+        amount: finalAmount,
         customerName: user.name,
         customerEmail: user.email,
         customerPhone: user.phone || "",
+        couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         platform: (window.electron ? "electron" : "web") as "electron" | "web", // Detect if running in Electron
       };
 
@@ -411,9 +454,67 @@ export default function SubscriptionPurchasePage() {
                     </p>
                   )}
                 </div>
+              {/* Coupon Code Section */}
+              <div className="mt-6 border-t border-slate-200/50 pt-5 space-y-3 text-left">
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide">
+                  Promo / Coupon Code
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    disabled={!!appliedCoupon || validatingCoupon}
+                    placeholder="e.g. WELCOME50"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    className="block flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                  />
+                  {appliedCoupon ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAppliedCoupon(null);
+                        setCouponCode("");
+                      }}
+                      className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100"
+                    >
+                      Remove
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={validatingCoupon || !couponCode.trim()}
+                      onClick={handleApplyCoupon}
+                      className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-50"
+                    >
+                      {validatingCoupon ? "⏳" : "Apply"}
+                    </button>
+                  )}
+                </div>
+                {couponError && (
+                  <p className="text-xs font-semibold text-red-600">{couponError}</p>
+                )}
+                
+                {/* Promo calculation details */}
+                {appliedCoupon && (
+                  <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-3 text-xs space-y-1 font-semibold text-emerald-800">
+                    <div className="flex justify-between">
+                      <span>Subtotal:</span>
+                      <span className="line-through text-slate-400">${appliedCoupon.originalAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-emerald-700">
+                      <span>Discount ({appliedCoupon.type === "PERCENTAGE" ? `${appliedCoupon.value}%` : "Fixed"}):</span>
+                      <span>-${appliedCoupon.discountAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between border-t border-emerald-200 pt-1.5 font-extrabold text-slate-900">
+                      <span>Final Price:</span>
+                      <span>${appliedCoupon.finalAmount.toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
               </div>
+            </div>
 
-              <div className="mt-8">
+            <div className="mt-8">
                 <Button
                   fullWidth
                   variant="primary"

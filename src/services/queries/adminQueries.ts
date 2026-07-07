@@ -8,6 +8,7 @@ export const adminQueryKeys = {
   payments: (params?: any) => ["admin", "payments", params] as const,
   settings: () => ["admin", "settings"] as const,
   publicSettings: () => ["public", "settings"] as const,
+  promoCodes: () => ["admin", "promoCodes"] as const,
 };
 
 export function useAdminStats() {
@@ -181,5 +182,60 @@ export function useTestSmtpConnection() {
       smtpUser: string;
       smtpPass: string;
     }) => adminAPI.testSmtpConnection(settings),
+  });
+}
+
+export function useAdminPromoCodes() {
+  return useQuery({
+    queryKey: adminQueryKeys.promoCodes(),
+    queryFn: () => adminAPI.getPromoCodes(),
+  });
+}
+
+export function useCreatePromoCode() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (promo: any) => adminAPI.createPromoCode(promo),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.promoCodes() });
+    },
+  });
+}
+
+export function useTogglePromoCode() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => adminAPI.togglePromoCode(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.promoCodes() });
+    },
+  });
+}
+
+export function useDeletePromoCode() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => adminAPI.deletePromoCode(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.promoCodes() });
+    },
+  });
+}
+
+export function useValidatePromoCode() {
+  return useMutation({
+    mutationFn: (params: { code: string; plan: string }) =>
+      adminAPI.validatePromoCode(params),
+  });
+}
+
+export function useApplyTrialPromo() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (code: string) => adminAPI.applyTrialPromo(code),
+    onSuccess: () => {
+      // Invalidate active tenant subscriptions
+      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+    },
   });
 }
