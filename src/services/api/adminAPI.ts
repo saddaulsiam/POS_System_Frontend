@@ -182,7 +182,7 @@ export const adminAPI = {
     const response = await api.put(
       `/admin/stores/${id}/reset-pin`,
       { pinCode },
-      { headers: { "X-Silent-Error": "true" } }
+      { headers: { "X-Silent-Error": "true" } },
     );
     return response.data;
   },
@@ -196,30 +196,25 @@ export const adminAPI = {
       gracePeriodDays?: number;
     },
   ): Promise<{ message: string; subscription: any }> => {
-    const response = await api.put(
-      `/admin/stores/${id}/subscription`,
-      params,
-      { headers: { "X-Silent-Error": "true" } }
-    );
+    const response = await api.put(`/admin/stores/${id}/subscription`, params, {
+      headers: { "X-Silent-Error": "true" },
+    });
     return response.data;
   },
 
   impersonateStore: async (
     id: number,
   ): Promise<{ token: string; refreshToken: string; user: any }> => {
-    const response = await api.post(
-      `/admin/stores/${id}/impersonate`,
-      null,
-      { headers: { "X-Silent-Error": "true" } }
-    );
+    const response = await api.post(`/admin/stores/${id}/impersonate`, null, {
+      headers: { "X-Silent-Error": "true" },
+    });
     return response.data;
   },
 
   deleteStore: async (id: number): Promise<{ message: string }> => {
-    const response = await api.delete(
-      `/admin/stores/${id}`,
-      { headers: { "X-Silent-Error": "true" } }
-    );
+    const response = await api.delete(`/admin/stores/${id}`, {
+      headers: { "X-Silent-Error": "true" },
+    });
     return response.data;
   },
 
@@ -230,7 +225,7 @@ export const adminAPI = {
     const response = await api.post(
       `/admin/subscriptions/${id}/extend`,
       { days },
-      { headers: { "X-Silent-Error": "true" } }
+      { headers: { "X-Silent-Error": "true" } },
     );
     return response.data;
   },
@@ -240,7 +235,9 @@ export const adminAPI = {
     return response.data;
   },
 
-  updateSystemSettings: async (settings: Partial<SystemSettings>): Promise<SystemSettings> => {
+  updateSystemSettings: async (
+    settings: Partial<SystemSettings>,
+  ): Promise<SystemSettings> => {
     const response = await api.put("/admin/settings", settings);
     return response.data;
   },
@@ -254,7 +251,11 @@ export const adminAPI = {
     subject: string;
     body: string;
     targetAudience: string;
-  }): Promise<{ totalRecipients: number; successCount: number; failCount: number }> => {
+  }): Promise<{
+    totalRecipients: number;
+    successCount: number;
+    failCount: number;
+  }> => {
     const response = await api.post("/admin/broadcast", params);
     return response.data;
   },
@@ -276,22 +277,30 @@ export const adminAPI = {
 
   getPromoCodes: async (): Promise<PromoCode[]> => {
     const response = await api.get("/promo");
-    return response.data.data;
+    return response.data;
   },
 
   createPromoCode: async (promo: Partial<PromoCode>): Promise<PromoCode> => {
     const response = await api.post("/promo", promo);
-    return response.data.data;
+    return response.data;
+  },
+
+  updatePromoCode: async (
+    id: number,
+    promo: Partial<PromoCode>,
+  ): Promise<PromoCode> => {
+    const response = await api.put(`/promo/${id}`, promo);
+    return response.data;
   },
 
   togglePromoCode: async (id: number): Promise<PromoCode> => {
     const response = await api.put(`/promo/${id}/toggle`);
-    return response.data.data;
+    return response.data;
   },
 
   deletePromoCode: async (id: number): Promise<PromoCode> => {
     const response = await api.delete(`/promo/${id}`);
-    return response.data.data;
+    return response.data;
   },
 
   validatePromoCode: async (params: {
@@ -308,7 +317,7 @@ export const adminAPI = {
     finalAmount: number;
   }> => {
     const response = await api.post("/promo/validate", params);
-    return response.data.data;
+    return response.data;
   },
 
   applyTrialPromo: async (code: string): Promise<any> => {
@@ -322,6 +331,7 @@ export interface PromoCode {
   code: string;
   type: string;
   value: number;
+  applicablePlan: string;
   maxUses: number | null;
   usedCount: number;
   expiresAt: string | null;

@@ -163,8 +163,11 @@ export function usePublicSettings() {
 
 export function useBroadcastAnnouncements() {
   return useMutation({
-    mutationFn: (params: { subject: string; body: string; targetAudience: string }) =>
-      adminAPI.broadcastAnnouncements(params),
+    mutationFn: (params: {
+      subject: string;
+      body: string;
+      targetAudience: string;
+    }) => adminAPI.broadcastAnnouncements(params),
   });
 }
 
@@ -196,6 +199,17 @@ export function useCreatePromoCode() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (promo: any) => adminAPI.createPromoCode(promo),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.promoCodes() });
+    },
+  });
+}
+
+export function useUpdatePromoCode() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, promo }: { id: number; promo: any }) =>
+      adminAPI.updatePromoCode(id, promo),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminQueryKeys.promoCodes() });
     },
