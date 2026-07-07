@@ -104,8 +104,19 @@ export const printBarcodeLabel = (
   const showPrice = options.showPrice ?? true;
   const showBarcodeText = options.showBarcodeText ?? true;
 
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) return;
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "absolute";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "none";
+  iframe.style.visibility = "hidden";
+  document.body.appendChild(iframe);
+
+  const iframeWindow = iframe.contentWindow;
+  if (!iframeWindow) {
+    document.body.removeChild(iframe);
+    return;
+  }
 
   const renderDocument = (barcodeImageSrc: string) => {
     const labels = Array.from(
@@ -127,7 +138,7 @@ export const printBarcodeLabel = (
 
     const sheetClass = config.isSheet ? "sheet-layout" : "thermal-layout";
 
-    printWindow.document.write(`
+    iframeWindow.document.write(`
         <!DOCTYPE html>
         <html>
           <head>
@@ -297,7 +308,8 @@ export const printBarcodeLabel = (
                 function triggerPrint() {
                   setTimeout(() => {
                     window.print();
-                    setTimeout(() => window.close(), 100);
+                    // Signal to parent window to remove the iframe
+                    window.parent.postMessage('print-complete', '*');
                   }, 250);
                 }
 
@@ -333,8 +345,28 @@ export const printBarcodeLabel = (
           </body>
         </html>
       `);
-    printWindow.document.close();
+    iframeWindow.document.close();
   };
+
+  const cleanup = () => {
+    try {
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
+    } catch {}
+    window.removeEventListener("message", handleMessage);
+  };
+
+  const handleMessage = (event: MessageEvent) => {
+    if (event.data === "print-complete") {
+      cleanup();
+    }
+  };
+
+  window.addEventListener("message", handleMessage);
+
+  // Safety cleanup timeout
+  setTimeout(cleanup, 60000);
 
   void productsAPI
     .getBarcodeImage(product.id)
