@@ -131,6 +131,7 @@ export const productsAPI = {
   getBarcodeImage: async (id: number): Promise<string> => {
     const response = await api.get(`/products/${id}/barcode`, {
       responseType: "blob",
+      params: { t: Date.now() },
     });
 
     return await new Promise<string>((resolve, reject) => {
