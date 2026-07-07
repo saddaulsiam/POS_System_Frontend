@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Released]
 
+## [1.12.0] - 2026-07-08
+
+### Added
+
+- **SuperAdmin Dashboard & Management Panels**: Added dedicated administration panels for managing Payments, Stores, and Subscriptions. This includes store impersonation, soft deletion, advanced search filters, and custom loading skeletons.
+- **Promo Codes System**: Created a Promo Codes management dashboard where administrators can create, edit, toggle status, and delete discount/promotional codes. Integrated the promo code validation and checkout logic in the store subscription flow.
+- **SuperAdmin Broadcaster**: Developed an email broadcast system featuring customizable rich templates, audience targeting, and real-time recipient list calculations.
+- **SuperAdmin System Settings**: Implemented a global POS configurations manager allowing administrators to view and update system-wide configurations.
+- **Product Variant Management**: Developed database schemas, backend services, and a comprehensive frontend manager for creating, updating, and deleting multi-attribute product variants.
+- **Inventory Tracking & Adjustment Module**: Built real-time inventory tracking tools, including audit history logs and interactive modal popups for quick stock adjustments.
+- **Barcode Label & Price Sticker Generator**: Added support for printing custom product and variant price tags with multiple size options (Thermal `40x30`, `50x30`, `60x40`, and A4 `3x8` sheets). Includes option toggles for product name, SKU, price, and barcode text, and features a border outline surrounding the barcode on the printed label to match the preview design.
+
+### Fixed
+
+- **SuperAdmin Layout & UI Polish**: Enhanced Layout templates, adjusted action icon sizing inside table actions, and integrated direct admin sign-out and settings navigation.
+
 ## [1.11.0] - 2026-07-06
 
 ### Added
