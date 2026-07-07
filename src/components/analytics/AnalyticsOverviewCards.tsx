@@ -31,11 +31,10 @@ export const AnalyticsOverviewCards: React.FC<AnalyticsOverviewCardsProps> = ({
           </svg>
           {overviewData.growth.revenue !== 0 && (
             <div
-              className={`flex items-center text-sm ${
-                overviewData.growth.revenue > 0
-                  ? "text-green-200"
-                  : "text-red-200"
-              }`}
+              className={`flex items-center text-sm ${overviewData.growth.revenue > 0
+                ? "text-green-200"
+                : "text-red-200"
+                }`}
             >
               {overviewData.growth.revenue > 0 ? (
                 <svg
@@ -98,11 +97,10 @@ export const AnalyticsOverviewCards: React.FC<AnalyticsOverviewCardsProps> = ({
           </svg>
           {overviewData.growth.sales !== 0 && (
             <div
-              className={`flex items-center text-sm ${
-                overviewData.growth.sales > 0
-                  ? "text-green-200"
-                  : "text-red-200"
-              }`}
+              className={`flex items-center text-sm ${overviewData.growth.sales > 0
+                ? "text-green-200"
+                : "text-red-200"
+                }`}
             >
               {overviewData.growth.sales > 0 ? (
                 <svg
