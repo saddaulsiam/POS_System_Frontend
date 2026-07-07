@@ -228,7 +228,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                         product.stockQuantity <= product.lowStockThreshold
                           ? "danger"
                           : product.stockQuantity <=
-                              product.lowStockThreshold * 2
+                            product.lowStockThreshold * 2
                             ? "warning"
                             : "success"
                       }
@@ -366,11 +366,10 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                         </button>
                         <button
                           onClick={() => onToggleStatus(product)}
-                          className={`rounded-lg p-2 transition-colors ${
-                            product.isActive
-                              ? "text-green-600 hover:bg-green-50"
-                              : "text-gray-600 hover:bg-gray-50"
-                          }`}
+                          className={`rounded-lg p-2 transition-colors ${product.isActive
+                            ? "text-green-600 hover:bg-green-50"
+                            : "text-gray-600 hover:bg-gray-50"
+                            }`}
                           title={product.isActive ? "Deactivate" : "Activate"}
                         >
                           <svg

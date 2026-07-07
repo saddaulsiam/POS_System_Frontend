@@ -27,4 +27,17 @@ export const productVariantsAPI = {
       })
     ).data;
   },
+  getBarcodeImage: async (id: number): Promise<string> => {
+    const response = await api.get(`/product-variants/${id}/barcode`, {
+      responseType: "blob",
+      params: { t: Date.now() },
+    });
+
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(String(reader.result || ""));
+      reader.onerror = () => reject(new Error("Failed to read barcode image"));
+      reader.readAsDataURL(response.data);
+    });
+  },
 };

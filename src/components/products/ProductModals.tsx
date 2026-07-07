@@ -379,20 +379,10 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
 
               <div className="w-full rounded-xl border border-slate-900/10 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
                 {showProductName && (
-                  <div className="text-center text-[13px] font-black uppercase tracking-wide text-slate-900">
+                  <div className="text-center text-[13px] font-black uppercase tracking-wide text-slate-900 border-b border-slate-100 pb-1.5 mb-1.5">
                     {printProduct.name}
                   </div>
                 )}
-                <div className="mt-2 flex items-center justify-between gap-2 text-[11px] font-semibold text-slate-500">
-                  {showSku ? <span>SKU: {printProduct.sku}</span> : <span />}
-                  {showPrice ? (
-                    <span className="text-slate-900">
-                      ${printProduct.sellingPrice.toFixed(2)}
-                    </span>
-                  ) : (
-                    <span />
-                  )}
-                </div>
                 <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3">
                   {barcodePreviewSrc ? (
                     <img
@@ -406,13 +396,27 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
                     </div>
                   )}
                 </div>
-                {showBarcodeText && (
-                  <div className="mt-2 truncate text-center font-mono text-[11px] font-bold tracking-[0.22em] text-slate-900">
-                    {printProduct.barcode ||
-                      printProduct.sku ||
-                      String(printProduct.id)}
+                <div className="mt-3 flex items-end justify-between border-t border-slate-100 pt-2">
+                  <div className="flex flex-col items-start leading-tight">
+                    {showSku && (
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">
+                        SKU: {printProduct.sku}
+                      </span>
+                    )}
+                    {showBarcodeText && (
+                      <span className="font-mono text-[9px] font-bold text-slate-900 tracking-wider">
+                        {printProduct.barcode ||
+                          printProduct.sku ||
+                          String(printProduct.id)}
+                      </span>
+                    )}
                   </div>
-                )}
+                  {showPrice && (
+                    <span className="text-[15px] font-black text-slate-900 leading-none">
+                      ${printProduct.sellingPrice.toFixed(2)}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
