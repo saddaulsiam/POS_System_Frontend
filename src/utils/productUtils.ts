@@ -289,16 +289,20 @@ export const printBarcodeLabel = (
               ${labels}
             </div>
             <script>
-              window.onload = function() {
+              (function() {
                 const images = document.getElementsByTagName('img');
                 let loaded = 0;
                 const total = images.length;
                 
-                if (total === 0) {
+                function triggerPrint() {
                   setTimeout(() => {
                     window.print();
                     setTimeout(() => window.close(), 100);
                   }, 250);
+                }
+
+                if (total === 0) {
+                  triggerPrint();
                   return;
                 }
 
@@ -309,31 +313,22 @@ export const printBarcodeLabel = (
                     images[i].onload = function() {
                       loaded++;
                       if (loaded === total) {
-                        setTimeout(() => {
-                          window.print();
-                          setTimeout(() => window.close(), 100);
-                        }, 250);
+                        triggerPrint();
                       }
                     };
                     images[i].onerror = function() {
                       loaded++;
                       if (loaded === total) {
-                        setTimeout(() => {
-                          window.print();
-                          setTimeout(() => window.close(), 100);
-                        }, 250);
+                        triggerPrint();
                       }
                     };
                   }
                 }
 
                 if (loaded === total) {
-                  setTimeout(() => {
-                    window.print();
-                    setTimeout(() => window.close(), 100);
-                  }, 250);
+                  triggerPrint();
                 }
-              }
+              })();
             </script>
           </body>
         </html>
