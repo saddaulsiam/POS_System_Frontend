@@ -291,7 +291,7 @@ const SuperAdminPromoCodes: React.FC = () => {
                         onClick={() => handleOpenEdit(promo)}
                         className="mr-3 rounded-lg p-2 text-slate-400 transition-all hover:bg-indigo-50 hover:text-indigo-600"
                       >
-                        <PencilLine className="h-4.5 w-4.5" />
+                        <PencilLine className="h-4 w-4" />
                       </button>
                       <button
                         type="button"
@@ -299,7 +299,7 @@ const SuperAdminPromoCodes: React.FC = () => {
                         disabled={deleteMutation.isPending}
                         className="rounded-lg p-2 text-slate-400 transition-all hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
                       >
-                        <Trash2 className="h-4.5 w-4.5" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
                   </tr>
