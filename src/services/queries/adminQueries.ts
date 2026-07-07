@@ -159,3 +159,27 @@ export function usePublicSettings() {
     queryFn: () => adminAPI.getPublicSettings(),
   });
 }
+
+export function useBroadcastAnnouncements() {
+  return useMutation({
+    mutationFn: (params: { subject: string; body: string; targetAudience: string }) =>
+      adminAPI.broadcastAnnouncements(params),
+  });
+}
+
+export function useSendRenewalReminder() {
+  return useMutation({
+    mutationFn: (id: number) => adminAPI.sendRenewalReminder(id),
+  });
+}
+
+export function useTestSmtpConnection() {
+  return useMutation({
+    mutationFn: (settings: {
+      smtpHost: string;
+      smtpPort: number;
+      smtpUser: string;
+      smtpPass: string;
+    }) => adminAPI.testSmtpConnection(settings),
+  });
+}

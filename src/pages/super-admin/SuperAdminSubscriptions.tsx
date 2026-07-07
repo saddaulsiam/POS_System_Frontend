@@ -3,6 +3,7 @@ import {
   useAdminSubscriptions,
   useExtendSubscription,
   useUpdateSubscription,
+  useSendRenewalReminder,
 } from "../../services/queries/adminQueries";
 import { Pagination } from "../../components/sales/Pagination";
 import { SkeletonTableRow, Modal } from "../../components/common";
@@ -46,6 +47,16 @@ const SuperAdminSubscriptions: React.FC = () => {
 
   const extendMutation = useExtendSubscription();
   const updateSubMutation = useUpdateSubscription();
+  const reminderMutation = useSendRenewalReminder();
+
+  const handleSendReminder = async (subId: number) => {
+    try {
+      await reminderMutation.mutateAsync(subId);
+      toast.success("Renewal reminder email sent successfully!");
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Failed to send reminder email");
+    }
+  };
 
   // Override Form States
   const [selectedSub, setSelectedSub] = useState<any>(null);
@@ -474,6 +485,13 @@ const SuperAdminSubscriptions: React.FC = () => {
                             className="rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-sm transition-all hover:bg-indigo-100 disabled:opacity-50"
                           >
                             ➕ 7 Days
+                          </button>
+                          <button
+                            onClick={() => handleSendReminder(sub.id)}
+                            disabled={reminderMutation.isPending}
+                            className="rounded-lg bg-orange-50 px-3 py-1.5 text-xs font-bold text-orange-700 shadow-sm transition-all hover:bg-orange-100 disabled:opacity-50"
+                          >
+                            {reminderMutation.isPending ? "⏳..." : "🔔 Remind"}
                           </button>
                           {/* <button
                             onClick={() =>

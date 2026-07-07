@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useAdminSettings, useUpdateAdminSettings } from "../../services/queries/adminQueries";
+import { useAdminSettings, useUpdateAdminSettings, useTestSmtpConnection } from "../../services/queries/adminQueries";
 import toast from "react-hot-toast";
 import { Save, RefreshCw, Server, Shield } from "lucide-react";
 
 const SuperAdminSettings: React.FC = () => {
   const { data: settings, isLoading, isError } = useAdminSettings();
   const updateSettingsMutation = useUpdateAdminSettings();
+  const testConnectionMutation = useTestSmtpConnection();
 
   // Form State
   const [defaultTrialDays, setDefaultTrialDays] = useState(10);
@@ -32,6 +33,25 @@ const SuperAdminSettings: React.FC = () => {
       setSmtpPass(settings.smtpPass || "");
     }
   }, [settings]);
+
+  const handleTestConnection = async () => {
+    if (!smtpHost.trim() || !smtpUser.trim() || !smtpPass.trim()) {
+      toast.error("Please fill in SMTP Host, Username, and Password first!");
+      return;
+    }
+
+    try {
+      await testConnectionMutation.mutateAsync({
+        smtpHost: smtpHost.trim(),
+        smtpPort: smtpPort ? parseInt(smtpPort.toString()) : 587,
+        smtpUser: smtpUser.trim(),
+        smtpPass,
+      });
+      toast.success("SMTP connection established successfully! Credentials are valid.");
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "SMTP connection failed. Check your parameters.");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -259,7 +279,18 @@ const SuperAdminSettings: React.FC = () => {
             )}
 
             {/* Submit Block */}
-            <div className="border-t border-slate-100 pt-5 flex justify-end">
+            <div className="border-t border-slate-100 pt-5 flex justify-end gap-3">
+              {activeTab === "smtp" && (
+                <button
+                  type="button"
+                  onClick={handleTestConnection}
+                  disabled={testConnectionMutation.isPending}
+                  className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 disabled:opacity-50"
+                >
+                  <RefreshCw className={`h-4 w-4 ${testConnectionMutation.isPending ? "animate-spin" : ""}`} />
+                  {testConnectionMutation.isPending ? "Verifying..." : "Test SMTP Connection"}
+                </button>
+              )}
               <button
                 type="submit"
                 disabled={updateSettingsMutation.isPending}

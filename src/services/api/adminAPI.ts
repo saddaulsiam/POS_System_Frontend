@@ -249,6 +249,30 @@ export const adminAPI = {
     const response = await api.get("/admin/settings/public");
     return response.data;
   },
+
+  broadcastAnnouncements: async (params: {
+    subject: string;
+    body: string;
+    targetAudience: string;
+  }): Promise<{ totalRecipients: number; successCount: number; failCount: number }> => {
+    const response = await api.post("/admin/broadcast", params);
+    return response.data;
+  },
+
+  sendRenewalReminder: async (id: number): Promise<{ message: string }> => {
+    const response = await api.post(`/admin/subscriptions/${id}/remind`);
+    return response.data;
+  },
+
+  testSmtpConnection: async (settings: {
+    smtpHost: string;
+    smtpPort: number;
+    smtpUser: string;
+    smtpPass: string;
+  }): Promise<{ success: boolean; message: string }> => {
+    const response = await api.post("/admin/settings/test-smtp", settings);
+    return response.data;
+  },
 };
 
 export interface SystemSettings {

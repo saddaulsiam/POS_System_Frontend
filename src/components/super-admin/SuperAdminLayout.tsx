@@ -28,6 +28,11 @@ const adminLinks = [
     label: "Settings",
     icon: "⚙️",
   },
+  {
+    to: "/super-admin/broadcast",
+    label: "Broadcaster",
+    icon: "📢",
+  },
 ];
 
 interface SuperAdminLayoutProps {
