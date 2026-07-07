@@ -189,7 +189,7 @@ export const printBarcodeLabel = (
                 width: ${config.labelWidthMm}mm;
                 height: ${config.labelHeightMm}mm;
                 border: 1px dashed #9ca3af;
-                padding: 1.5mm 2mm;
+                padding: 1.5mm 1.5mm;
                 background: white;
                 display: flex;
                 flex-direction: column;
@@ -212,9 +212,6 @@ export const printBarcodeLabel = (
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
-                border-bottom: 0.2mm solid #e5e7eb;
-                padding-bottom: 0.5mm;
-                margin-bottom: 0.5mm;
               }
 
               .barcode-container {
@@ -239,9 +236,6 @@ export const printBarcodeLabel = (
                 display: flex;
                 align-items: flex-end;
                 justify-content: space-between;
-                border-top: 0.2mm solid #e5e7eb;
-                padding-top: 0.5mm;
-                margin-top: 0.5mm;
                 gap: 1mm;
               }
 
@@ -373,7 +367,7 @@ export const printBarcodeLabel = (
       if (document.body.contains(iframe)) {
         document.body.removeChild(iframe);
       }
-    } catch {}
+    } catch { }
     window.removeEventListener("message", handleMessage);
   };
 
@@ -407,7 +401,7 @@ export const printVariantBarcodeLabel = (
   const showPrice = options.showPrice ?? true;
   const showBarcodeText = options.showBarcodeText ?? true;
 
-  const fullName = `${variant.product.name} - ${variant.name}`;
+  const fullName = `${variant.name}`;
 
   const iframe = document.createElement("iframe");
   iframe.style.position = "absolute";
@@ -494,7 +488,7 @@ export const printVariantBarcodeLabel = (
                 width: ${config.labelWidthMm}mm;
                 height: ${config.labelHeightMm}mm;
                 border: 1px dashed #9ca3af;
-                padding: 1.5mm 2mm;
+                padding: 1.5mm 1.5mm;
                 background: white;
                 display: flex;
                 flex-direction: column;
@@ -517,9 +511,6 @@ export const printVariantBarcodeLabel = (
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
-                border-bottom: 0.2mm solid #e5e7eb;
-                padding-bottom: 0.5mm;
-                margin-bottom: 0.5mm;
               }
 
               .barcode-container {
@@ -544,9 +535,6 @@ export const printVariantBarcodeLabel = (
                 display: flex;
                 align-items: flex-end;
                 justify-content: space-between;
-                border-top: 0.2mm solid #e5e7eb;
-                padding-top: 0.5mm;
-                margin-top: 0.5mm;
                 gap: 1mm;
               }
 
@@ -678,7 +666,7 @@ export const printVariantBarcodeLabel = (
       if (document.body.contains(iframe)) {
         document.body.removeChild(iframe);
       }
-    } catch {}
+    } catch { }
     window.removeEventListener("message", handleMessage);
   };
 

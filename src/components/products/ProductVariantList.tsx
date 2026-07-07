@@ -617,11 +617,11 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({
 
               <div className="w-full rounded-xl border border-slate-900/10 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
                 {showProductName && (
-                  <div className="text-center text-[13px] font-black uppercase tracking-wide text-slate-900 border-b border-slate-100 pb-1.5 mb-1.5">
-                    {product.name} - {printVariant.name}
+                  <div className="text-center text-[13px] font-black uppercase tracking-wide text-slate-900">
+                    {printVariant.name}
                   </div>
                 )}
-                <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3">
+                <div className="mt-2 rounded-lg border border-slate-200 bg-white p-2">
                   {barcodePreviewSrc ? (
                     <img
                       src={barcodePreviewSrc}
@@ -634,7 +634,7 @@ export const ProductVariantList: React.FC<ProductVariantListProps> = ({
                     </div>
                   )}
                 </div>
-                <div className="mt-3 flex items-end justify-between border-t border-slate-100 pt-2">
+                <div className="mt-2 flex items-end justify-between ">
                   <div className="flex flex-col items-start leading-tight">
                     {showSku && (
                       <span className="text-[10px] font-bold text-slate-500 uppercase">
