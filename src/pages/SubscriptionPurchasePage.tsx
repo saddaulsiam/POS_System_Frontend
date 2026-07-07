@@ -6,6 +6,7 @@ import { useSubscription } from "../context/SubscriptionContext";
 import { subscriptionAPI } from "../services/subscriptionAPI";
 import { POSHeader } from "../components/pos";
 import { useAuth, useSettings } from "../context";
+import { usePublicSettings } from "../services/queries/adminQueries";
 
 export default function SubscriptionPurchasePage() {
   const { settings } = useSettings();
@@ -69,10 +70,15 @@ export default function SubscriptionPurchasePage() {
   }, [searchParams, navigate, refetch]);
 
   // --- Configuration & Pricing Logic ---
+  const { data: publicSettings } = usePublicSettings();
+  const monthlyPrice = publicSettings?.monthlyPrice ?? 79;
+  const yearlyPrice = publicSettings?.yearlyPrice ?? 59;
+  const trialDays = publicSettings?.defaultTrialDays ?? 10;
+
   const isYearly = billingCycle === "YEARLY";
-  const price = isYearly ? 59 : 79;
-  const yearlyBillAmount = 708;
-  const yearlySavings = 240;
+  const price = isYearly ? yearlyPrice : monthlyPrice;
+  const yearlyBillAmount = yearlyPrice * 12;
+  const yearlySavings = (monthlyPrice - yearlyPrice) * 12;
 
   const features = [
     {
@@ -293,7 +299,7 @@ export default function SubscriptionPurchasePage() {
               />
             </svg>
             <span className="text-xs font-semibold uppercase tracking-widest text-blue-700">
-              Start your 7-day free trial
+              Start your {trialDays}-day free trial
             </span>
           </div>
           <h1 className="text-4xl font-black tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">

@@ -43,6 +43,7 @@ const SuperAdminDashboard = lazy(() => import("./pages/super-admin/SuperAdminDas
 const SuperAdminStores = lazy(() => import("./pages/super-admin/SuperAdminStores"));
 const SuperAdminSubscriptions = lazy(() => import("./pages/super-admin/SuperAdminSubscriptions"));
 const SuperAdminPayments = lazy(() => import("./pages/super-admin/SuperAdminPayments"));
+const SuperAdminSettings = lazy(() => import("./pages/super-admin/SuperAdminSettings"));
 
 const adminPaths = [
   "/admin",
@@ -100,6 +101,10 @@ const App: React.FC = () => {
             <Route
               path="/super-admin/payments"
               element={<SuperAdminPayments />}
+            />
+            <Route
+              path="/super-admin/settings"
+              element={<SuperAdminSettings />}
             />
             <Route path="*" element={<Navigate to="/super-admin" replace />} />
           </Routes>

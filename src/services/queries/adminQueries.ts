@@ -6,6 +6,8 @@ export const adminQueryKeys = {
   stores: (params?: any) => ["admin", "stores", params] as const,
   subscriptions: (params?: any) => ["admin", "subscriptions", params] as const,
   payments: (params?: any) => ["admin", "payments", params] as const,
+  settings: () => ["admin", "settings"] as const,
+  publicSettings: () => ["public", "settings"] as const,
 };
 
 export function useAdminStats() {
@@ -94,7 +96,13 @@ export function useUpdateSubscription() {
       plan: string;
       endDate: string | null;
       gracePeriodDays?: number;
-    }) => adminAPI.updateSubscription(id, { status, plan, endDate, gracePeriodDays }),
+    }) =>
+      adminAPI.updateSubscription(id, {
+        status,
+        plan,
+        endDate,
+        gracePeriodDays,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
@@ -125,5 +133,29 @@ export function useExtendSubscription() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
+  });
+}
+
+export function useAdminSettings() {
+  return useQuery({
+    queryKey: adminQueryKeys.settings(),
+    queryFn: () => adminAPI.getSystemSettings(),
+  });
+}
+
+export function useUpdateAdminSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (settings: any) => adminAPI.updateSystemSettings(settings),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.settings() });
+    },
+  });
+}
+
+export function usePublicSettings() {
+  return useQuery({
+    queryKey: adminQueryKeys.publicSettings(),
+    queryFn: () => adminAPI.getPublicSettings(),
   });
 }

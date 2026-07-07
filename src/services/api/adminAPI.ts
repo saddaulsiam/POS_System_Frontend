@@ -234,4 +234,40 @@ export const adminAPI = {
     );
     return response.data;
   },
+
+  getSystemSettings: async (): Promise<SystemSettings> => {
+    const response = await api.get("/admin/settings");
+    return response.data;
+  },
+
+  updateSystemSettings: async (settings: Partial<SystemSettings>): Promise<SystemSettings> => {
+    const response = await api.put("/admin/settings", settings);
+    return response.data;
+  },
+
+  getPublicSettings: async (): Promise<PublicSettings> => {
+    const response = await api.get("/admin/settings/public");
+    return response.data;
+  },
 };
+
+export interface SystemSettings {
+  id: number;
+  defaultTrialDays: number;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  supportEmail: string;
+  smtpHost: string | null;
+  smtpPort: number | null;
+  smtpUser: string | null;
+  smtpPass: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PublicSettings {
+  defaultTrialDays: number;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  supportEmail: string;
+}

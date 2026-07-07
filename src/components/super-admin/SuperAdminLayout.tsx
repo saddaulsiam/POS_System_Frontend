@@ -23,6 +23,11 @@ const adminLinks = [
     label: "Billing & Payments",
     icon: "💳",
   },
+  {
+    to: "/super-admin/settings",
+    label: "Settings",
+    icon: "⚙️",
+  },
 ];
 
 interface SuperAdminLayoutProps {

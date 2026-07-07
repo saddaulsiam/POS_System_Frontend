@@ -55,13 +55,6 @@ const SuperAdminSubscriptions: React.FC = () => {
   const [subGracePeriod, setSubGracePeriod] = useState(0);
   const [showInfoModal, setShowInfoModal] = useState(false);
 
-  const handleStatusFilterChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    setStatusFilter(e.target.value);
-    setPage(1); // Reset page on filter change
-  };
-
   const handleExtend = async (
     subId: number,
     storeName: string,
@@ -355,7 +348,7 @@ const SuperAdminSubscriptions: React.FC = () => {
           </div>
           <button
             onClick={handleClearFilters}
-            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white p-2 text-red-500 hover:bg-red-50 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white p-2 text-red-500 hover:border-red-300 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             title="Clear Filters"
           >
             <X className="h-4 w-4" />
