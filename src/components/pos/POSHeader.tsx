@@ -54,7 +54,7 @@ export const POSHeader: React.FC<POSHeaderProps> = ({
         {(user?.role === "OWNER" ||
           user?.role === "ADMIN" ||
           user?.role === "MANAGER") && (
-            <Link to="/admin">
+            <Link to="/dashboard">
               <Button>Admin Panel</Button>
             </Link>
           )}

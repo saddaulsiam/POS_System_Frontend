@@ -48,7 +48,7 @@ const SuperAdminBroadcaster = lazy(() => import("./pages/super-admin/SuperAdminB
 const SuperAdminPromoCodes = lazy(() => import("./pages/super-admin/SuperAdminPromoCodes"));
 
 const adminPaths = [
-  "/admin",
+  "/dashboard",
   "/products",
   "/categories",
   "/suppliers",
@@ -161,43 +161,43 @@ const App: React.FC = () => {
                 {(user?.role === "OWNER" ||
                   user?.role === "ADMIN" ||
                   user?.role === "MANAGER") && (
-                  <>
-                    <Route path="/admin" element={<AdminDashboard />} />
-                    <Route path="/products" element={<ProductsPage />} />
-                    <Route path="/products/new" element={<NewProductPage />} />
-                    <Route
-                      path="/products/:id"
-                      element={<ProductDetailPage />}
-                    />
-                    <Route path="/categories" element={<CategoriesPage />} />
-                    <Route path="/suppliers" element={<SuppliersPage />} />
-                    <Route path="/employees" element={<EmployeesPage />} />
-                    <Route
-                      path="/salary-sheets"
-                      element={<SalarySheetsPage />}
-                    />
-                    <Route path="/customers" element={<CustomersPage />} />
-                    <Route path="/sales" element={<SalesPage />} />
-                    <Route path="/reports" element={<ReportsPage />} />
-                    <Route path="/analytics" element={<AnalyticsPage />} />
-                    <Route path="/inventory" element={<InventoryPage />} />
-                    <Route path="/audit-logs" element={<AuditLogsPage />} />
-                    <Route
-                      path="/loyalty-admin"
-                      element={<LoyaltyAdminPage />}
-                    />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/cash-drawer" element={<CashDrawerPage />} />
-                    <Route
-                      path="/purchase-orders"
-                      element={<PurchaseOrdersPage />}
-                    />
-                    <Route
-                      path="/notifications"
-                      element={<NotificationsPage />}
-                    />
-                  </>
-                )}
+                    <>
+                      <Route path="/dashboard" element={<AdminDashboard />} />
+                      <Route path="/products" element={<ProductsPage />} />
+                      <Route path="/products/new" element={<NewProductPage />} />
+                      <Route
+                        path="/products/:id"
+                        element={<ProductDetailPage />}
+                      />
+                      <Route path="/categories" element={<CategoriesPage />} />
+                      <Route path="/suppliers" element={<SuppliersPage />} />
+                      <Route path="/employees" element={<EmployeesPage />} />
+                      <Route
+                        path="/salary-sheets"
+                        element={<SalarySheetsPage />}
+                      />
+                      <Route path="/customers" element={<CustomersPage />} />
+                      <Route path="/sales" element={<SalesPage />} />
+                      <Route path="/reports" element={<ReportsPage />} />
+                      <Route path="/analytics" element={<AnalyticsPage />} />
+                      <Route path="/inventory" element={<InventoryPage />} />
+                      <Route path="/audit-logs" element={<AuditLogsPage />} />
+                      <Route
+                        path="/loyalty-admin"
+                        element={<LoyaltyAdminPage />}
+                      />
+                      <Route path="/settings" element={<SettingsPage />} />
+                      <Route path="/cash-drawer" element={<CashDrawerPage />} />
+                      <Route
+                        path="/purchase-orders"
+                        element={<PurchaseOrdersPage />}
+                      />
+                      <Route
+                        path="/notifications"
+                        element={<NotificationsPage />}
+                      />
+                    </>
+                  )}
 
                 {/* Redirect any unknown routes to home */}
                 <Route path="*" element={<Navigate to="/" replace />} />

@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const navLinks = [
   {
-    to: "/admin",
+    to: "/dashboard",
     label: "Dashboard",
     icon: "🏠",
     roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER", "STAFF"],
@@ -108,9 +108,8 @@ const Sidebar: React.FC = () => {
     <>
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-16 z-30 h-[calc(100vh-4rem)] border-r border-gray-200 bg-white shadow-lg transition-all duration-300 ${
-          isCollapsed ? "w-16" : "w-64"
-        }`}
+        className={`fixed left-0 top-16 z-30 h-[calc(100vh-4rem)] border-r border-gray-200 bg-white shadow-lg transition-all duration-300 ${isCollapsed ? "w-16" : "w-64"
+          }`}
       >
         {/* Toggle Button */}
         <button
@@ -129,11 +128,10 @@ const Sidebar: React.FC = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                  location.pathname === link.to
+                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${location.pathname === link.to
                     ? "bg-blue-600 text-white shadow-md"
                     : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
-                } ${isCollapsed ? "justify-center" : ""} `}
+                  } ${isCollapsed ? "justify-center" : ""} `}
                 title={isCollapsed ? link.label : ""}
               >
                 <span className="flex-shrink-0 text-xl">{link.icon}</span>
@@ -148,24 +146,23 @@ const Sidebar: React.FC = () => {
           {(user?.role === "OWNER" ||
             user?.role === "ADMIN" ||
             user?.role === "MANAGER") && (
-            <>
-              <div className="my-2 border-t border-gray-200"></div>
-              <Link
-                to="/settings"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                  location.pathname === "/settings"
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
-                }`}
-                title={isCollapsed ? "Settings" : ""}
-              >
-                <span className="flex-shrink-0 text-xl">⚙️</span>
-                {!isCollapsed && (
-                  <span className="whitespace-nowrap">Settings</span>
-                )}
-              </Link>
-            </>
-          )}
+              <>
+                <div className="my-2 border-t border-gray-200"></div>
+                <Link
+                  to="/settings"
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${location.pathname === "/settings"
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
+                    }`}
+                  title={isCollapsed ? "Settings" : ""}
+                >
+                  <span className="flex-shrink-0 text-xl">⚙️</span>
+                  {!isCollapsed && (
+                    <span className="whitespace-nowrap">Settings</span>
+                  )}
+                </Link>
+              </>
+            )}
         </nav>
       </aside>
 

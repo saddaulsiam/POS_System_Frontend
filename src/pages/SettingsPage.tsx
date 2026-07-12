@@ -241,7 +241,7 @@ const SettingsPage: React.FC = () => {
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-6">
-          <BackButton to="/admin" />
+          <BackButton to="/dashboard" />
           <div className="mt-4 flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
