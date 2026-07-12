@@ -59,18 +59,42 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
       </thead>
       <tbody>
         {products.map((product, idx) => {
+          const hasVariants = product.hasVariants && product.variants && product.variants.length > 0;
+
           let status = "In Stock";
-          let variantColor: "success" | "danger" | "warning" = "success";
-          if (product.stockQuantity <= 0) {
-            status = "Out of Stock";
-            variantColor = "danger";
-          } else if (product.stockQuantity <= product.lowStockThreshold) {
-            status = "Low Stock";
-            variantColor = "warning";
+          let variantColor: "success" | "danger" | "warning" | "info" | "default" | "primary" | "secondary" = "success";
+
+          if (hasVariants && product.variants) {
+            const totalVariants = product.variants.length;
+            const outOfStockCount = product.variants.filter((v) => v.stockQuantity <= 0).length;
+            const lowStockCount = product.variants.filter(
+              (v) => v.stockQuantity > 0 && v.stockQuantity <= product.lowStockThreshold
+            ).length;
+
+            if (outOfStockCount === totalVariants) {
+              status = "Out of Stock";
+              variantColor = "danger";
+            } else if (outOfStockCount > 0) {
+              status = "Partially Out of Stock";
+              variantColor = "warning";
+            } else if (lowStockCount + outOfStockCount === totalVariants) {
+              status = "Low Stock";
+              variantColor = "warning";
+            } else if (lowStockCount > 0) {
+              status = "Low Stock (Some)";
+              variantColor = "warning";
+            }
+          } else {
+            if (product.stockQuantity <= 0) {
+              status = "Out of Stock";
+              variantColor = "danger";
+            } else if (product.stockQuantity <= product.lowStockThreshold) {
+              status = "Low Stock";
+              variantColor = "warning";
+            }
           }
 
           const isExpanded = !!expandedProductIds[product.id];
-          const hasVariants = product.hasVariants && product.variants && product.variants.length > 0;
 
           return (
             <React.Fragment key={product.id}>

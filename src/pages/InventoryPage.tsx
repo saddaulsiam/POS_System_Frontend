@@ -109,14 +109,30 @@ const InventoryPage: React.FC = () => {
     // 2. Status filter
     if (statusFilter !== "ALL") {
       result = result.filter((p) => {
-        if (statusFilter === "OUT_OF_STOCK") {
-          return p.stockQuantity <= 0;
-        } else if (statusFilter === "LOW_STOCK") {
-          return p.stockQuantity > 0 && p.stockQuantity <= p.lowStockThreshold;
-        } else if (statusFilter === "IN_STOCK") {
-          return p.stockQuantity > p.lowStockThreshold;
+        const hasVariants = p.hasVariants && p.variants && p.variants.length > 0;
+        let resolvedStatus = "IN_STOCK";
+
+        if (hasVariants && p.variants) {
+          const totalVariants = p.variants.length;
+          const outOfStockCount = p.variants.filter((v) => v.stockQuantity <= 0).length;
+          const lowStockCount = p.variants.filter(
+            (v) => v.stockQuantity > 0 && v.stockQuantity <= p.lowStockThreshold
+          ).length;
+
+          if (outOfStockCount === totalVariants) {
+            resolvedStatus = "OUT_OF_STOCK";
+          } else if (outOfStockCount > 0 || lowStockCount > 0) {
+            resolvedStatus = "LOW_STOCK";
+          }
+        } else {
+          if (p.stockQuantity <= 0) {
+            resolvedStatus = "OUT_OF_STOCK";
+          } else if (p.stockQuantity <= p.lowStockThreshold) {
+            resolvedStatus = "LOW_STOCK";
+          }
         }
-        return true;
+
+        return resolvedStatus === statusFilter;
       });
     }
 
