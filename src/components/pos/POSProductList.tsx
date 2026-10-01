@@ -183,9 +183,16 @@ export const POSProductList: React.FC<POSProductListProps> = ({
                   </span>
                 ) : (
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-extrabold text-blue-600">
-                      {formatCurrency(product.sellingPrice, settings)}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-sm font-extrabold text-blue-600">
+                        {formatCurrency(product.sellingPrice, settings)}
+                      </span>
+                      {product.discountType && product.discountType !== "NONE" && (product.discountValue || 0) > 0 && (
+                        <span className="rounded bg-amber-50 px-1.5 py-0.2 text-[9px] font-bold text-amber-700 border border-amber-200">
+                          🏷️ {product.discountType === "PERCENTAGE" ? `${product.discountValue}% OFF` : `-${formatCurrency(product.discountValue || 0, settings)}`}
+                        </span>
+                      )}
+                    </div>
                     <span
                       className={`text-[10px] ${
                         product.stockQuantity <= 0

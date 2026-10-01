@@ -83,6 +83,8 @@ const ProductsPage: React.FC = () => {
     isWeighted: false,
     taxRate: "0",
     image: "",
+    discountType: "NONE",
+    discountValue: "0",
   });
 
   // Filter states
@@ -139,6 +141,8 @@ const ProductsPage: React.FC = () => {
       isWeighted: false,
       taxRate: "0",
       image: "",
+      discountType: "NONE",
+      discountValue: "0",
     });
     setImageFile(null);
     setImagePreview("");
@@ -161,6 +165,8 @@ const ProductsPage: React.FC = () => {
         isActive: form.isActive,
         isWeighted: form.isWeighted,
         taxRate: parseFloat(form.taxRate),
+        discountType: form.discountType || "NONE",
+        discountValue: parseFloat(form.discountValue) || 0,
       };
       const product = await createProduct.mutateAsync(payload);
 
@@ -204,6 +210,8 @@ const ProductsPage: React.FC = () => {
         isActive: form.isActive,
         isWeighted: form.isWeighted,
         taxRate: parseFloat(form.taxRate),
+        discountType: form.discountType || "NONE",
+        discountValue: parseFloat(form.discountValue) || 0,
       };
       await updateProduct.mutateAsync({ id: editProduct.id, data: payload });
 
@@ -392,6 +400,8 @@ const ProductsPage: React.FC = () => {
       isWeighted: product.isWeighted,
       taxRate: product.taxRate.toString(),
       image: product.image || "",
+      discountType: product.discountType || "NONE",
+      discountValue: (product.discountValue ?? 0).toString(),
     });
     setImagePreview(product.image || "");
     setShowEditModal(true);

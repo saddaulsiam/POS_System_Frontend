@@ -281,6 +281,59 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             </label>
           </div>
         </div>
+
+        {/* Default Discount Section */}
+        <div className="md:col-span-2">
+          <div className="rounded-lg border border-orange-100 bg-orange-50 p-4">
+            <h3 className="mb-3 text-sm font-semibold text-orange-700">
+              🏷️ Default Discount (auto-applied at POS)
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">
+                  Discount Type
+                </label>
+                <select
+                  name="discountType"
+                  value={form.discountType || "NONE"}
+                  onChange={handleFormChange}
+                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                >
+                  <option value="NONE">No Discount</option>
+                  <option value="FIXED">Fixed Amount (৳)</option>
+                  <option value="PERCENTAGE">Percentage (%)</option>
+                </select>
+              </div>
+              {form.discountType && form.discountType !== "NONE" && (
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-600">
+                    Discount Value{" "}
+                    {form.discountType === "PERCENTAGE" ? "(%)" : "(৳)"}
+                  </label>
+                  <input
+                    name="discountValue"
+                    type="number"
+                    min="0"
+                    max={form.discountType === "PERCENTAGE" ? 100 : undefined}
+                    step="0.01"
+                    value={form.discountValue || ""}
+                    onChange={handleFormChange}
+                    placeholder={
+                      form.discountType === "PERCENTAGE" ? "e.g. 10" : "e.g. 50"
+                    }
+                    className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                  />
+                  <span className="mt-1 block text-xs text-gray-400">
+                    {form.discountType === "PERCENTAGE"
+                      ? "% off the selling price per item"
+                      : "Fixed ৳ off per item at POS"}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="mt-2 md:col-span-2">
           <Button
             type="submit"

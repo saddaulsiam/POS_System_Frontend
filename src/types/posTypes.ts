@@ -7,8 +7,11 @@ export interface CartItem {
   product: Product;
   quantity: number;
   price: number;
-  subtotal: number;
-  discount?: number;
+  subtotal: number;          // price after discount × quantity
+  discount?: number;         // legacy field (kept for backend compat)
+  discountType?: "FIXED" | "PERCENTAGE";
+  discountValue?: number;    // the raw discount input (amount or %)
+  discountAmount?: number;   // computed discount amount per item total
   variant?: ProductVariant;
 }
 

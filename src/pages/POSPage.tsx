@@ -47,6 +47,7 @@ const POSPage: FC = () => {
     addToCart,
     addVariantToCart,
     updateCartItemQuantity,
+    updateCartItemDiscount,
     removeFromCart,
   } = usePOSCart();
 
@@ -418,7 +419,7 @@ const POSPage: FC = () => {
           productVariantId: item.variant?.id,
           quantity: item.quantity,
           price: item.price,
-          discount: item.discount || 0,
+          discount: item.discountAmount || 0,
         })),
         paymentMethod,
         loyaltyDiscount,
@@ -638,6 +639,7 @@ const POSPage: FC = () => {
           <POSCart
             cart={cart}
             onUpdateQuantity={updateCartItemQuantity}
+            onUpdateDiscount={updateCartItemDiscount}
             onRemoveItem={removeFromCart}
             onClearCart={handleClearCart}
             onProcessPayment={handlePayment}

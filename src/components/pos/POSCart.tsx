@@ -11,6 +11,12 @@ interface POSCartProps {
     quantity: number,
     variantId?: number,
   ) => void;
+  onUpdateDiscount: (
+    productId: number,
+    discountType: "FIXED" | "PERCENTAGE",
+    discountValue: number,
+    variantId?: number,
+  ) => void;
   onRemoveItem: (productId: number, variantId?: number) => void;
   onClearCart: () => void;
   onProcessPayment: () => void;
@@ -29,6 +35,7 @@ interface POSCartProps {
 export const POSCart: React.FC<POSCartProps> = ({
   cart,
   onUpdateQuantity,
+  onUpdateDiscount,
   onRemoveItem,
   onClearCart,
   onProcessPayment,
@@ -45,8 +52,14 @@ export const POSCart: React.FC<POSCartProps> = ({
 }) => {
   const { settings } = useSettings();
 
-  // Optionally, distribute loyalty discount per item (proportional)
-  let perItemDiscounts: Record<string, number> = {};
+  // Total item-level discount across cart
+  const itemDiscountTotal = cart.reduce(
+    (sum, item) => sum + (item.discountAmount || 0),
+    0,
+  );
+
+  // Loyalty per-item distribution
+  let perItemLoyalty: Record<string, number> = {};
   if (loyaltyDiscount > 0 && cart.length > 0) {
     const totalSubtotal = cart.reduce((sum, item) => sum + item.subtotal, 0);
     let distributed = 0;
@@ -54,14 +67,13 @@ export const POSCart: React.FC<POSCartProps> = ({
       const itemKey = item.variant
         ? `${item.product.id}-${item.variant.id}`
         : `${item.product.id}`;
-      // Last item gets the remainder to avoid floating point issues
       if (idx === cart.length - 1) {
-        perItemDiscounts[itemKey] = loyaltyDiscount - distributed;
+        perItemLoyalty[itemKey] = loyaltyDiscount - distributed;
       } else {
         const share =
           Math.round((item.subtotal / totalSubtotal) * loyaltyDiscount * 100) /
           100;
-        perItemDiscounts[itemKey] = share;
+        perItemLoyalty[itemKey] = share;
         distributed += share;
       }
     });
@@ -106,62 +118,146 @@ export const POSCart: React.FC<POSCartProps> = ({
                 const stockQuantity = item.variant
                   ? item.variant.stockQuantity || 0
                   : item.product.stockQuantity;
-                const itemDiscount = perItemDiscounts[itemKey] || 0;
+                const loyaltyShare = perItemLoyalty[itemKey] || 0;
+                const discountType = item.discountType || "FIXED";
+                const discountValue = item.discountValue ?? 0;
+                const discountAmount = item.discountAmount || 0;
 
                 return (
                   <div
                     key={itemKey}
-                    className="flex items-center justify-between rounded-lg bg-gray-50 p-3"
+                    className="rounded-lg border border-gray-100 bg-gray-50 p-3"
                   >
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">
-                        {displayName}
-                      </h4>
-                      {item.variant && (
-                        <p className="text-xs text-blue-600">
-                          SKU: {item.variant.sku}
+                    {/* Row 1: Name + Remove */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0 pr-2">
+                        <h4 className="font-medium text-gray-900 text-sm leading-tight truncate">
+                          {displayName}
+                        </h4>
+                        {item.variant && (
+                          <p className="text-xs text-blue-600">
+                            SKU: {item.variant.sku}
+                          </p>
+                        )}
+                        <p className="text-xs text-gray-400">
+                          {formatCurrency(item.price, settings)} each &bull; Stock: {stockQuantity}
                         </p>
-                      )}
-                      <p className="text-sm text-gray-500">
-                        {formatCurrency(item.price, settings)} each
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Stock: {stockQuantity}
-                      </p>
-                      {itemDiscount > 0 && (
-                        <p className="mt-1 text-xs text-green-600">
-                          🎁 Loyalty Discount: -
-                          {formatCurrency(itemDiscount, settings)}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) => {
-                          const newQuantity = parseInt(e.target.value) || 1;
-                          onUpdateQuantity(
-                            item.product.id,
-                            newQuantity,
-                            item.variant?.id,
-                          );
-                        }}
-                        className="w-16 rounded border border-gray-300 px-2 py-1 text-center"
-                        min="1"
-                        max={stockQuantity}
-                      />
-                      <div className="text-sm font-medium text-gray-900">
-                        {formatCurrency(item.subtotal, settings)}
                       </div>
                       <button
                         onClick={() =>
                           onRemoveItem(item.product.id, item.variant?.id)
                         }
-                        className="text-red-600 hover:text-red-800"
+                        className="ml-1 flex-shrink-0 rounded p-1 text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                        title="Remove item"
                       >
                         ✕
                       </button>
+                    </div>
+
+                    {/* Row 2: Qty | Discount | Subtotal */}
+                    <div className="mt-2 grid grid-cols-3 gap-2 items-end">
+                      {/* Quantity */}
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Qty</label>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() =>
+                              onUpdateQuantity(
+                                item.product.id,
+                                item.quantity - 1,
+                                item.variant?.id,
+                              )
+                            }
+                            className="w-6 h-6 rounded bg-gray-200 text-gray-700 text-sm font-bold hover:bg-gray-300 flex items-center justify-center"
+                          >
+                            −
+                          </button>
+                          <input
+                            type="number"
+                            value={item.quantity}
+                            onChange={(e) => {
+                              const q = parseInt(e.target.value) || 1;
+                              onUpdateQuantity(
+                                item.product.id,
+                                q,
+                                item.variant?.id,
+                              );
+                            }}
+                            className="w-10 rounded border border-gray-300 px-1 py-0.5 text-center text-sm"
+                            min="1"
+                            max={stockQuantity}
+                          />
+                          <button
+                            onClick={() =>
+                              onUpdateQuantity(
+                                item.product.id,
+                                item.quantity + 1,
+                                item.variant?.id,
+                              )
+                            }
+                            className="w-6 h-6 rounded bg-gray-200 text-gray-700 text-sm font-bold hover:bg-gray-300 flex items-center justify-center"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Discount */}
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Discount</label>
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            value={discountValue === 0 ? "" : discountValue}
+                            placeholder="0"
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value) || 0;
+                              onUpdateDiscount(
+                                item.product.id,
+                                discountType,
+                                val,
+                                item.variant?.id,
+                              );
+                            }}
+                            className="w-14 rounded border border-gray-300 px-1 py-0.5 text-center text-sm"
+                            min="0"
+                            max={discountType === "PERCENTAGE" ? 100 : undefined}
+                          />
+                          <select
+                            value={discountType}
+                            onChange={(e) => {
+                              onUpdateDiscount(
+                                item.product.id,
+                                e.target.value as "FIXED" | "PERCENTAGE",
+                                discountValue,
+                                item.variant?.id,
+                              );
+                            }}
+                            className="rounded border border-gray-300 px-1 py-0.5 text-xs bg-white"
+                          >
+                            <option value="FIXED">৳</option>
+                            <option value="PERCENTAGE">%</option>
+                          </select>
+                        </div>
+                        {discountAmount > 0 && (
+                          <p className="mt-0.5 text-xs text-green-600 font-medium">
+                            −{formatCurrency(discountAmount, settings)}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Subtotal */}
+                      <div className="text-right">
+                        <label className="block text-xs text-gray-500 mb-1">Subtotal</label>
+                        <div className="text-sm font-semibold text-gray-900">
+                          {formatCurrency(item.subtotal, settings)}
+                        </div>
+                        {loyaltyShare > 0 && (
+                          <p className="text-xs text-green-600">
+                            🎁 −{formatCurrency(loyaltyShare, settings)}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -173,28 +269,34 @@ export const POSCart: React.FC<POSCartProps> = ({
 
       {/* Cart Summary & Payment */}
       <div className="space-y-4 border-t border-gray-200 p-4">
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex justify-between text-sm">
-            <span>Subtotal:</span>
+            <span className="text-gray-600">Subtotal:</span>
             <span>{formatCurrency(subtotal, settings)}</span>
           </div>
+          {itemDiscountTotal > 0 && (
+            <div className="flex justify-between text-sm text-orange-600">
+              <span>🏷️ Item Discounts:</span>
+              <span>−{formatCurrency(itemDiscountTotal, settings)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-sm">
-            <span>Tax:</span>
+            <span className="text-gray-600">Tax:</span>
             <span>{formatCurrency(tax, settings)}</span>
           </div>
           {loyaltyDiscount > 0 && (
             <div className="flex justify-between text-sm text-green-600">
               <span>🎁 Loyalty Discount:</span>
-              <span>-{formatCurrency(loyaltyDiscount, settings)}</span>
+              <span>−{formatCurrency(loyaltyDiscount, settings)}</span>
             </div>
           )}
           {offerDiscount > 0 && (
             <div className="flex justify-between text-sm text-blue-600">
-              <span>🏷️ Special Offer Discount ({customer?.loyaltyTier}):</span>
-              <span>-{formatCurrency(offerDiscount, settings)}</span>
+              <span>🏷️ Special Offer ({customer?.loyaltyTier}):</span>
+              <span>−{formatCurrency(offerDiscount, settings)}</span>
             </div>
           )}
-          <div className="flex justify-between border-t pt-2 text-lg font-medium">
+          <div className="flex justify-between border-t pt-2 text-lg font-semibold">
             <span>Total:</span>
             <span>
               {formatCurrency(
@@ -206,7 +308,7 @@ export const POSCart: React.FC<POSCartProps> = ({
         </div>
 
         <div className="space-y-2">
-          {/* Loyalty Points Button - Show if customer has points and setting enabled */}
+          {/* Loyalty Points Button */}
           {settings?.enableLoyaltyPoints &&
             onRedeemPoints &&
             customer &&

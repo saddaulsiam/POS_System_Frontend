@@ -2,6 +2,26 @@ import { useState } from "react";
 import { CartItem, Product, ProductVariant } from "../types";
 import toast from "react-hot-toast";
 
+/** Compute item subtotal taking discount into account */
+function computeSubtotal(
+  price: number,
+  quantity: number,
+  discountType?: "FIXED" | "PERCENTAGE",
+  discountValue?: number,
+): { subtotal: number; discountAmount: number } {
+  const gross = price * quantity;
+  let discountAmount = 0;
+  if (discountValue && discountValue > 0) {
+    if (discountType === "PERCENTAGE") {
+      discountAmount = Math.min((gross * discountValue) / 100, gross);
+    } else {
+      // FIXED: discount per-item × quantity
+      discountAmount = Math.min(discountValue * quantity, gross);
+    }
+  }
+  return { subtotal: gross - discountAmount, discountAmount };
+}
+
 export function usePOSCart() {
   const [cart, setCart] = useState<CartItem[]>([]);
 
@@ -27,17 +47,29 @@ export function usePOSCart() {
             ? {
                 ...item,
                 quantity: item.quantity + 1,
-                subtotal: (item.quantity + 1) * item.price,
+                ...computeSubtotal(item.price, item.quantity + 1, item.discountType, item.discountValue),
               }
             : item,
         ),
       );
     } else {
+      // Apply product default discount if set
+      const defType = (product.discountType && product.discountType !== "NONE")
+        ? (product.discountType as "FIXED" | "PERCENTAGE")
+        : "FIXED";
+      const defValue = (product.discountType && product.discountType !== "NONE")
+        ? (product.discountValue || 0)
+        : 0;
+      const { subtotal: initSubtotal, discountAmount: initDiscount } =
+        computeSubtotal(product.sellingPrice, 1, defType, defValue);
       const newItem: CartItem = {
         product,
         quantity: 1,
         price: product.sellingPrice,
-        subtotal: product.sellingPrice,
+        subtotal: initSubtotal,
+        discountType: defType,
+        discountValue: defValue,
+        discountAmount: initDiscount,
       };
       setCart([...cart, newItem]);
     }
@@ -64,18 +96,30 @@ export function usePOSCart() {
             ? {
                 ...item,
                 quantity: item.quantity + 1,
-                subtotal: (item.quantity + 1) * item.price,
+                ...computeSubtotal(item.price, item.quantity + 1, item.discountType, item.discountValue),
               }
             : item,
         ),
       );
     } else {
+      // Apply product default discount if set
+      const defType = (product.discountType && product.discountType !== "NONE")
+        ? (product.discountType as "FIXED" | "PERCENTAGE")
+        : "FIXED";
+      const defValue = (product.discountType && product.discountType !== "NONE")
+        ? (product.discountValue || 0)
+        : 0;
+      const { subtotal: initSubtotal, discountAmount: initDiscount } =
+        computeSubtotal(variant.sellingPrice, 1, defType, defValue);
       const newItem: CartItem = {
         product,
         variant,
         quantity: 1,
         price: variant.sellingPrice,
-        subtotal: variant.sellingPrice,
+        subtotal: initSubtotal,
+        discountType: defType,
+        discountValue: defValue,
+        discountAmount: initDiscount,
       };
       setCart([...cart, newItem]);
     }
@@ -95,7 +139,7 @@ export function usePOSCart() {
       cart.map((item) =>
         item.product.id === productId &&
         (variantId ? item.variant?.id === variantId : !item.variant)
-          ? { ...item, quantity, subtotal: quantity * item.price }
+          ? { ...item, quantity, ...computeSubtotal(item.price, quantity, item.discountType, item.discountValue) }
           : item,
       ),
     );
@@ -113,6 +157,32 @@ export function usePOSCart() {
     );
   };
 
+  /** Update per-item discount — recalculates subtotal immediately */
+  const updateCartItemDiscount = (
+    productId: number,
+    discountType: "FIXED" | "PERCENTAGE",
+    discountValue: number,
+    variantId?: number,
+  ) => {
+    setCart(
+      cart.map((item) => {
+        if (
+          item.product.id === productId &&
+          (variantId ? item.variant?.id === variantId : !item.variant)
+        ) {
+          const { subtotal, discountAmount } = computeSubtotal(
+            item.price,
+            item.quantity,
+            discountType,
+            discountValue,
+          );
+          return { ...item, discountType, discountValue, discountAmount, subtotal };
+        }
+        return item;
+      }),
+    );
+  };
+
   const clearCart = () => {
     setCart([]);
   };
@@ -123,6 +193,7 @@ export function usePOSCart() {
     addToCart,
     addVariantToCart,
     updateCartItemQuantity,
+    updateCartItemDiscount,
     removeFromCart,
     clearCart,
   };

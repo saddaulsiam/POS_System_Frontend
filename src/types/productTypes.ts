@@ -20,6 +20,8 @@ export interface Product {
   image?: string;
   unit?: string;
   hasVariants?: boolean;
+  discountType?: "NONE" | "FIXED" | "PERCENTAGE";
+  discountValue?: number;
   createdAt: string;
   updatedAt: string;
   category?: Category;

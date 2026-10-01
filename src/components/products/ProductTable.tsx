@@ -214,6 +214,11 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     <p className="font-semibold text-green-700">
                       {formatCurrency(product.sellingPrice, settings)}
                     </p>
+                    {product.discountType && product.discountType !== "NONE" && (product.discountValue || 0) > 0 && (
+                      <span className="inline-block my-0.5 px-1.5 py-0.5 text-[11px] font-medium rounded bg-amber-100 text-amber-800 border border-amber-200">
+                        🏷️ {product.discountType === "PERCENTAGE" ? `${product.discountValue}% OFF` : `-${formatCurrency(product.discountValue || 0, settings)} OFF`}
+                      </span>
+                    )}
                     <p className="text-xs text-gray-500">
                       Cost: {formatCurrency(product.purchasePrice, settings)}
                     </p>
