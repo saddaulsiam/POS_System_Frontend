@@ -9,6 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Released]
 
+## [1.13.0] - 2026-10-02
+
+### Added
+
+- **Product Default Discount (Admin Settings)**:
+  - Added support for configuring default product discounts directly from the product creation and edit modals (`ProductFormModal.tsx`).
+  - Supports `Fixed Amount (৳)` and `Percentage (%)` discount types with auto-application at POS checkout.
+  - Added visual discount badges (`🏷️ 10% OFF` / `🏷️ -৳50 OFF`) in both Admin Products Table and POS Product Grid cards.
+  - Extended `Product` database schema and APIs with `discountType` and `discountValue` attributes.
+
+- **POS Cart-Level Per-Item Custom Discount**:
+  - Implemented live per-item manual discount controls inside the POS Cart sidebar (`POSCart.tsx`), allowing cashiers to apply or adjust fixed or percentage discounts at sale time.
+  - Redesigned cart item card layout with a clean, spacious structure: quantity stepper on the left, bold subtotal with strikethrough original prices on the right, and a dedicated bottom discount toolbar.
+  - Replaced native select dropdowns with a sleek segmented toggle (`[ ৳ ]` / `[ % ]`) and a quick one-click clear button (`✕`).
+  - Added automatic calculation of total item discounts in the cart summary breakdown.
+
+- **Profit Protection & Max Discount Limit Guard**:
+  - Implemented cost-price protection guaranteeing discounted selling prices can never drop below the product's purchase/buy price (`purchasePrice`).
+  - Formula enforced: $\text{Max Allowed Discount} = \max(0, \text{Selling Price} - \text{Purchase Price})$.
+  - Added real-time frontend indicators displaying maximum allowable discounts in both the POS Cart and Product Management form with instant toast alerts and auto-clamping on excessive values.
+  - Built backend server-side safeguards in both `productsService.js` and `salesService.js` to reject any transactions or product configurations violating cost price integrity.
+
+- **POS Item Discount Feature Toggle (Settings > Features Tab)**:
+  - Added a new `Item Discount in POS` toggle under Store Settings (`FeaturesTab.tsx`) with an informational modal explaining usage and security guidelines.
+  - Added `enableItemDiscount` attribute to the `POSSettings` database schema and backend API service.
+  - When disabled, completely hides manual discount inputs and toggles from cashiers on POS while still cleanly showing pre-configured product promotion badges in display-only mode.
+
+### Fixed
+
+- **Product Update & Prisma Relational Payload Sanitization**:
+  - Sanitized `updateProductService` and `createProductService` in `productsService.js` to strip relation objects, foreign IDs, and read-only timestamps from incoming payloads, resolving Prisma 500 errors on product updates.
+  - Cleaned up mutation payloads in `productsQueries.ts` to avoid redundant ID parameters in request bodies.
+- **SSLCommerz Payment Callback Flow**:
+  - Resolved issue where SSLCommerz successful payment callbacks redirected immediately to the home screen without presenting confirmation feedback.
+
 ## [1.12.0] - 2026-07-08
 
 ### Added
