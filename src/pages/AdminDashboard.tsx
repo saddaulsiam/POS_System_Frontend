@@ -2,7 +2,6 @@ import React from "react";
 import { useAuth } from "../context/AuthContext";
 import { BackButton, RefreshButton } from "../components/common";
 import { DashboardStatCard } from "../components/dashboard/DashboardStatCard";
-import { SimpleBarChart } from "../components/dashboard/SimpleBarChart";
 import { RecentTransactionsList } from "../components/dashboard/RecentTransactionsList";
 import { QuickActionsGrid } from "../components/dashboard/QuickActionsGrid";
 import { AlertsSection } from "../components/dashboard/AlertsSection";
@@ -10,6 +9,12 @@ import { useSettings } from "../context/SettingsContext";
 import { formatCurrency } from "../utils/currencyUtils";
 import { useDashboardStats } from "../services/queries";
 import { AdminDashboardSkeleton } from "../components/dashboard/AdminDashboardSkeleton";
+
+// Upgraded interactive charts
+import { SalesTrendInteractive } from "../components/dashboard/SalesTrendInteractive";
+import { CategoryDonutInteractive } from "../components/dashboard/CategoryDonutInteractive";
+import { TopProductsBarInteractive } from "../components/dashboard/TopProductsBarInteractive";
+import { PaymentMethodsInteractive } from "../components/dashboard/PaymentMethodsInteractive";
 
 const quickActions = [
   {
@@ -106,21 +111,6 @@ const AdminDashboard: React.FC = () => {
     hourlySales: [],
   };
 
-  const ChartCard = ({
-    title,
-    children,
-  }: {
-    title: string;
-    children: React.ReactNode;
-  }) => (
-    <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-md transition-shadow duration-300 hover:shadow-lg">
-      <h3 className="mb-6 border-b border-gray-200 pb-3 text-lg font-bold text-gray-900">
-        {title}
-      </h3>
-      {children}
-    </div>
-  );
-
   if (user?.role === "CASHIER") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -138,36 +128,39 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/20 to-slate-50">
       <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-4xl font-bold text-transparent">
-                Dashboard
-              </h1>
-              <p className="text-lg text-gray-600">
-                Welcome back,{" "}
-                <span className="font-semibold text-gray-900">
-                  {user?.name || "Admin"}
-                </span>
-                ! Here's what's happening with your store today.
-              </p>
-            </div>
-            <div className="hidden items-center gap-4 md:flex">
-              <div className="text-right">
-                <p className="text-sm text-gray-500">Today's Date</p>
-                <p className="text-lg font-semibold text-gray-900">
+        <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+          <div>
+            <h1 className="mb-2 bg-gradient-to-r from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent">
+              Dashboard
+            </h1>
+            <p className="text-base text-slate-500 font-medium">
+              Welcome back,{" "}
+              <span className="font-bold text-slate-800">
+                {user?.name || "Admin"}
+              </span>
+              ! Here is what's happening with your store today.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {/* Refresh button and Date badge */}
+            <div className="flex items-center gap-2 bg-white/80 border border-slate-100 rounded-2xl px-4 py-2.5 shadow-sm backdrop-blur-md">
+              <span className="text-lg">📅</span>
+              <div className="text-left leading-none">
+                <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Store Date</span>
+                <span className="text-xs font-extrabold text-slate-700">
                   {new Date().toLocaleDateString("en-US", {
                     weekday: "short",
                     year: "numeric",
                     month: "short",
                     day: "numeric",
                   })}
-                </p>
+                </span>
               </div>
             </div>
+            <RefreshButton onClick={() => refetch()} loading={isLoading} />
           </div>
         </div>
 
@@ -177,13 +170,10 @@ const AdminDashboard: React.FC = () => {
           <div className="space-y-8">
             {/* Key Metrics */}
             <div>
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900">
-                  <span className="text-3xl">📊</span>
-                  <span>Key Metrics</span>
-                </h2>
-                <RefreshButton onClick={() => refetch()} loading={isLoading} />
-              </div>
+              <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
+                <span>📊</span>
+                <span>Key Metrics</span>
+              </h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <DashboardStatCard
                   title="Today's Sales"
@@ -214,11 +204,22 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
+            {/* Interactive Sales Trend Section (Span Full Width) */}
+            <div>
+              <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
+                <span>📈</span>
+                <span>Sales Performance</span>
+              </h2>
+              <div className="w-full">
+                <SalesTrendInteractive />
+              </div>
+            </div>
+
             {/* Sales Overview */}
             <div>
-              <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold text-gray-900">
-                <span className="text-3xl">📈</span>
-                <span>Sales Overview</span>
+              <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
+                <span>📅</span>
+                <span>Sales Overview Comparisons</span>
               </h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <DashboardStatCard
@@ -256,9 +257,9 @@ const AdminDashboard: React.FC = () => {
 
             {/* Performance Metrics */}
             <div>
-              <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold text-gray-900">
-                <span className="text-3xl">⚡</span>
-                <span>Performance Metrics</span>
+              <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
+                <span>⚡</span>
+                <span>Store Engagement</span>
               </h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <DashboardStatCard
@@ -284,38 +285,29 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Charts and Analytics */}
+            {/* Interactive Charts and Analytics Details (3-Column Layout) */}
             <div>
-              <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold text-gray-900">
-                <span className="text-3xl">📊</span>
-                <span>Analytics & Insights</span>
+              <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
+                <span>🔍</span>
+                <span>Deep Dive Analytics</span>
               </h2>
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <ChartCard title="Top Selling Products">
-                  <SimpleBarChart
-                    data={dashboardData.topSellingProducts.map((p) => ({
-                      label: p.name,
-                      value: p.totalSold,
-                    }))}
-                  />
-                </ChartCard>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                {/* Top Products Card */}
+                <TopProductsBarInteractive data={dashboardData.topSellingProducts} />
 
-                <ChartCard title="Sales by Category">
-                  <SimpleBarChart
-                    data={dashboardData.salesByCategory.map((c: any) => ({
-                      label: c.category,
-                      value: c.percentage,
-                    }))}
-                  />
-                </ChartCard>
+                {/* Categories Breakdown Card */}
+                <CategoryDonutInteractive data={dashboardData.salesByCategory} />
+
+                {/* Payment Methods Card */}
+                <PaymentMethodsInteractive />
               </div>
             </div>
 
             {/* Recent Activity */}
             <div>
-              <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold text-gray-900">
-                <span className="text-3xl">⚡</span>
-                <span>Recent Activity</span>
+              <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
+                <span>⚡</span>
+                <span>Recent Activity & Actions</span>
               </h2>
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <RecentTransactionsList
@@ -332,33 +324,37 @@ const AdminDashboard: React.FC = () => {
             />
 
             {/* Dashboard Footer - Quick Summary */}
-            <div className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white shadow-lg">
-              <div className="grid grid-cols-1 gap-6 text-center md:grid-cols-4">
+            <div className="rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 p-8 text-white shadow-lg relative overflow-hidden">
+              {/* Decorative glows */}
+              <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+              <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+
+              <div className="grid grid-cols-1 gap-6 text-center md:grid-cols-4 relative z-10">
                 <div>
-                  <p className="mb-1 text-sm text-blue-100">
+                  <p className="mb-1 text-xs text-indigo-100 font-semibold uppercase tracking-wider">
                     Total Revenue (Month)
                   </p>
-                  <p className="text-3xl font-bold">
+                  <p className="text-3xl font-extrabold">
                     {formatCurrency(dashboardData.monthSales, settings)}
                   </p>
                 </div>
                 <div>
-                  <p className="mb-1 text-sm text-blue-100">
+                  <p className="mb-1 text-xs text-indigo-100 font-semibold uppercase tracking-wider">
                     Transactions (Week)
                   </p>
-                  <p className="text-3xl font-bold">
+                  <p className="text-3xl font-extrabold">
                     {dashboardData.weekTransactions}
                   </p>
                 </div>
                 <div>
-                  <p className="mb-1 text-sm text-blue-100">Active Inventory</p>
-                  <p className="text-3xl font-bold">
+                  <p className="mb-1 text-xs text-indigo-100 font-semibold uppercase tracking-wider">Active Inventory</p>
+                  <p className="text-3xl font-extrabold">
                     {dashboardData.activeProducts}
                   </p>
                 </div>
                 <div>
-                  <p className="mb-1 text-sm text-blue-100">Total Customers</p>
-                  <p className="text-3xl font-bold">
+                  <p className="mb-1 text-xs text-indigo-100 font-semibold uppercase tracking-wider">Total Customers</p>
+                  <p className="text-3xl font-extrabold">
                     {dashboardData.totalCustomers}
                   </p>
                 </div>
