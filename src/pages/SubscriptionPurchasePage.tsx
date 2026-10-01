@@ -194,7 +194,7 @@ export default function SubscriptionPurchasePage() {
     } catch (error: any) {
       console.error("Payment initiation error:", error);
       toast.error(
-        error.response?.data?.message || "Failed to initiate payment",
+        error.response?.data?.error || error.response?.data?.message || "Failed to initiate payment",
       );
       setLoading(false);
     }
