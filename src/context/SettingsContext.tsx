@@ -17,6 +17,7 @@ interface POSSettings {
   enableCustomerSearch: boolean;
   enableBarcodeScanner: boolean;
   enableLoyaltyPoints: boolean;
+  enableItemDiscount?: boolean;
   loyaltyPointsPerUnit: number;
   pointsRedemptionRate: number;
   // Store Information
@@ -111,6 +112,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
         enableCustomerSearch: true,
         enableBarcodeScanner: true,
         enableLoyaltyPoints: true,
+        enableItemDiscount: true,
         loyaltyPointsPerUnit: 10,
         pointsRedemptionRate: 100,
         storeName: "POS System",

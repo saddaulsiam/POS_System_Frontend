@@ -168,6 +168,24 @@ const ProductsPage: React.FC = () => {
         discountType: form.discountType || "NONE",
         discountValue: parseFloat(form.discountValue) || 0,
       };
+
+      if (payload.discountType !== "NONE" && payload.discountValue > 0) {
+        const maxDiscount = Math.max(0, payload.sellingPrice - payload.purchasePrice);
+        if (payload.discountType === "FIXED" && payload.discountValue > maxDiscount) {
+          toast.error(`Discount cannot exceed ${maxDiscount} to protect buy price (${payload.purchasePrice})`);
+          setIsSubmitting(false);
+          return;
+        }
+        if (payload.discountType === "PERCENTAGE") {
+          const maxPercent = payload.sellingPrice > 0 ? ((payload.sellingPrice - payload.purchasePrice) / payload.sellingPrice) * 100 : 0;
+          if (payload.discountValue > maxPercent) {
+            toast.error(`Discount percentage cannot exceed ${maxPercent.toFixed(1)}% to protect buy price (${payload.purchasePrice})`);
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      }
+
       const product = await createProduct.mutateAsync(payload);
 
       // Upload image if selected
@@ -213,6 +231,24 @@ const ProductsPage: React.FC = () => {
         discountType: form.discountType || "NONE",
         discountValue: parseFloat(form.discountValue) || 0,
       };
+
+      if (payload.discountType !== "NONE" && payload.discountValue > 0) {
+        const maxDiscount = Math.max(0, payload.sellingPrice - payload.purchasePrice);
+        if (payload.discountType === "FIXED" && payload.discountValue > maxDiscount) {
+          toast.error(`Discount cannot exceed ${maxDiscount} to protect buy price (${payload.purchasePrice})`);
+          setIsSubmitting(false);
+          return;
+        }
+        if (payload.discountType === "PERCENTAGE") {
+          const maxPercent = payload.sellingPrice > 0 ? ((payload.sellingPrice - payload.purchasePrice) / payload.sellingPrice) * 100 : 0;
+          if (payload.discountValue > maxPercent) {
+            toast.error(`Discount percentage cannot exceed ${maxPercent.toFixed(1)}% to protect buy price (${payload.purchasePrice})`);
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      }
+
       await updateProduct.mutateAsync({ id: editProduct.id, data: payload });
 
       // Upload image if selected

@@ -7,6 +7,7 @@ export interface POSSettings {
   enableCustomerSearch: boolean;
   enableBarcodeScanner: boolean;
   enableLoyaltyPoints: boolean;
+  enableItemDiscount?: boolean;
   loyaltyPointsPerUnit: number;
   pointsRedemptionRate: number;
 

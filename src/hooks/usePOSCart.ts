@@ -2,24 +2,35 @@ import { useState } from "react";
 import { CartItem, Product, ProductVariant } from "../types";
 import toast from "react-hot-toast";
 
-/** Compute item subtotal taking discount into account */
+/** Compute item subtotal taking discount into account, ensuring selling price does not fall below purchase price */
 function computeSubtotal(
   price: number,
   quantity: number,
   discountType?: "FIXED" | "PERCENTAGE",
   discountValue?: number,
+  purchasePrice: number = 0,
 ): { subtotal: number; discountAmount: number } {
   const gross = price * quantity;
   let discountAmount = 0;
+
+  // Maximum allowed discount ensures discounted price never drops below purchase cost
+  const minAllowedSubtotal = Math.max(0, purchasePrice * quantity);
+  const maxAllowedDiscount = Math.max(0, gross - minAllowedSubtotal);
+
   if (discountValue && discountValue > 0) {
+    let rawDiscount = 0;
     if (discountType === "PERCENTAGE") {
-      discountAmount = Math.min((gross * discountValue) / 100, gross);
+      rawDiscount = (gross * discountValue) / 100;
     } else {
-      // FIXED: discount per-item × quantity
-      discountAmount = Math.min(discountValue * quantity, gross);
+      rawDiscount = discountValue * quantity;
     }
+    discountAmount = Math.min(rawDiscount, maxAllowedDiscount);
   }
-  return { subtotal: gross - discountAmount, discountAmount };
+
+  return {
+    subtotal: Math.max(minAllowedSubtotal, gross - discountAmount),
+    discountAmount,
+  };
 }
 
 export function usePOSCart() {
@@ -33,6 +44,7 @@ export function usePOSCart() {
       toast.error("Product is out of stock");
       return;
     }
+    const purchasePrice = product.purchasePrice || 0;
     const existingItem = cart.find(
       (item) => item.product.id === product.id && !item.variant,
     );
@@ -47,7 +59,13 @@ export function usePOSCart() {
             ? {
                 ...item,
                 quantity: item.quantity + 1,
-                ...computeSubtotal(item.price, item.quantity + 1, item.discountType, item.discountValue),
+                ...computeSubtotal(
+                  item.price,
+                  item.quantity + 1,
+                  item.discountType,
+                  item.discountValue,
+                  purchasePrice,
+                ),
               }
             : item,
         ),
@@ -61,7 +79,7 @@ export function usePOSCart() {
         ? (product.discountValue || 0)
         : 0;
       const { subtotal: initSubtotal, discountAmount: initDiscount } =
-        computeSubtotal(product.sellingPrice, 1, defType, defValue);
+        computeSubtotal(product.sellingPrice, 1, defType, defValue, purchasePrice);
       const newItem: CartItem = {
         product,
         quantity: 1,
@@ -81,6 +99,7 @@ export function usePOSCart() {
       toast.error("Variant is out of stock");
       return;
     }
+    const purchasePrice = variant.purchasePrice ?? product.purchasePrice ?? 0;
     const existingItem = cart.find(
       (item) =>
         item.product.id === product.id && item.variant?.id === variant.id,
@@ -96,7 +115,13 @@ export function usePOSCart() {
             ? {
                 ...item,
                 quantity: item.quantity + 1,
-                ...computeSubtotal(item.price, item.quantity + 1, item.discountType, item.discountValue),
+                ...computeSubtotal(
+                  item.price,
+                  item.quantity + 1,
+                  item.discountType,
+                  item.discountValue,
+                  purchasePrice,
+                ),
               }
             : item,
         ),
@@ -110,7 +135,7 @@ export function usePOSCart() {
         ? (product.discountValue || 0)
         : 0;
       const { subtotal: initSubtotal, discountAmount: initDiscount } =
-        computeSubtotal(variant.sellingPrice, 1, defType, defValue);
+        computeSubtotal(variant.sellingPrice, 1, defType, defValue, purchasePrice);
       const newItem: CartItem = {
         product,
         variant,
@@ -136,12 +161,27 @@ export function usePOSCart() {
       return;
     }
     setCart(
-      cart.map((item) =>
-        item.product.id === productId &&
-        (variantId ? item.variant?.id === variantId : !item.variant)
-          ? { ...item, quantity, ...computeSubtotal(item.price, quantity, item.discountType, item.discountValue) }
-          : item,
-      ),
+      cart.map((item) => {
+        if (
+          item.product.id === productId &&
+          (variantId ? item.variant?.id === variantId : !item.variant)
+        ) {
+          const purchasePrice =
+            item.variant?.purchasePrice ?? item.product.purchasePrice ?? 0;
+          return {
+            ...item,
+            quantity,
+            ...computeSubtotal(
+              item.price,
+              quantity,
+              item.discountType,
+              item.discountValue,
+              purchasePrice,
+            ),
+          };
+        }
+        return item;
+      }),
     );
   };
 
@@ -157,7 +197,7 @@ export function usePOSCart() {
     );
   };
 
-  /** Update per-item discount — recalculates subtotal immediately */
+  /** Update per-item discount — recalculates subtotal immediately, preventing discount below buy price */
   const updateCartItemDiscount = (
     productId: number,
     discountType: "FIXED" | "PERCENTAGE",
@@ -170,13 +210,43 @@ export function usePOSCart() {
           item.product.id === productId &&
           (variantId ? item.variant?.id === variantId : !item.variant)
         ) {
+          const purchasePrice =
+            item.variant?.purchasePrice ?? item.product.purchasePrice ?? 0;
+          const maxUnitDiscount =
+            purchasePrice > 0 ? Math.max(0, item.price - purchasePrice) : item.price;
+          const maxPercent =
+            item.price > 0 ? (maxUnitDiscount / item.price) * 100 : 100;
+
+          let safeValue = Math.max(0, discountValue);
+
+          if (purchasePrice > 0) {
+            if (discountType === "PERCENTAGE" && safeValue > maxPercent) {
+              safeValue = Math.floor(maxPercent * 10) / 10;
+              toast.error(
+                `Max discount is ${safeValue}% (cannot sell below buy price of ${purchasePrice})`,
+              );
+            } else if (discountType === "FIXED" && safeValue > maxUnitDiscount) {
+              safeValue = Math.floor(maxUnitDiscount * 100) / 100;
+              toast.error(
+                `Max discount is ${safeValue} per item (cannot sell below buy price of ${purchasePrice})`,
+              );
+            }
+          }
+
           const { subtotal, discountAmount } = computeSubtotal(
             item.price,
             item.quantity,
             discountType,
-            discountValue,
+            safeValue,
+            purchasePrice,
           );
-          return { ...item, discountType, discountValue, discountAmount, subtotal };
+          return {
+            ...item,
+            discountType,
+            discountValue: safeValue,
+            discountAmount,
+            subtotal,
+          };
         }
         return item;
       }),

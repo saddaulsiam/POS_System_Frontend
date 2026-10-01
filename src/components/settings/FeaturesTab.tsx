@@ -144,6 +144,26 @@ const featureToggles: FeatureToggle[] = [
         "Disable if not using loyalty program or during system maintenance",
     },
   },
+  {
+    key: "enableItemDiscount",
+    title: "Item Discount in POS",
+    description: "Allow cashiers to apply item-level custom discounts on POS cart",
+    icon: "🏷️",
+    detailedInfo: {
+      whatIs:
+        "Item Discount allows cashiers to apply fixed (৳) or percentage (%) custom discounts to individual products in the POS cart.",
+      howItWorks: [
+        "When enabled, a discount toolbar appears on each cart item in the POS interface",
+        "Cashiers can enter a custom fixed or percentage discount value",
+        "Discounts are automatically capped so prices never drop below the product's purchase/buy price",
+        "When disabled, manual discount controls are hidden from cashiers",
+      ],
+      whenToUse:
+        "Enable if your store permits cashiers to negotiate or offer custom discounts at checkout",
+      whenToDisable:
+        "Disable to enforce fixed pricing and prevent cashiers from giving arbitrary discounts",
+    },
+  },
 ];
 
 const FeaturesTab: React.FC<FeaturesTabProps> = ({

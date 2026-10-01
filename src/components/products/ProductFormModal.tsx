@@ -323,11 +323,22 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                     }
                     className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400"
                   />
-                  <span className="mt-1 block text-xs text-gray-400">
-                    {form.discountType === "PERCENTAGE"
-                      ? "% off the selling price per item"
-                      : "Fixed ৳ off per item at POS"}
-                  </span>
+                  <div className="mt-1 flex flex-col gap-0.5 text-xs">
+                    <span className="text-gray-400">
+                      {form.discountType === "PERCENTAGE"
+                        ? "% off the selling price per item"
+                        : "Fixed ৳ off per item at POS"}
+                    </span>
+                    {(parseFloat(form.purchasePrice) || 0) > 0 && (
+                      <span className="font-semibold text-amber-700">
+                        🛡️ Max allowed discount:{" "}
+                        {form.discountType === "PERCENTAGE"
+                          ? `${(parseFloat(form.sellingPrice) || 0) > 0 ? Math.floor((((parseFloat(form.sellingPrice) || 0) - (parseFloat(form.purchasePrice) || 0)) / (parseFloat(form.sellingPrice) || 1)) * 100 * 10) / 10 : 0}%`
+                          : `৳${Math.max(0, (parseFloat(form.sellingPrice) || 0) - (parseFloat(form.purchasePrice) || 0)).toFixed(2)}`}{" "}
+                        (Buy price: ৳{parseFloat(form.purchasePrice).toFixed(2)})
+                      </span>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

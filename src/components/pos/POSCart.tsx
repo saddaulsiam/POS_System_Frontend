@@ -122,6 +122,13 @@ export const POSCart: React.FC<POSCartProps> = ({
                 const discountType = item.discountType || "FIXED";
                 const discountValue = item.discountValue ?? 0;
                 const discountAmount = item.discountAmount || 0;
+                const purchasePrice =
+                  item.variant?.purchasePrice ?? item.product.purchasePrice ?? 0;
+                const maxUnitDiscount =
+                  purchasePrice > 0 ? Math.max(0, item.price - purchasePrice) : item.price;
+                const maxPercent =
+                  item.price > 0 ? Math.floor(((maxUnitDiscount / item.price) * 100) * 10) / 10 : 100;
+                const maxAllowed = discountType === "PERCENTAGE" ? maxPercent : maxUnitDiscount;
 
                 return (
                   <div
@@ -221,99 +228,118 @@ export const POSCart: React.FC<POSCartProps> = ({
                       </div>
                     </div>
 
-                    {/* Row 3: Dedicated Discount Toolbar */}
-                    <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
-                          🏷️ Discount:
-                        </span>
-                        <div className="flex items-center rounded-lg border border-slate-200 bg-white overflow-hidden shadow-2xs focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500/20">
-                          <input
-                            type="number"
-                            value={discountValue === 0 ? "" : discountValue}
-                            placeholder="0"
-                            onChange={(e) => {
-                              const val = parseFloat(e.target.value) || 0;
-                              onUpdateDiscount(
-                                item.product.id,
-                                discountType,
-                                val,
-                                item.variant?.id,
-                              );
-                            }}
-                            className="w-12 px-1.5 py-0.5 text-xs text-center font-semibold text-slate-800 focus:outline-none"
-                            min="0"
-                            max={discountType === "PERCENTAGE" ? 100 : undefined}
-                          />
-                          <div className="flex border-l border-slate-200 bg-slate-50 p-0.5 text-[10px] font-bold">
+                    {/* Row 3: Dedicated Discount Toolbar (Controlled by Admin Feature Setting) */}
+                    {settings?.enableItemDiscount !== false ? (
+                      <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
+                            🏷️ Discount:
+                          </span>
+                          <div className="flex items-center rounded-lg border border-slate-200 bg-white overflow-hidden shadow-2xs focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500/20">
+                            <input
+                              type="number"
+                              value={discountValue === 0 ? "" : discountValue}
+                              placeholder="0"
+                              onChange={(e) => {
+                                const val = parseFloat(e.target.value) || 0;
+                                onUpdateDiscount(
+                                  item.product.id,
+                                  discountType,
+                                  val,
+                                  item.variant?.id,
+                                );
+                              }}
+                              className="w-12 px-1.5 py-0.5 text-xs text-center font-semibold text-slate-800 focus:outline-none"
+                              min="0"
+                              max={maxAllowed}
+                            />
+                            <div className="flex border-l border-slate-200 bg-slate-50 p-0.5 text-[10px] font-bold">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  onUpdateDiscount(
+                                    item.product.id,
+                                    "FIXED",
+                                    discountValue,
+                                    item.variant?.id,
+                                  )
+                                }
+                                className={`px-1.5 py-0.5 rounded transition-all ${
+                                  discountType === "FIXED"
+                                    ? "bg-white text-blue-600 shadow-2xs font-extrabold"
+                                    : "text-slate-500 hover:text-slate-800"
+                                }`}
+                                title="Fixed Amount"
+                              >
+                                {settings?.currencySymbol || "৳"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  onUpdateDiscount(
+                                    item.product.id,
+                                    "PERCENTAGE",
+                                    discountValue,
+                                    item.variant?.id,
+                                  )
+                                }
+                                className={`px-1.5 py-0.5 rounded transition-all ${
+                                  discountType === "PERCENTAGE"
+                                    ? "bg-white text-blue-600 shadow-2xs font-extrabold"
+                                    : "text-slate-500 hover:text-slate-800"
+                                }`}
+                                title="Percentage"
+                              >
+                                %
+                              </button>
+                            </div>
+                          </div>
+                          {purchasePrice > 0 && (
+                            <span
+                              className="text-[10px] text-slate-400 font-medium"
+                              title={`Cost price: ${formatCurrency(purchasePrice, settings)}. Price cannot fall below this.`}
+                            >
+                              (Max: {discountType === "PERCENTAGE" ? `${maxPercent}%` : formatCurrency(maxUnitDiscount, settings)})
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Savings badge or clear */}
+                        {discountAmount > 0 ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200">
+                              −{formatCurrency(discountAmount, settings)}
+                            </span>
                             <button
                               type="button"
                               onClick={() =>
                                 onUpdateDiscount(
                                   item.product.id,
-                                  "FIXED",
-                                  discountValue,
+                                  discountType,
+                                  0,
                                   item.variant?.id,
                                 )
                               }
-                              className={`px-1.5 py-0.5 rounded transition-all ${
-                                discountType === "FIXED"
-                                  ? "bg-white text-blue-600 shadow-2xs font-extrabold"
-                                  : "text-slate-500 hover:text-slate-800"
-                              }`}
-                              title="Fixed Amount"
+                              className="text-slate-400 hover:text-red-500 text-xs p-0.5 rounded hover:bg-slate-100 transition-colors"
+                              title="Remove discount"
                             >
-                              {settings?.currencySymbol || "৳"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                onUpdateDiscount(
-                                  item.product.id,
-                                  "PERCENTAGE",
-                                  discountValue,
-                                  item.variant?.id,
-                                )
-                              }
-                              className={`px-1.5 py-0.5 rounded transition-all ${
-                                discountType === "PERCENTAGE"
-                                  ? "bg-white text-blue-600 shadow-2xs font-extrabold"
-                                  : "text-slate-500 hover:text-slate-800"
-                              }`}
-                              title="Percentage"
-                            >
-                              %
+                              ✕
                             </button>
                           </div>
-                        </div>
+                        ) : (
+                          <span className="text-[11px] text-slate-400">No discount</span>
+                        )}
                       </div>
-
-                      {/* Savings badge or clear */}
-                      {discountAmount > 0 ? (
-                        <div className="flex items-center gap-1.5">
+                    ) : (
+                      discountAmount > 0 && (
+                        <div className="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between text-xs">
+                          <span className="text-slate-500 font-medium">🏷️ Applied Discount:</span>
                           <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200">
                             −{formatCurrency(discountAmount, settings)}
                           </span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              onUpdateDiscount(
-                                item.product.id,
-                                discountType,
-                                0,
-                                item.variant?.id,
-                              )
-                            }
-                            className="text-slate-400 hover:text-red-500 text-xs p-0.5 rounded hover:bg-slate-100 transition-colors"
-                            title="Remove discount"
-                          >
-                            ✕
-                          </button>
                         </div>
-                      ) : (
-                        <span className="text-[11px] text-slate-400">No discount</span>
-                      )}
-                    </div>
+                      )
+                    )}
                   </div>
                 );
               })}
