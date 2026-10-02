@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { CustomerModal } from "../components/customers/CustomerModal";
 import { RedeemPointsDialog } from "../components/loyalty";
@@ -13,7 +13,6 @@ import {
   ParkSaleDialog,
   ParkedSalesList,
   QuickSaleButtons,
-  ReceiptPreviewModal,
   SplitPaymentDialog,
   VariantSelectorModal,
 } from "../components/pos";
@@ -173,9 +172,8 @@ const POSPage: FC = () => {
   const [appliedOffer, setAppliedOffer] = useState<any>(null);
   const [pendingSyncCount, setPendingSyncCount] = useState(0);
 
-  // Receipt preview modal state
-  const [showReceiptModal, setShowReceiptModal] = useState(false);
-  const [receiptHtml, setReceiptHtml] = useState("");
+  // Hidden iframe ref for direct auto-print (no popup blocker)
+  const printIframeRef = useRef<HTMLIFrameElement>(null);
 
   // Load initial queue length and set up online listener for automatic sync
   useEffect(() => {
@@ -462,28 +460,42 @@ const POSPage: FC = () => {
         changeGiven: paymentMethod === "CASH" ? changeAmount : null,
       };
 
-      // Handle receipt - show in-app modal (works in web + Electron, no popup needed)
+      // Auto-print receipt via hidden iframe (no popup blocker, no modal)
       const isElectron = (window as any).electron?.isElectron;
 
+      const printViaIframe = (content: string) => {
+        const iframe = printIframeRef.current;
+        if (!iframe) return;
+        const doc = iframe.contentDocument;
+        if (!doc) return;
+        doc.open();
+        doc.write(content);
+        doc.close();
+        // Small delay to let iframe render before print dialog
+        setTimeout(() => {
+          iframe.contentWindow?.focus();
+          iframe.contentWindow?.print();
+        }, 300);
+      };
+
       if (settings?.autoPrintThermal) {
-        // Thermal: silent print directly via Electron IPC or new window
         const thermalContent = generateThermalReceipt(localSaleObj, settings);
+        const thermalHTML =
+          `<html><body style="margin:0;padding:0;">` +
+          `<pre style="font-size:14px;font-family:monospace;margin:0;">${thermalContent}</pre>` +
+          `</body></html>`;
         if (isElectron) {
-          const thermalHTML = `<html><body style="margin:0; padding:0;"><pre style='font-size:14px; font-family:monospace; margin:0;'>${thermalContent}</pre></body></html>`;
-          (window as any).electronAPI.send("print-silent", {
-            htmlContent: thermalHTML,
-            printerName: "",
-          });
+          (window as any).electronAPI.send("print-silent", { htmlContent: thermalHTML, printerName: "" });
+        } else {
+          printViaIframe(thermalHTML);
         }
-        // Also show HTML receipt in modal for review
+      } else if (settings?.printReceiptAuto) {
         const htmlContent = generateHTMLReceipt(localSaleObj, settings);
-        setReceiptHtml(htmlContent);
-        setShowReceiptModal(true);
-      } else {
-        // Always show receipt preview modal (HTML receipt) — no window.open()
-        const htmlContent = generateHTMLReceipt(localSaleObj, settings);
-        setReceiptHtml(htmlContent);
-        setShowReceiptModal(true);
+        if (isElectron) {
+          (window as any).electronAPI.send("print-silent", { htmlContent, printerName: "" });
+        } else {
+          printViaIframe(htmlContent);
+        }
       }
 
       // Clear cart and reset form immediately (Optimistic UI)
@@ -736,14 +748,11 @@ const POSPage: FC = () => {
         onSubmit={handleCustomerFormSubmit}
       />
 
-      {/* Receipt Preview Modal - shows after every sale (works in web + Electron) */}
-      <ReceiptPreviewModal
-        isOpen={showReceiptModal}
-        htmlContent={receiptHtml}
-        onClose={() => {
-          setShowReceiptModal(false);
-          setReceiptHtml("");
-        }}
+      {/* Hidden iframe for direct auto-print — no popup, no modal */}
+      <iframe
+        ref={printIframeRef}
+        title="receipt-print"
+        style={{ position: "fixed", top: -9999, left: -9999, width: 0, height: 0, border: "none" }}
       />
     </div>
 

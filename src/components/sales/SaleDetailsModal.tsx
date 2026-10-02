@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useSettings } from "../../context/SettingsContext";
 import { receiptsAPI } from "../../services/api/receiptsAPI";
 import { Sale } from "../../types";
@@ -26,26 +26,42 @@ export const SaleDetailsModal: React.FC<SaleDetailsModalProps> = ({
 }) => {
   const { settings } = useSettings();
 
+  const printIframeRef = useRef<HTMLIFrameElement>(null);
+
   const handlePrintReceipt = async () => {
     if (!sale) return;
     try {
+      const isElectron = (window as any).electron?.isElectron;
+      const isThermal = settings?.autoPrintThermal;
       let content = "";
-      let isThermal = settings?.autoPrintThermal;
+
       if (isThermal) {
-        content = await receiptsAPI.getThermal(sale.id);
-        content = `<pre style='font-size:16px; font-family:monospace;'>${content}</pre>`;
+        const thermal = await receiptsAPI.getThermal(sale.id);
+        content =
+          `<html><body style="margin:0;padding:8px;">` +
+          `<pre style="font-size:14px;font-family:monospace;white-space:pre-wrap;">${thermal}</pre>` +
+          `</body></html>`;
       } else {
         content = await receiptsAPI.getHTML(sale.id);
       }
-      const printWindow = window.open(
-        "",
-        "_blank",
-        isThermal ? "width=400,height=600" : "width=800,height=600",
-      );
-      if (printWindow) {
-        printWindow.document.write(content);
-        printWindow.document.close();
-        setTimeout(() => printWindow.print(), 500);
+
+      if (isElectron) {
+        (window as any).electronAPI.send("print-silent", {
+          htmlContent: content,
+          printerName: "",
+        });
+      } else {
+        const iframe = printIframeRef.current;
+        if (!iframe) return;
+        const doc = iframe.contentDocument;
+        if (!doc) return;
+        doc.open();
+        doc.write(content);
+        doc.close();
+        setTimeout(() => {
+          iframe.contentWindow?.focus();
+          iframe.contentWindow?.print();
+        }, 300);
       }
     } catch (err) {
       alert("Failed to load receipt for printing.");
@@ -55,6 +71,7 @@ export const SaleDetailsModal: React.FC<SaleDetailsModalProps> = ({
   if (!isOpen || !sale) return null;
 
   return (
+    <>
     <Modal
       isOpen={isOpen}
       onClose={onClose}
@@ -231,5 +248,13 @@ export const SaleDetailsModal: React.FC<SaleDetailsModalProps> = ({
         </div>
       </div>
     </Modal>
+
+      {/* Hidden iframe for print — no popup blocker */}
+      <iframe
+        ref={printIframeRef}
+        title="sale-receipt-print"
+        style={{ position: "fixed", top: -9999, left: -9999, width: 0, height: 0, border: "none" }}
+      />
+    </>
   );
 };
