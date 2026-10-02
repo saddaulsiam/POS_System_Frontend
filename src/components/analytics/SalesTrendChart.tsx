@@ -39,15 +39,15 @@ export const SalesTrendChart: React.FC<SalesTrendChartProps> = ({
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-            <XAxis 
-              dataKey="period" 
+            <XAxis
+              dataKey="period"
               stroke="#94a3b8"
               fontSize={11}
               tickLine={false}
               axisLine={false}
               dy={10}
             />
-            <YAxis 
+            <YAxis
               stroke="#94a3b8"
               fontSize={11}
               tickLine={false}
