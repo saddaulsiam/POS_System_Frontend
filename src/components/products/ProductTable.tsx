@@ -121,6 +121,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 Category
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
+                Brand
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
                 Price
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
@@ -206,6 +209,17 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     {categories.find((c) => c.id === product.categoryId)
                       ?.name || "-"}
                   </Badge>
+                </td>
+
+                {/* Brand Column */}
+                <td className="px-6 py-4">
+                  {product.brand ? (
+                    <Badge variant="info" rounded size="sm">
+                      {product.brand.name}
+                    </Badge>
+                  ) : (
+                    <span className="text-xs text-gray-400">-</span>
+                  )}
                 </td>
 
                 {/* Price Column */}

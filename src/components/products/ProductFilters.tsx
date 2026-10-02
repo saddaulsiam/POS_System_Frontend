@@ -1,13 +1,16 @@
 import React from "react";
 import { SearchBar } from "../common";
-import { Category } from "../../types";
+import { Category, Brand } from "../../types";
 
 interface ProductFiltersProps {
   search: string;
   setSearch: (value: string) => void;
   categoryFilter: string;
   setCategoryFilter: (value: string) => void;
+  brandFilter: string;
+  setBrandFilter: (value: string) => void;
   categories: Category[];
+  brands: Brand[];
 }
 
 export const ProductFilters: React.FC<ProductFiltersProps> = ({
@@ -15,7 +18,10 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   setSearch,
   categoryFilter,
   setCategoryFilter,
+  brandFilter,
+  setBrandFilter,
   categories,
+  brands,
 }) => {
   return (
     <div className="flex w-full gap-2 md:w-auto">
@@ -34,6 +40,18 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         {categories.map((cat) => (
           <option key={cat.id} value={cat.id}>
             {cat.name}
+          </option>
+        ))}
+      </select>
+      <select
+        className="rounded border px-3 py-2"
+        value={brandFilter}
+        onChange={(e) => setBrandFilter(e.target.value)}
+      >
+        <option value="">All Brands</option>
+        {brands.map((brand) => (
+          <option key={brand.id} value={brand.id}>
+            {brand.name}
           </option>
         ))}
       </select>

@@ -18,3 +18,4 @@ export * from "./salaryQueries";
 export * from "./salesQueries";
 export * from "./settingsQueries";
 export * from "./adminQueries";
+export * from "./brandsQueries";

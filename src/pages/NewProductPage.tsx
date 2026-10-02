@@ -5,6 +5,7 @@ import { Button } from "../components/common";
 import { Input } from "../components/common/Input";
 import {
   useCategories,
+  useBrands,
   useCreateProduct,
   useProductImageUpload,
   useSuppliers,
@@ -19,6 +20,7 @@ const NewProductPage: React.FC = () => {
     sku: "",
     barcode: "",
     categoryId: "",
+    brandId: "",
     supplierId: "",
     purchasePrice: "",
     sellingPrice: "",
@@ -34,6 +36,7 @@ const NewProductPage: React.FC = () => {
 
   // React Query hooks
   const { data: categories = [] } = useCategories();
+  const { data: brands = [] } = useBrands();
   const { data: suppliersData } = useSuppliers({ limit: 1000 });
   const suppliers = suppliersData?.data || [];
 
@@ -78,6 +81,7 @@ const NewProductPage: React.FC = () => {
         sku: form.sku,
         barcode: form.barcode || undefined,
         categoryId: parseInt(form.categoryId),
+        brandId: form.brandId ? parseInt(form.brandId) : undefined,
         supplierId: form.supplierId ? parseInt(form.supplierId) : undefined,
         purchasePrice: parseFloat(form.purchasePrice),
         sellingPrice: parseFloat(form.sellingPrice),
@@ -225,6 +229,22 @@ const NewProductPage: React.FC = () => {
                     {categories.map((cat) => (
                       <option key={cat.id} value={cat.id}>
                         {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Brand</label>
+                  <select
+                    name="brandId"
+                    value={form.brandId}
+                    onChange={handleFormChange}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">Select brand (optional)</option>
+                    {brands.map((brand: any) => (
+                      <option key={brand.id} value={brand.id}>
+                        {brand.name}
                       </option>
                     ))}
                   </select>

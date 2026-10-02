@@ -4,6 +4,7 @@ export interface CreateProductRequest {
   barcode?: string;
   description?: string;
   categoryId: number;
+  brandId?: number;
   supplierId?: number;
   purchasePrice: number;
   sellingPrice: number;

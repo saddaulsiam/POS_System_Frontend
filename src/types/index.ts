@@ -10,3 +10,4 @@ export type * from "./reportTypes";
 export type * from "./saleTypes";
 export type * from "./supplierTypes";
 export type * from "./utilityTypes";
+export type * from "./brandTypes";

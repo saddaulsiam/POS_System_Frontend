@@ -1,6 +1,6 @@
 import React from "react";
 import { toast } from "react-hot-toast";
-import { Category, Supplier } from "../../types";
+import { Category, Supplier, Brand } from "../../types";
 import { Button, Modal } from "../common";
 import { Input, Select } from "../common/Input";
 
@@ -17,6 +17,7 @@ interface ProductFormModalProps {
   isSubmitting: boolean;
   submitButtonText: string;
   categories: Category[];
+  brands: Brand[];
   suppliers: Supplier[];
   imageFile: File | null;
   setImageFile: (file: File | null) => void;
@@ -35,6 +36,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   isSubmitting,
   submitButtonText,
   categories,
+  brands,
   suppliers,
   setImageFile,
   imagePreview,
@@ -155,6 +157,22 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
         </div>
         <div>
           <Select
+            name="brandId"
+            label="Brand"
+            value={form.brandId}
+            onChange={handleFormChange}
+            fullWidth
+            options={[
+              { value: "", label: "Select brand (optional)" },
+              ...brands.map((brand) => ({
+                value: brand.id,
+                label: brand.name,
+              })),
+            ]}
+          />
+        </div>
+        <div>
+          <Select
             name="supplierId"
             label="Supplier"
             value={form.supplierId}
@@ -253,31 +271,60 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             Leave 0 if not applicable.
           </span>
         </div>
-        <div className="flex space-x-10">
-          <div className="mt-2 flex items-center">
-            <input
-              id="isWeighted"
-              name="isWeighted"
-              type="checkbox"
-              checked={form.isWeighted}
-              onChange={handleFormChange}
-              className="mr-2"
-            />
-            <label htmlFor="isWeighted" className="text-sm font-medium">
-              Weighted Product
-            </label>
+        {/* Toggles */}
+        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col rounded-lg border border-gray-200 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-gray-900">Weighted Product</h3>
+                <p className="text-xs text-gray-500">Sold by weight (e.g. kg, lb).</p>
+              </div>
+              <label className="relative inline-flex cursor-pointer items-center">
+                <input
+                  name="isWeighted"
+                  type="checkbox"
+                  checked={form.isWeighted}
+                  onChange={handleFormChange}
+                  className="peer sr-only"
+                />
+                <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"></div>
+              </label>
+            </div>
+            
+            {form.isWeighted && (
+              <div className="mt-3 border-t border-gray-200 pt-3">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                  Weight Unit <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="unit"
+                  value={form.unit}
+                  onChange={handleFormChange}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="kg">Kilogram (kg)</option>
+                  <option value="g">Gram (g)</option>
+                  <option value="lb">Pound (lb)</option>
+                  <option value="oz">Ounce (oz)</option>
+                </select>
+              </div>
+            )}
           </div>
-          <div className="mt-2 flex items-center">
-            <input
-              id="isActive"
-              name="isActive"
-              type="checkbox"
-              checked={form.isActive}
-              onChange={handleFormChange}
-              className="mr-2"
-            />
-            <label htmlFor="isActive" className="text-sm font-medium">
-              Active
+
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4 h-fit">
+            <div>
+              <h3 className="text-sm font-medium text-gray-900">Active Status</h3>
+              <p className="text-xs text-gray-500">Enable or disable product.</p>
+            </div>
+            <label className="relative inline-flex cursor-pointer items-center">
+              <input
+                name="isActive"
+                type="checkbox"
+                checked={form.isActive}
+                onChange={handleFormChange}
+                className="peer sr-only"
+              />
+              <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"></div>
             </label>
           </div>
         </div>
@@ -350,7 +397,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             type="submit"
             variant="primary"
             fullWidth
-            size="lg"
+            size="md"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Saving..." : submitButtonText}

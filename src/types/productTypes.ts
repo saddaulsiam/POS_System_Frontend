@@ -1,5 +1,6 @@
 import { Supplier } from "./supplierTypes";
 import { Category } from "./categoryTypes";
+import { Brand } from "./brandTypes";
 
 export interface Product {
   id: number;
@@ -8,6 +9,7 @@ export interface Product {
   barcode?: string;
   description?: string;
   categoryId: number;
+  brandId?: number;
   supplierId?: number;
   purchasePrice: number;
   sellingPrice: number;
@@ -25,6 +27,7 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
   category?: Category;
+  brand?: Brand;
   supplier?: Supplier;
   variants?: ProductVariant[];
 }

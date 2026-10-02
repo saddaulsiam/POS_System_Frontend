@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Product, Category, Supplier } from "../../types";
+import { Product, Category, Supplier, Brand } from "../../types";
 import { Button, Modal, ConfirmModal } from "../common";
 import { ProductFormModal } from "./ProductFormModal";
 import type {
@@ -19,6 +19,7 @@ interface ProductModalsProps {
   handleAddProduct: (e: React.FormEvent) => void;
   isSubmitting: boolean;
   categories: Category[];
+  brands: Brand[];
   suppliers: Supplier[];
   imageFile: File | null;
   setImageFile: (file: File | null) => void;
@@ -70,6 +71,7 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
   handleAddProduct,
   isSubmitting,
   categories,
+  brands,
   suppliers,
   setImageFile,
   imagePreview,
@@ -166,6 +168,7 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
         isSubmitting={isSubmitting}
         submitButtonText="Add Product"
         categories={categories}
+        brands={brands}
         suppliers={suppliers}
         imageFile={null}
         setImageFile={setImageFile}
@@ -186,6 +189,7 @@ export const ProductModals: React.FC<ProductModalsProps> = ({
           isSubmitting={isSubmitting}
           submitButtonText="Save Changes"
           categories={categories}
+          brands={brands}
           suppliers={suppliers}
           imageFile={null}
           setImageFile={setImageFile}

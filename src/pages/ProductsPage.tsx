@@ -11,6 +11,7 @@ import { useSettings } from "../context/SettingsContext";
 import { productsAPI } from "../services";
 import {
   useCategories,
+  useBrands,
   useCreateProduct,
   useDeleteProduct,
   useProductImageUpload,
@@ -41,6 +42,8 @@ const ProductsPage: React.FC = () => {
   const products = productsResponse?.data || [];
   const { data: categoriesResponse } = useCategories();
   const categories = categoriesResponse || [];
+  const { data: brandsResponse } = useBrands();
+  const brands = brandsResponse || [];
   const { data: suppliersResponse } = useSuppliers({ limit: 1000 });
   const suppliers = suppliersResponse?.data || [];
   const createProduct = useCreateProduct();
@@ -74,6 +77,7 @@ const ProductsPage: React.FC = () => {
     name: "",
     sku: "",
     categoryId: "",
+    brandId: "",
     supplierId: "",
     purchasePrice: "",
     sellingPrice: "",
@@ -81,6 +85,7 @@ const ProductsPage: React.FC = () => {
     lowStockThreshold: "10",
     isActive: true,
     isWeighted: false,
+    unit: "kg",
     taxRate: "0",
     image: "",
     discountType: "NONE",
@@ -90,6 +95,7 @@ const ProductsPage: React.FC = () => {
   // Filter states
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [brandFilter, setBrandFilter] = useState("");
 
   // React Query handles loading and caching; when `showDeleted` changes we refetch
   useEffect(() => {
@@ -132,6 +138,7 @@ const ProductsPage: React.FC = () => {
       name: "",
       sku: "",
       categoryId: "",
+      brandId: "",
       supplierId: "",
       purchasePrice: "",
       sellingPrice: "",
@@ -139,6 +146,7 @@ const ProductsPage: React.FC = () => {
       lowStockThreshold: "10",
       isActive: true,
       isWeighted: false,
+      unit: "kg",
       taxRate: "0",
       image: "",
       discountType: "NONE",
@@ -157,6 +165,7 @@ const ProductsPage: React.FC = () => {
         name: form.name,
         sku: form.sku,
         categoryId: parseInt(form.categoryId),
+        brandId: form.brandId ? parseInt(form.brandId) : undefined,
         supplierId: form.supplierId ? parseInt(form.supplierId) : undefined,
         purchasePrice: parseFloat(form.purchasePrice),
         sellingPrice: parseFloat(form.sellingPrice),
@@ -164,6 +173,7 @@ const ProductsPage: React.FC = () => {
         lowStockThreshold: parseInt(form.lowStockThreshold),
         isActive: form.isActive,
         isWeighted: form.isWeighted,
+        unit: form.isWeighted ? form.unit : undefined,
         taxRate: parseFloat(form.taxRate),
         discountType: form.discountType || "NONE",
         discountValue: parseFloat(form.discountValue) || 0,
@@ -220,6 +230,7 @@ const ProductsPage: React.FC = () => {
         name: form.name,
         sku: form.sku,
         categoryId: parseInt(form.categoryId),
+        brandId: form.brandId ? parseInt(form.brandId) : undefined,
         supplierId: form.supplierId ? parseInt(form.supplierId) : undefined,
         purchasePrice: parseFloat(form.purchasePrice),
         sellingPrice: parseFloat(form.sellingPrice),
@@ -227,6 +238,7 @@ const ProductsPage: React.FC = () => {
         lowStockThreshold: parseInt(form.lowStockThreshold),
         isActive: form.isActive,
         isWeighted: form.isWeighted,
+        unit: form.isWeighted ? form.unit : undefined,
         taxRate: parseFloat(form.taxRate),
         discountType: form.discountType || "NONE",
         discountValue: parseFloat(form.discountValue) || 0,
@@ -427,6 +439,7 @@ const ProductsPage: React.FC = () => {
       name: product.name,
       sku: product.sku,
       categoryId: product.categoryId.toString(),
+      brandId: product.brandId?.toString() || "",
       supplierId: product.supplierId?.toString() || "",
       purchasePrice: product.purchasePrice.toString(),
       sellingPrice: product.sellingPrice.toString(),
@@ -434,6 +447,7 @@ const ProductsPage: React.FC = () => {
       lowStockThreshold: product.lowStockThreshold.toString(),
       isActive: product.isActive,
       isWeighted: product.isWeighted,
+      unit: product.unit || "kg",
       taxRate: product.taxRate.toString(),
       image: product.image || "",
       discountType: product.discountType || "NONE",
@@ -460,7 +474,10 @@ const ProductsPage: React.FC = () => {
     const matchesCategory = categoryFilter
       ? p.categoryId === parseInt(categoryFilter)
       : true;
-    return matchesSearch && matchesCategory;
+    const matchesBrand = brandFilter
+      ? p.brandId === parseInt(brandFilter)
+      : true;
+    return matchesSearch && matchesCategory && matchesBrand;
   });
   // If showing deleted, sort so deleted products are on top
   if (showDeleted) {
@@ -482,7 +499,10 @@ const ProductsPage: React.FC = () => {
             setSearch={setSearch}
             categoryFilter={categoryFilter}
             setCategoryFilter={setCategoryFilter}
+            brandFilter={brandFilter}
+            setBrandFilter={setBrandFilter}
             categories={categories}
+            brands={brands}
           />
           <ProductActions
             canWrite={canWrite}
@@ -531,6 +551,7 @@ const ProductsPage: React.FC = () => {
           handleAddProduct={handleAddProduct}
           isSubmitting={isSubmitting}
           categories={categories}
+          brands={brands}
           suppliers={suppliers}
           imageFile={imageFile}
           setImageFile={setImageFile}
