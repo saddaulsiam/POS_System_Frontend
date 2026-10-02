@@ -177,15 +177,20 @@ const navGroups: NavGroup[] = [
         ]
       },
       {
-        label: "Reports & Analytics",
-        icon: Icon.Analytics,
+        to: "/reports",
+        label: "Reports",
+        icon: Icon.Reports,
         color: "text-purple-500",
         bg: "bg-purple-50",
         roles: ["OWNER", "ADMIN", "MANAGER"],
-        subItems: [
-          { to: "/reports", label: "Reports Hub" },
-          { to: "/analytics", label: "Analytics Dashboard" }
-        ]
+      },
+      {
+        to: "/analytics",
+        label: "Analytics",
+        icon: Icon.Analytics,
+        color: "text-fuchsia-500",
+        bg: "bg-fuchsia-50",
+        roles: ["OWNER", "ADMIN", "MANAGER"],
       }
     ]
   },
