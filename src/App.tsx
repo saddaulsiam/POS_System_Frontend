@@ -33,6 +33,14 @@ const SalarySheetsPage = lazy(() => import("./pages/SalarySheetsPage"));
 const SalesPage = lazy(() => import("./pages/SalesPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const SuppliersPage = lazy(() => import("./pages/SuppliersPage"));
+const BrandsPage = lazy(() => import("./pages/BrandsPage"));
+const UnitsPage = lazy(() => import("./pages/UnitsPage"));
+const BarcodePrintPage = lazy(() => import("./pages/BarcodePrintPage"));
+const OrdersPage = lazy(() => import("./pages/OrdersPage"));
+const ReturnsPage = lazy(() => import("./pages/ReturnsPage"));
+const ExpensesPage = lazy(() => import("./pages/ExpensesPage"));
+const SalesReportPage = lazy(() => import("./pages/SalesReportPage"));
+const InventoryReportPage = lazy(() => import("./pages/InventoryReportPage"));
 const SubscriptionPurchasePage = lazy(
   () => import("./pages/SubscriptionPurchasePage"),
 );
@@ -66,6 +74,10 @@ const adminPaths = [
   "/purchase-orders",
   "/cash-drawer",
   "/notifications",
+  "/barcode-print",
+  "/orders",
+  "/returns",
+  "/expenses",
 ];
 
 const App: React.FC = () => {
@@ -165,6 +177,15 @@ const App: React.FC = () => {
                       <Route path="/dashboard" element={<AdminDashboard />} />
                       <Route path="/products" element={<ProductsPage />} />
                       <Route path="/products/new" element={<NewProductPage />} />
+                      <Route path="/products/create" element={<NewProductPage />} />
+                      <Route path="/products/brands" element={<BrandsPage />} />
+                      <Route path="/products/units" element={<UnitsPage />} />
+                      <Route path="/barcode-print" element={<BarcodePrintPage />} />
+                      <Route path="/orders" element={<OrdersPage />} />
+                      <Route path="/returns" element={<ReturnsPage />} />
+                      <Route path="/expenses" element={<ExpensesPage />} />
+                      <Route path="/reports/sales" element={<SalesReportPage />} />
+                      <Route path="/reports/inventory" element={<InventoryReportPage />} />
                       <Route
                         path="/products/:id"
                         element={<ProductDetailPage />}

@@ -98,52 +98,102 @@ const Icon = {
   ),
 };
 
-// --- Nav structure with groups ---
-const navGroups = [
+// --- Nav structure with groups and subItems ---
+type SubItem = { to: string; label: string };
+type NavItem = {
+  label: string;
+  icon: any;
+  color: string;
+  bg: string;
+  roles: string[];
+  to?: string;
+  subItems?: SubItem[];
+};
+type NavGroup = {
+  label: string;
+  items: NavItem[];
+};
+
+const navGroups: NavGroup[] = [
   {
     label: "Overview",
     items: [
-      { to: "/dashboard", label: "Dashboard", icon: Icon.Dashboard, color: "text-violet-500", bg: "bg-violet-50", roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER", "STAFF"] },
-    ],
+      { to: "/dashboard", label: "Dashboard", icon: Icon.Dashboard, color: "text-violet-500", bg: "bg-violet-50", roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER", "STAFF"] }
+    ]
   },
   {
     label: "Catalog",
     items: [
-      { to: "/products", label: "Products", icon: Icon.Products, color: "text-blue-500", bg: "bg-blue-50", roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER", "STAFF"] },
+      {
+        label: "Products",
+        icon: Icon.Products,
+        color: "text-blue-500",
+        bg: "bg-blue-50",
+        roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER", "STAFF"],
+        subItems: [
+          { to: "/products", label: "Product List" },
+          { to: "/products/create", label: "Add Product" },
+          { to: "/products/brands", label: "Brands" },
+          { to: "/products/units", label: "Units" }
+        ]
+      },
       { to: "/categories", label: "Categories", icon: Icon.Categories, color: "text-cyan-500", bg: "bg-cyan-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
-      { to: "/suppliers", label: "Suppliers", icon: Icon.Suppliers, color: "text-teal-500", bg: "bg-teal-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
-    ],
+      { to: "/suppliers", label: "Suppliers", icon: Icon.Suppliers, color: "text-teal-500", bg: "bg-teal-50", roles: ["OWNER", "ADMIN", "MANAGER"] }
+    ]
   },
   {
     label: "Operations",
     items: [
       { to: "/inventory", label: "Inventory", icon: Icon.Inventory, color: "text-amber-500", bg: "bg-amber-50", roles: ["OWNER", "ADMIN", "MANAGER", "STAFF"] },
       { to: "/purchase-orders", label: "Purchase Orders", icon: Icon.PurchaseOrders, color: "text-orange-500", bg: "bg-orange-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
-      { to: "/cash-drawer", label: "Cash Drawer", icon: Icon.CashDrawer, color: "text-green-500", bg: "bg-green-50", roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER"] },
-    ],
+      { to: "/barcode-print", label: "Print Barcode", icon: Icon.Products, color: "text-indigo-500", bg: "bg-indigo-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
+    ]
   },
   {
-    label: "Finance",
+    label: "Finance & Sales",
     items: [
-      { to: "/sales", label: "Sales", icon: Icon.Sales, color: "text-emerald-500", bg: "bg-emerald-50", roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER"] },
-      { to: "/reports", label: "Reports", icon: Icon.Reports, color: "text-indigo-500", bg: "bg-indigo-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
-      { to: "/analytics", label: "Analytics", icon: Icon.Analytics, color: "text-purple-500", bg: "bg-purple-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
-    ],
+      {
+        label: "Sales",
+        icon: Icon.Sales,
+        color: "text-emerald-500",
+        bg: "bg-emerald-50",
+        roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER"],
+        subItems: [
+          { to: "/sales", label: "Sales POS" },
+          { to: "/orders", label: "Sales History" },
+          { to: "/returns", label: "Returns / Refunds" }
+        ]
+      },
+      { to: "/cash-drawer", label: "Cash Drawer", icon: Icon.CashDrawer, color: "text-green-500", bg: "bg-green-50", roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER"] },
+      { to: "/expenses", label: "Expenses", icon: Icon.Reports, color: "text-red-500", bg: "bg-red-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
+      {
+        label: "Reports & Analytics",
+        icon: Icon.Analytics,
+        color: "text-purple-500",
+        bg: "bg-purple-50",
+        roles: ["OWNER", "ADMIN", "MANAGER"],
+        subItems: [
+          { to: "/reports/sales", label: "Sales Report" },
+          { to: "/reports/inventory", label: "Inventory Report" },
+          { to: "/analytics", label: "Analytics Dashboard" }
+        ]
+      }
+    ]
   },
   {
     label: "People",
     items: [
-      { to: "/loyalty-admin", label: "Loyalty Program", icon: Icon.Loyalty, color: "text-pink-500", bg: "bg-pink-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
+      { to: "/customers", label: "Customers", icon: Icon.Customers, color: "text-sky-500", bg: "bg-sky-50", roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER"] },
       { to: "/employees", label: "Employees", icon: Icon.Employees, color: "text-rose-500", bg: "bg-rose-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
       { to: "/salary-sheets", label: "Salary Sheets", icon: Icon.Salary, color: "text-fuchsia-500", bg: "bg-fuchsia-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
-      { to: "/customers", label: "Customers", icon: Icon.Customers, color: "text-sky-500", bg: "bg-sky-50", roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER"] },
-    ],
+      { to: "/loyalty-admin", label: "Loyalty Program", icon: Icon.Loyalty, color: "text-pink-500", bg: "bg-pink-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
+    ]
   },
   {
     label: "System",
     items: [
-      { to: "/audit-logs", label: "Audit Logs", icon: Icon.AuditLogs, color: "text-red-500", bg: "bg-red-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
-    ],
+      { to: "/audit-logs", label: "Audit Logs", icon: Icon.AuditLogs, color: "text-gray-500", bg: "bg-gray-100", roles: ["OWNER", "ADMIN", "MANAGER"] },
+    ]
   },
 ];
 
@@ -151,9 +201,24 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const userRole = user?.role || "";
-  const isActive = (path: string) => location.pathname === path;
+
+  // Auto-open active dropdown on load
+  React.useEffect(() => {
+    let activeDropdownFound = false;
+    for (const group of navGroups) {
+      for (const item of group.items) {
+        if (item.subItems?.some((sub) => location.pathname === sub.to)) {
+          setOpenDropdown(item.label);
+          activeDropdownFound = true;
+          break;
+        }
+      }
+      if (activeDropdownFound) break;
+    }
+  }, [location.pathname]);
 
   const visibleGroups = navGroups
     .map((group) => ({
@@ -164,99 +229,204 @@ const Sidebar: React.FC = () => {
 
   const canSeeSettings = ["OWNER", "ADMIN", "MANAGER"].includes(userRole);
 
+  const handleMenuClick = (item: NavItem) => {
+    if (item.subItems) {
+      if (isCollapsed) {
+        setIsCollapsed(false);
+        setOpenDropdown(item.label);
+      } else {
+        setOpenDropdown((prev) => (prev === item.label ? null : item.label));
+      }
+    }
+  };
+
   return (
     <>
       <aside
-        className={`fixed left-0 top-16 z-30 flex h-[calc(100vh-4rem)] flex-col border-r border-gray-100 bg-white shadow-sm transition-all duration-300 ${isCollapsed ? "w-[60px]" : "w-56"
-          }`}
+        className={`fixed left-0 top-16 z-30 flex h-[calc(100vh-4rem)] flex-col border-r border-gray-100 bg-white shadow-sm transition-all duration-300 ${
+          isCollapsed ? "w-[60px]" : "w-56"
+        }`}
       >
         {/* Toggle Button */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-2.5 top-4 flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50 hover:shadow-lg"
+          className="absolute -right-2.5 top-4 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md transition hover:bg-gray-50 hover:shadow-lg"
           title={isCollapsed ? "Expand" : "Collapse"}
         >
           {isCollapsed ? <Icon.ChevronRight /> : <Icon.ChevronLeft />}
         </button>
 
         {/* Scrollable nav */}
-        <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-2">
+        <nav
+          className={`flex flex-1 flex-col gap-1 px-2 py-3 ${
+            isCollapsed ? "overflow-visible" : "overflow-y-auto overflow-x-hidden"
+          }`}
+        >
           {visibleGroups.map((group, gi) => (
             <div key={gi} className={gi > 0 ? "mt-2" : ""}>
               {/* Group Label */}
               {!isCollapsed && (
-                <p className="mb-0.5 px-2.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                <p className="mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                   {group.label}
                 </p>
               )}
-              {isCollapsed && gi > 0 && (
-                <div className="my-2 mx-2 border-t border-gray-100" />
-              )}
+              {isCollapsed && gi > 0 && <div className="mx-2 my-2 border-t border-gray-100" />}
 
-              {/* Items */}
-              {group.items.map((item) => {
-                const active = isActive(item.to);
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    title={isCollapsed ? item.label : ""}
-                    className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all duration-150 ${active
-                      ? "bg-blue-600 text-white shadow-sm"
-                      : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
-                      } ${isCollapsed ? "justify-center" : ""}`}
-                  >
-                    {/* Active indicator */}
-                    {active && !isCollapsed && (
-                      <span className="absolute left-0 top-1/2 h-4 w-1 -translate-y-1/2 rounded-r-full bg-blue-300" />
-                    )}
-                    {/* Colorful icon wrapper */}
-                    <span
-                      className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all ${active
-                          ? "bg-white/20 text-white"
-                          : `${item.bg} ${item.color}`
-                        }`}
-                    >
-                      <item.icon />
-                    </span>
-                    {!isCollapsed && (
-                      <span className="truncate">{item.label}</span>
-                    )}
-                  </Link>
-                );
-              })}
+              <div className="flex flex-col gap-0.5">
+                {group.items.map((item, idx) => {
+                  const isParentActive =
+                    item.to === location.pathname || item.subItems?.some((sub) => location.pathname === sub.to);
+                  const isOpen = openDropdown === item.label && !isCollapsed;
+
+                  return (
+                    <div key={idx} className="group/menu relative">
+                      {item.to ? (
+                        <Link
+                          to={item.to}
+                          title={isCollapsed ? item.label : ""}
+                          className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all duration-150 ${
+                            isParentActive
+                              ? "bg-blue-600 text-white shadow-sm"
+                              : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
+                          } ${isCollapsed ? "justify-center" : ""}`}
+                        >
+                          {isParentActive && !isCollapsed && (
+                            <span className="absolute left-0 top-1/2 h-4 w-1 -translate-y-1/2 rounded-r-full bg-blue-300" />
+                          )}
+                          <span
+                            className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all ${
+                              isParentActive ? "bg-white/20 text-white" : `${item.bg} ${item.color}`
+                            }`}
+                          >
+                            <item.icon />
+                          </span>
+                          {!isCollapsed && <span className="truncate">{item.label}</span>}
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={() => handleMenuClick(item)}
+                          title={isCollapsed ? item.label : ""}
+                          className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all duration-150 ${
+                            isParentActive
+                              ? "bg-blue-600 text-white shadow-sm"
+                              : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
+                          } ${isCollapsed ? "justify-center" : ""}`}
+                        >
+                          {isParentActive && !isCollapsed && (
+                            <span className="absolute left-0 top-1/2 h-4 w-1 -translate-y-1/2 rounded-r-full bg-blue-300" />
+                          )}
+                          <span
+                            className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all ${
+                              isParentActive ? "bg-white/20 text-white" : `${item.bg} ${item.color}`
+                            }`}
+                          >
+                            <item.icon />
+                          </span>
+                          {!isCollapsed && (
+                            <>
+                              <span className="flex-1 truncate text-left">{item.label}</span>
+                              <span
+                                className={`text-gray-400 transition-transform duration-200 ${
+                                  isOpen ? "rotate-90" : ""
+                                }`}
+                              >
+                                <Icon.ChevronRight />
+                              </span>
+                            </>
+                          )}
+                        </button>
+                      )}
+
+                      {/* Expanded Accordion Submenu */}
+                      {!isCollapsed && item.subItems && (
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            isOpen ? "mt-1 max-h-64 opacity-100" : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          <div className="ml-[22px] flex flex-col gap-0.5 border-l-2 border-gray-100 py-1 pl-3">
+                            {item.subItems.map((sub, sIdx) => {
+                              const isSubActive = location.pathname === sub.to;
+                              return (
+                                <Link
+                                  key={sIdx}
+                                  to={sub.to}
+                                  className={`block rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors ${
+                                    isSubActive
+                                      ? "bg-blue-50 text-blue-600"
+                                      : "text-gray-500 hover:bg-gray-50 hover:text-blue-600"
+                                  }`}
+                                >
+                                  {sub.label}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Collapsed Hover Flyout Submenu */}
+                      {isCollapsed && item.subItems && (
+                        <div className="absolute left-[calc(100%+8px)] top-0 z-50 hidden w-48 rounded-lg border border-gray-100 bg-white p-2 shadow-xl group-hover/menu:block">
+                          <p className="mb-2 border-b border-gray-100 pb-1 px-2 text-xs font-bold text-gray-800">
+                            {item.label}
+                          </p>
+                          <div className="flex flex-col gap-0.5">
+                            {item.subItems.map((sub, sIdx) => {
+                              const isSubActive = location.pathname === sub.to;
+                              return (
+                                <Link
+                                  key={sIdx}
+                                  to={sub.to}
+                                  className={`block rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors ${
+                                    isSubActive
+                                      ? "bg-blue-50 text-blue-600"
+                                      : "text-gray-600 hover:bg-gray-50 hover:text-blue-600"
+                                  }`}
+                                >
+                                  {sub.label}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           ))}
         </nav>
 
-          {/* Settings at bottom (fixed outside scrollable area) */}
-          {canSeeSettings && (
-            <div className="mt-auto border-t border-gray-100 p-2">
-              {!isCollapsed && (
-                <p className="mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-                  Preferences
-                </p>
-              )}
-              <Link
-                to="/settings"
-                title={isCollapsed ? "Settings" : ""}
-                className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm transition-all duration-150 ${isActive("/settings")
+        {/* Settings at bottom (fixed outside scrollable area) */}
+        {canSeeSettings && (
+          <div className="mt-auto border-t border-gray-100 p-2">
+            {!isCollapsed && (
+              <p className="mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                Preferences
+              </p>
+            )}
+            <Link
+              to="/settings"
+              title={isCollapsed ? "Settings" : ""}
+              className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all duration-150 ${
+                location.pathname === "/settings"
                   ? "bg-blue-600 text-white shadow-sm"
                   : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
-                  } ${isCollapsed ? "justify-center" : ""}`}
+              } ${isCollapsed ? "justify-center" : ""}`}
+            >
+              <span
+                className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all ${
+                  location.pathname === "/settings" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                }`}
               >
-                <span
-                  className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all ${isActive("/settings")
-                      ? "bg-white/20 text-white"
-                      : "bg-slate-100 text-slate-500"
-                    }`}
-                >
-                  <Icon.Settings />
-                </span>
-                {!isCollapsed && <span>Settings</span>}
-              </Link>
-            </div>
-          )}
+                <Icon.Settings />
+              </span>
+              {!isCollapsed && <span>Settings</span>}
+            </Link>
+          </div>
+        )}
       </aside>
 
       {/* Spacer for content layout */}
