@@ -183,8 +183,7 @@ const navGroups: NavGroup[] = [
         bg: "bg-purple-50",
         roles: ["OWNER", "ADMIN", "MANAGER"],
         subItems: [
-          { to: "/reports/sales", label: "Sales Report" },
-          { to: "/reports/inventory", label: "Inventory Report" },
+          { to: "/reports", label: "Reports Hub" },
           { to: "/analytics", label: "Analytics Dashboard" }
         ]
       }
@@ -253,9 +252,8 @@ const Sidebar: React.FC = () => {
   return (
     <>
       <aside
-        className={`fixed left-0 top-16 z-30 flex h-[calc(100vh-4rem)] flex-col border-r border-gray-100 bg-white shadow-sm transition-all duration-300 ${
-          isCollapsed ? "w-[60px]" : "w-56"
-        }`}
+        className={`fixed left-0 top-16 z-30 flex h-[calc(100vh-4rem)] flex-col border-r border-gray-100 bg-white shadow-sm transition-all duration-300 ${isCollapsed ? "w-[60px]" : "w-64"
+          }`}
       >
         {/* Toggle Button */}
         <button
@@ -268,9 +266,8 @@ const Sidebar: React.FC = () => {
 
         {/* Scrollable nav */}
         <nav
-          className={`flex flex-1 flex-col gap-1 px-2 py-3 ${
-            isCollapsed ? "overflow-visible" : "overflow-y-auto overflow-x-hidden"
-          }`}
+          className={`flex flex-1 flex-col gap-1 px-2 py-3 ${isCollapsed ? "overflow-visible" : "overflow-y-auto overflow-x-hidden"
+            }`}
         >
           {visibleGroups.map((group, gi) => (
             <div key={gi} className={gi > 0 ? "mt-2" : ""}>
@@ -294,19 +291,17 @@ const Sidebar: React.FC = () => {
                         <Link
                           to={item.to}
                           title={isCollapsed ? item.label : ""}
-                          className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all duration-150 ${
-                            isParentActive
-                              ? "bg-blue-600 text-white shadow-sm"
-                              : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
-                          } ${isCollapsed ? "justify-center" : ""}`}
+                          className={`flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all duration-150 ${isParentActive
+                            ? "bg-blue-600 text-white shadow-sm"
+                            : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
+                            } ${isCollapsed ? "justify-center" : ""}`}
                         >
                           {isParentActive && !isCollapsed && (
                             <span className="absolute left-0 top-1/2 h-4 w-1 -translate-y-1/2 rounded-r-full bg-blue-300" />
                           )}
                           <span
-                            className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all ${
-                              isParentActive ? "bg-white/20 text-white" : `${item.bg} ${item.color}`
-                            }`}
+                            className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all ${isParentActive ? "bg-white/20 text-white" : `${item.bg} ${item.color}`
+                              }`}
                           >
                             <item.icon />
                           </span>
@@ -316,19 +311,17 @@ const Sidebar: React.FC = () => {
                         <button
                           onClick={() => handleMenuClick(item)}
                           title={isCollapsed ? item.label : ""}
-                          className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all duration-150 ${
-                            isParentActive
-                              ? "bg-blue-600 text-white shadow-sm"
-                              : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
-                          } ${isCollapsed ? "justify-center" : ""}`}
+                          className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all duration-150 ${isParentActive
+                            ? "bg-blue-600 text-white shadow-sm"
+                            : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
+                            } ${isCollapsed ? "justify-center" : ""}`}
                         >
                           {isParentActive && !isCollapsed && (
                             <span className="absolute left-0 top-1/2 h-4 w-1 -translate-y-1/2 rounded-r-full bg-blue-300" />
                           )}
                           <span
-                            className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all ${
-                              isParentActive ? "bg-white/20 text-white" : `${item.bg} ${item.color}`
-                            }`}
+                            className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all ${isParentActive ? "bg-white/20 text-white" : `${item.bg} ${item.color}`
+                              }`}
                           >
                             <item.icon />
                           </span>
@@ -336,9 +329,8 @@ const Sidebar: React.FC = () => {
                             <>
                               <span className="flex-1 truncate text-left">{item.label}</span>
                               <span
-                                className={`text-gray-400 transition-transform duration-200 ${
-                                  isOpen ? "rotate-90" : ""
-                                }`}
+                                className={`text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-90" : ""
+                                  }`}
                               >
                                 <Icon.ChevronRight />
                               </span>
@@ -350,9 +342,8 @@ const Sidebar: React.FC = () => {
                       {/* Expanded Accordion Submenu */}
                       {!isCollapsed && item.subItems && (
                         <div
-                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                            isOpen ? "mt-1 max-h-64 opacity-100" : "max-h-0 opacity-0"
-                          }`}
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "mt-1 max-h-64 opacity-100" : "max-h-0 opacity-0"
+                            }`}
                         >
                           <div className="ml-[22px] flex flex-col gap-0.5 border-l-2 border-gray-100 py-1 pl-3">
                             {item.subItems.map((sub, sIdx) => {
@@ -361,11 +352,10 @@ const Sidebar: React.FC = () => {
                                 <Link
                                   key={sIdx}
                                   to={sub.to}
-                                  className={`block rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors ${
-                                    isSubActive
-                                      ? "bg-blue-50 text-blue-600"
-                                      : "text-gray-500 hover:bg-gray-50 hover:text-blue-600"
-                                  }`}
+                                  className={`block rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors ${isSubActive
+                                    ? "bg-blue-50 text-blue-600"
+                                    : "text-gray-500 hover:bg-gray-50 hover:text-blue-600"
+                                    }`}
                                 >
                                   {sub.label}
                                 </Link>
@@ -388,11 +378,10 @@ const Sidebar: React.FC = () => {
                                 <Link
                                   key={sIdx}
                                   to={sub.to}
-                                  className={`block rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors ${
-                                    isSubActive
-                                      ? "bg-blue-50 text-blue-600"
-                                      : "text-gray-600 hover:bg-gray-50 hover:text-blue-600"
-                                  }`}
+                                  className={`block rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors ${isSubActive
+                                    ? "bg-blue-50 text-blue-600"
+                                    : "text-gray-600 hover:bg-gray-50 hover:text-blue-600"
+                                    }`}
                                 >
                                   {sub.label}
                                 </Link>
@@ -420,16 +409,14 @@ const Sidebar: React.FC = () => {
             <Link
               to="/settings"
               title={isCollapsed ? "Settings" : ""}
-              className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all duration-150 ${
-                location.pathname === "/settings"
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
-              } ${isCollapsed ? "justify-center" : ""}`}
+              className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all duration-150 ${location.pathname === "/settings"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
+                } ${isCollapsed ? "justify-center" : ""}`}
             >
               <span
-                className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all ${
-                  location.pathname === "/settings" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
-                }`}
+                className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all ${location.pathname === "/settings" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                  }`}
               >
                 <Icon.Settings />
               </span>
