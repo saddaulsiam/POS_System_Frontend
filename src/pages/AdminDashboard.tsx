@@ -96,6 +96,9 @@ const AdminDashboard: React.FC = () => {
     yesterdaySales: 0,
     weekSales: 0,
     monthSales: 0,
+    totalExpenses: 0,
+    todayExpenses: 0,
+    yesterdayExpenses: 0,
     totalProducts: 0,
     activeProducts: 0,
     lowStockCount: 0,
@@ -183,16 +186,16 @@ const AdminDashboard: React.FC = () => {
                   color="green"
                 />
                 <DashboardStatCard
-                  title="Total Products"
-                  value={dashboardData.totalProducts}
-                  icon="📦"
-                  color="blue"
+                  title="Today's Expenses"
+                  value={formatCurrency(dashboardData.todayExpenses || 0, settings)}
+                  icon="💸"
+                  color="red"
                 />
                 <DashboardStatCard
-                  title="Low Stock Items"
-                  value={dashboardData.lowStockCount}
-                  icon="⚠️"
-                  color="yellow"
+                  title="Net Profit"
+                  value={formatCurrency((dashboardData.todaySales || 0) - (dashboardData.todayExpenses || 0), settings)}
+                  icon="📈"
+                  color="blue"
                 />
                 <DashboardStatCard
                   title="Today's Orders"

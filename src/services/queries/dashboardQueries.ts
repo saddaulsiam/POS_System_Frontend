@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { reportsAPI } from "../api/reportsAPI";
 import { customersAPI } from "../api/customersAPI";
 import { analyticsAPI } from "../api/analyticsAPI";
+import { expensesAPI } from "../api/expensesAPI";
 
 // Query Keys
 export const dashboardKeys = {
@@ -45,6 +46,7 @@ export function useDashboardStats() {
         weekCustomers,
         todaySalesRange,
         categoryBreakdown,
+        expensesResponse,
       ] = await Promise.all([
         reportsAPI.getSalesRange(formatDate(today), formatDate(today)),
         reportsAPI.getDailySales(formatDate(yesterday)),
@@ -61,6 +63,10 @@ export function useDashboardStats() {
         reportsAPI.getSalesRange(formatDate(today), formatDate(today)),
         analyticsAPI.getCategoryBreakdown({
           startDate: formatDate(weekAgo),
+          endDate: formatDate(today),
+        }),
+        expensesAPI.getExpenses({
+          startDate: formatDate(monthAgo),
           endDate: formatDate(today),
         }),
       ]);
@@ -116,12 +122,23 @@ export function useDashboardStats() {
             : 0,
         }));
 
+      // Calculate expenses
+      const expensesData = expensesResponse?.expenses || [];
+      const totalExpenses = expensesData.reduce((sum: number, exp: any) => sum + Number(exp.amount), 0);
+      const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
+      const startOfYesterday = new Date(startOfToday.getTime() - 86400000);
+      const todayExpenses = expensesData.filter((exp: any) => new Date(exp.date) >= startOfToday).reduce((sum: number, exp: any) => sum + Number(exp.amount), 0);
+      const yesterdayExpenses = expensesData.filter((exp: any) => new Date(exp.date) >= startOfYesterday && new Date(exp.date) < startOfToday).reduce((sum: number, exp: any) => sum + Number(exp.amount), 0);
+
       // Return aggregated stats
       return {
         todaySales: todaySalesReport.summary.totalSales ?? 0,
         yesterdaySales: yesterdaySalesReport.summary.totalSales ?? 0,
         weekSales: weekSalesReport.summary.totalSales ?? 0,
         monthSales: monthSalesReport.summary.totalSales ?? 0,
+        totalExpenses,
+        todayExpenses,
+        yesterdayExpenses,
         totalProducts: inventoryReport.totalProducts ?? 0,
         activeProducts: Array.isArray(inventoryReport.products)
           ? inventoryReport.products.filter((p: any) => p.isActive).length
