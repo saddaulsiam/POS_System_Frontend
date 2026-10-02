@@ -13,6 +13,7 @@ import {
   ParkSaleDialog,
   ParkedSalesList,
   QuickSaleButtons,
+  ReceiptPreviewModal,
   SplitPaymentDialog,
   VariantSelectorModal,
 } from "../components/pos";
@@ -171,6 +172,10 @@ const POSPage: FC = () => {
   const [offerDiscount, setOfferDiscount] = useState(0);
   const [appliedOffer, setAppliedOffer] = useState<any>(null);
   const [pendingSyncCount, setPendingSyncCount] = useState(0);
+
+  // Receipt preview modal state
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [receiptHtml, setReceiptHtml] = useState("");
 
   // Load initial queue length and set up online listener for automatic sync
   useEffect(() => {
@@ -457,29 +462,11 @@ const POSPage: FC = () => {
         changeGiven: paymentMethod === "CASH" ? changeAmount : null,
       };
 
-      // Handle receipt printing immediately on the client side (non-blocking)
+      // Handle receipt - show in-app modal (works in web + Electron, no popup needed)
       const isElectron = (window as any).electron?.isElectron;
 
-      if (settings?.printReceiptAuto) {
-        const htmlContent = generateHTMLReceipt(localSaleObj, settings);
-        if (isElectron) {
-          (window as any).electronAPI.send("print-silent", {
-            htmlContent,
-            printerName: "",
-          });
-        } else {
-          const printWindow = window.open("", "_blank", "width=800,height=600");
-          if (printWindow) {
-            printWindow.document.write(htmlContent);
-            printWindow.document.close();
-            setTimeout(() => {
-              printWindow.print();
-            }, 300);
-          }
-        }
-      }
-
       if (settings?.autoPrintThermal) {
+        // Thermal: silent print directly via Electron IPC or new window
         const thermalContent = generateThermalReceipt(localSaleObj, settings);
         if (isElectron) {
           const thermalHTML = `<html><body style="margin:0; padding:0;"><pre style='font-size:14px; font-family:monospace; margin:0;'>${thermalContent}</pre></body></html>`;
@@ -487,18 +474,16 @@ const POSPage: FC = () => {
             htmlContent: thermalHTML,
             printerName: "",
           });
-        } else {
-          const printWindow = window.open("", "_blank", "width=400,height=600");
-          if (printWindow) {
-            printWindow.document.write(
-              `<pre style='font-size:14px; font-family:monospace; margin:0;'>${thermalContent}</pre>`,
-            );
-            printWindow.document.close();
-            setTimeout(() => {
-              printWindow.print();
-            }, 300);
-          }
         }
+        // Also show HTML receipt in modal for review
+        const htmlContent = generateHTMLReceipt(localSaleObj, settings);
+        setReceiptHtml(htmlContent);
+        setShowReceiptModal(true);
+      } else {
+        // Always show receipt preview modal (HTML receipt) — no window.open()
+        const htmlContent = generateHTMLReceipt(localSaleObj, settings);
+        setReceiptHtml(htmlContent);
+        setShowReceiptModal(true);
       }
 
       // Clear cart and reset form immediately (Optimistic UI)
@@ -750,7 +735,18 @@ const POSPage: FC = () => {
         onClose={() => setShowCreateCustomerModal(false)}
         onSubmit={handleCustomerFormSubmit}
       />
+
+      {/* Receipt Preview Modal - shows after every sale (works in web + Electron) */}
+      <ReceiptPreviewModal
+        isOpen={showReceiptModal}
+        htmlContent={receiptHtml}
+        onClose={() => {
+          setShowReceiptModal(false);
+          setReceiptHtml("");
+        }}
+      />
     </div>
+
   );
 };
 

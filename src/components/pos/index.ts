@@ -8,5 +8,6 @@ export { POSHeader } from "./POSHeader";
 export { POSPaymentModal } from "./POSPaymentModal";
 export { POSProductGrid } from "./POSProductGrid";
 export { QuickSaleButtons } from "./QuickSaleButtons";
+export { ReceiptPreviewModal } from "./ReceiptPreviewModal";
 export { SplitPaymentDialog } from "./SplitPaymentDialog";
 export { VariantSelectorModal } from "./VariantSelectorModal";
