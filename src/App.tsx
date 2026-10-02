@@ -39,6 +39,7 @@ const BarcodePrintPage = lazy(() => import("./pages/BarcodePrintPage"));
 const OrdersPage = lazy(() => import("./pages/OrdersPage"));
 const ReturnsPage = lazy(() => import("./pages/ReturnsPage"));
 const ExpensesPage = lazy(() => import("./pages/ExpensesPage"));
+const ExpenseCategoriesPage = lazy(() => import("./pages/ExpenseCategoriesPage"));
 const SalesReportPage = lazy(() => import("./pages/SalesReportPage"));
 const InventoryReportPage = lazy(() => import("./pages/InventoryReportPage"));
 const SubscriptionPurchasePage = lazy(
@@ -78,6 +79,7 @@ const adminPaths = [
   "/orders",
   "/returns",
   "/expenses",
+  "/expense-categories",
 ];
 
 const App: React.FC = () => {
@@ -184,6 +186,7 @@ const App: React.FC = () => {
                       <Route path="/orders" element={<OrdersPage />} />
                       <Route path="/returns" element={<ReturnsPage />} />
                       <Route path="/expenses" element={<ExpensesPage />} />
+                      <Route path="/expense-categories" element={<ExpenseCategoriesPage />} />
                       <Route path="/reports/sales" element={<SalesReportPage />} />
                       <Route path="/reports/inventory" element={<InventoryReportPage />} />
                       <Route

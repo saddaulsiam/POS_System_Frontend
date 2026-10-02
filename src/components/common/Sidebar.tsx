@@ -165,7 +165,17 @@ const navGroups: NavGroup[] = [
         ]
       },
       { to: "/cash-drawer", label: "Cash Drawer", icon: Icon.CashDrawer, color: "text-green-500", bg: "bg-green-50", roles: ["OWNER", "ADMIN", "MANAGER", "CASHIER"] },
-      { to: "/expenses", label: "Expenses", icon: Icon.Reports, color: "text-red-500", bg: "bg-red-50", roles: ["OWNER", "ADMIN", "MANAGER"] },
+      {
+        label: "Expense Management",
+        icon: Icon.Reports,
+        color: "text-red-500",
+        bg: "bg-red-50",
+        roles: ["OWNER", "ADMIN", "MANAGER"],
+        subItems: [
+          { to: "/expenses", label: "Expenses" },
+          { to: "/expense-categories", label: "Categories" }
+        ]
+      },
       {
         label: "Reports & Analytics",
         icon: Icon.Analytics,
