@@ -24,6 +24,7 @@ const SalesPage: React.FC = () => {
   const { user } = useAuth();
   const { settings } = useSettings();
   const [selectedSaleId, setSelectedSaleId] = useState<number | null>(null);
+  const [selectedSaleLocal, setSelectedSaleLocal] = useState<Sale | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showVoidModal, setShowVoidModal] = useState(false);
   const [showRefundConfirm, setShowRefundConfirm] = useState(false);
@@ -81,7 +82,8 @@ const SalesPage: React.FC = () => {
     : salesResponse?.pagination?.totalItems || 0;
 
   const handleViewDetails = async (sale: Sale) => {
-    setSelectedSaleId(sale.id);
+    setSelectedSaleLocal(sale); // show immediately from list
+    setSelectedSaleId(sale.id); // fetch full details in background
     setShowDetails(true);
   };
 
@@ -202,9 +204,13 @@ const SalesPage: React.FC = () => {
 
       {/* Sale Details Modal */}
       <SaleDetailsModal
-        sale={selectedSale || null}
+        sale={selectedSale || selectedSaleLocal}
         isOpen={showDetails}
-        onClose={() => setShowDetails(false)}
+        onClose={() => {
+          setShowDetails(false);
+          setSelectedSaleLocal(null);
+          setSelectedSaleId(null);
+        }}
         getCustomerName={(customerId) => getCustomerName(customerId, customers)}
         getEmployeeName={(employeeId, _employees, employeeObj) =>
           getEmployeeName(employeeId, employees, employeeObj)
