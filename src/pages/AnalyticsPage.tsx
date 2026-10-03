@@ -95,10 +95,38 @@ const AnalyticsPage: React.FC = () => {
 
         {/* Overview Cards */}
         {overviewData && (
-          <AnalyticsOverviewCards
-            overviewData={overviewData}
-            settings={settings}
-          />
+          <>
+            {/* Business Health Banner */}
+            <div className={`mb-6 rounded-xl border p-5 ${overviewData.growth.revenue >= 0 ? 'bg-emerald-50/50 border-emerald-100' : 'bg-amber-50/50 border-amber-100'}`}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${overviewData.growth.revenue >= 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+                    {overviewData.growth.revenue >= 0 ? '🚀' : '⚠️'}
+                  </div>
+                  <div>
+                    <h3 className={`font-bold ${overviewData.growth.revenue >= 0 ? 'text-emerald-800' : 'text-amber-800'}`}>
+                      {overviewData.growth.revenue >= 0 ? 'Revenue is Growing' : 'Revenue is Declining'}
+                    </h3>
+                    <p className="text-sm text-slate-600 mt-0.5">
+                      Your revenue has {overviewData.growth.revenue >= 0 ? 'increased' : 'decreased'} by <span className="font-semibold text-slate-900">{Math.abs(overviewData.growth.revenue).toFixed(1)}%</span> compared to the previous period.
+                    </p>
+                  </div>
+                </div>
+                {topProducts && topProducts.length > 0 && (
+                  <div className="flex gap-2">
+                    <div className="bg-white/60 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600">
+                      💡 {topProducts[0]?.name || 'Top Product'} is your best seller
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <AnalyticsOverviewCards
+              overviewData={overviewData}
+              settings={settings}
+            />
+          </>
         )}
 
         {/* Charts Row */}

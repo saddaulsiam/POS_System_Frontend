@@ -183,14 +183,6 @@ const navGroups: NavGroup[] = [
         color: "text-purple-500",
         bg: "bg-purple-50",
         roles: ["OWNER", "ADMIN", "MANAGER"],
-      },
-      {
-        to: "/analytics",
-        label: "Analytics",
-        icon: Icon.Analytics,
-        color: "text-fuchsia-500",
-        bg: "bg-fuchsia-50",
-        roles: ["OWNER", "ADMIN", "MANAGER"],
       }
     ]
   },

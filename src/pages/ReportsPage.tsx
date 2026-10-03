@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   useDailySalesReport,
   useSalesRangeReport,
@@ -26,6 +26,7 @@ type Tab = "overview" | "sales" | "products" | "staff" | "inventory" | "turnover
 
 const COLORS = ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
 
+// ── Z-Report Modal ──────────────────────────────────────────────────────────
 const ZReportModal = ({ shiftId, onClose, settings, fmt }: { shiftId: number, onClose: () => void, settings: any, fmt: (v: number) => string }) => {
   const { data: reconciliation, isLoading } = useCashDrawerReconciliation(shiftId);
 
@@ -100,10 +101,44 @@ const ZReportModal = ({ shiftId, onClose, settings, fmt }: { shiftId: number, on
   );
 };
 
+// ── Trend Badge Component ───────────────────────────────────────────────────
+const TrendBadge = ({ current, previous }: { current: number; previous: number }) => {
+  if (previous === 0 && current === 0) return <span className="text-xs text-gray-400">No prior data</span>;
+  if (previous === 0) return <span className="inline-flex items-center text-xs font-semibold text-green-600">● New</span>;
+  
+  const change = ((current - previous) / previous) * 100;
+  const isPositive = change >= 0;
+  
+  return (
+    <span className={`inline-flex items-center gap-1 text-xs font-semibold ${isPositive ? 'text-green-600' : 'text-red-500'}`}>
+      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ transform: isPositive ? 'none' : 'rotate(180deg)' }}>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" />
+      </svg>
+      {Math.abs(change).toFixed(1)}% vs prior
+    </span>
+  );
+};
+
+// ── Payment Method Badge ────────────────────────────────────────────────────
+const PaymentBadge = ({ method }: { method: string }) => {
+  const m = (method || '').toUpperCase();
+  let color = 'bg-gray-100 text-gray-700';
+  let icon = '💰';
+  if (m.includes('CASH')) { color = 'bg-emerald-50 text-emerald-700 border border-emerald-200'; icon = '💵'; }
+  else if (m.includes('CARD')) { color = 'bg-blue-50 text-blue-700 border border-blue-200'; icon = '💳'; }
+  else if (m.includes('MOBILE') || m.includes('MPESA') || m.includes('BKASH')) { color = 'bg-purple-50 text-purple-700 border border-purple-200'; icon = '📱'; }
+  return (
+    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${color}`}>
+      {icon} {method || 'Unknown'}
+    </span>
+  );
+};
+
 export default function ReportsPage() {
   const { settings } = useSettings();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [selectedShiftId, setSelectedShiftId] = useState<number | null>(null);
+  const [activePreset, setActivePreset] = useState<number | null>(30);
 
   // Date filtering state
   const [dateRange, setDateRange] = useState({
@@ -121,11 +156,25 @@ export default function ReportsPage() {
     setCurrentPage(1);
   }, [activeTab, searchTerm, sortConfig]);
 
+  // Compute prior period dates for comparison
+  const priorPeriod = useMemo(() => {
+    const startMs = new Date(dateRange.start).getTime();
+    const endMs = new Date(dateRange.end).getTime();
+    const durationMs = endMs - startMs;
+    const priorEnd = new Date(startMs - 24 * 60 * 60 * 1000); // day before current start
+    const priorStart = new Date(priorEnd.getTime() - durationMs);
+    return {
+      start: formatDate(priorStart),
+      end: formatDate(priorEnd)
+    };
+  }, [dateRange]);
+
   const handleDatePreset = (days: number) => {
     const end = new Date();
     const start = new Date();
     start.setDate(start.getDate() - days);
     setDateRange({ start: formatDate(start), end: formatDate(end) });
+    setActivePreset(days);
   };
 
   const handleSort = (key: string) => {
@@ -144,8 +193,8 @@ export default function ReportsPage() {
       
       // Handle special derived fields
       if (sortConfig.key === 'stockValue') {
-        valA = (a.stock ?? a.stockQuantity ?? 0) * (a.costPrice ?? 0);
-        valB = (b.stock ?? b.stockQuantity ?? 0) * (b.costPrice ?? 0);
+        valA = (a.stock ?? a.stockQuantity ?? 0) * (a.purchasePrice ?? 0);
+        valB = (b.stock ?? b.stockQuantity ?? 0) * (b.purchasePrice ?? 0);
       } else {
         const keys = sortConfig.key.split('.');
         for (const k of keys) {
@@ -169,13 +218,17 @@ export default function ReportsPage() {
     return data.slice(startIndex, startIndex + pageSize);
   };
 
-  // Fetch queries
-  const { data: daily, isLoading: isLoadingDaily, error: errDaily } = useDailySalesReport(dateRange.end);
+  // Fetch queries - current period
+  const { data: _daily, isLoading: isLoadingDaily, error: errDaily } = useDailySalesReport(dateRange.end);
   const { data: salesRange, isLoading: isLoadingSales, error: errSales } = useSalesRangeReport(dateRange.start, dateRange.end);
   const { data: productPerf, isLoading: isLoadingProducts, error: errProd } = useProductPerformanceReport(dateRange.start, dateRange.end, 50);
   const { data: staffPerf, isLoading: isLoadingStaff, error: errStaff } = useEmployeePerformanceReport(dateRange.start, dateRange.end);
   const { data: inventory, isLoading: isLoadingInv, error: errInv } = useInventoryReport();
   const { data: profitData, isLoading: isLoadingProfit, error: errProfit } = useProfitAnalysisReport(dateRange.start, dateRange.end);
+
+  // Fetch queries - PRIOR period for comparison
+  const { data: priorSalesRange } = useSalesRangeReport(priorPeriod.start, priorPeriod.end);
+  const { data: priorProfitData } = useProfitAnalysisReport(priorPeriod.start, priorPeriod.end);
 
   const diffTime = Math.abs(new Date(dateRange.end).getTime() - new Date(dateRange.start).getTime());
   const reportDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
@@ -239,9 +292,9 @@ export default function ReportsPage() {
           return {
             'Product Name': p.name,
             'SKU': p.sku || p.barcode || '',
-            'Unit Cost': p.costPrice || 0,
+            'Unit Cost': p.purchasePrice || 0,
             'In Stock': qty,
-            'Stock Value': qty * (p.costPrice || 0)
+            'Stock Value': qty * (p.purchasePrice || 0)
           };
         });
         filename = `inventory_report_${new Date().toISOString().split('T')[0]}.csv`;
@@ -313,16 +366,16 @@ export default function ReportsPage() {
     transactions: e.totalTransactions
   }));
 
-  const tabs: { id: Tab; label: string }[] = [
-    { id: "overview", label: "Business Overview" },
-    { id: "sales", label: "Sales History" },
-    { id: "products", label: "Product Performance" },
-    { id: "staff", label: "Staff Performance" },
-    { id: "inventory", label: "Inventory Status" },
-    { id: "turnover", label: "Stock Turnover" },
-    { id: "customers", label: "Customer Analytics" },
-    { id: "profit", label: "Profit & Loss" },
-    { id: "shift", label: "Shift / Z-Report" }
+  const tabs: { id: Tab; label: string; icon: string }[] = [
+    { id: "overview", label: "Business Overview", icon: "📊" },
+    { id: "sales", label: "Sales History", icon: "🧾" },
+    { id: "products", label: "Product Performance", icon: "📦" },
+    { id: "staff", label: "Staff Performance", icon: "👥" },
+    { id: "inventory", label: "Inventory Status", icon: "🏪" },
+    { id: "turnover", label: "Stock Turnover", icon: "🔄" },
+    { id: "customers", label: "Customer Analytics", icon: "🎯" },
+    { id: "profit", label: "Profit & Loss", icon: "💰" },
+    { id: "shift", label: "Shift / Z-Report", icon: "📋" }
   ];
 
   // Filtering Logic
@@ -352,6 +405,52 @@ export default function ReportsPage() {
     !term || p.name?.toLowerCase().includes(term)
   );
 
+  // ── Inventory cost warning ──────────────────────────────────────────────────
+  const missingCostCount = useMemo(() => {
+    return (inventory?.products ?? []).filter((p: any) => !p.purchasePrice || p.purchasePrice === 0).length;
+  }, [inventory]);
+
+  // ── Business health calculations ───────────────────────────────────────────
+  const businessHealth = useMemo(() => {
+    const totalSales = salesRange?.summary?.totalSales ?? 0;
+    const totalTransactions = salesRange?.summary?.totalTransactions ?? 0;
+    const grossProfit = profitData?.summary?.grossProfit ?? 0;
+    const netProfit = profitData?.summary?.netProfit ?? 0;
+    const grossMargin = totalSales > 0 ? (grossProfit / totalSales) * 100 : 0;
+    const netMargin = totalSales > 0 ? (netProfit / totalSales) * 100 : 0;
+
+    // Determine health score
+    let status: 'excellent' | 'good' | 'warning' | 'critical' = 'good';
+    if (netMargin >= 20) status = 'excellent';
+    else if (netMargin >= 10) status = 'good';
+    else if (netMargin >= 0) status = 'warning';
+    else status = 'critical';
+
+    // Generate insights
+    const insights: string[] = [];
+    
+    const topProduct = [...(productPerf?.products ?? [])].sort((a: any, b: any) => (b.totalRevenue || 0) - (a.totalRevenue || 0))[0];
+    if (topProduct) {
+      const topPct = totalSales > 0 ? ((topProduct.totalRevenue / totalSales) * 100).toFixed(0) : 0;
+      insights.push(`${topProduct.product?.name} drives ${topPct}% of your revenue.`);
+    }
+    
+    if (grossMargin > 0) {
+      insights.push(`Gross margin is ${grossMargin.toFixed(1)}% — ${grossMargin >= 40 ? 'healthy for retail' : grossMargin >= 25 ? 'moderate, look for cost savings' : 'below average, review supplier pricing'}.`);
+    }
+
+    const lowStockCount = (inventory?.products ?? []).filter((p: any) => { 
+      const qty = p.stock ?? p.stockQuantity ?? 0; 
+      return qty > 0 && qty <= (p.lowStockThreshold ?? 5); 
+    }).length;
+    const outOfStockCount = (inventory?.products ?? []).filter((p: any) => (p.stock ?? p.stockQuantity ?? 0) <= 0).length;
+    if (outOfStockCount > 0) insights.push(`${outOfStockCount} product${outOfStockCount > 1 ? 's' : ''} out of stock — potential lost sales.`);
+    else if (lowStockCount > 0) insights.push(`${lowStockCount} product${lowStockCount > 1 ? 's are' : ' is'} running low on stock.`);
+    else insights.push(`All products are well-stocked.`);
+
+    return { totalSales, totalTransactions, grossMargin, netMargin, status, insights, grossProfit, netProfit };
+  }, [salesRange, profitData, productPerf, inventory]);
+
   const SortableHeader = ({ label, sortKey, align = 'left' }: { label: string, sortKey: string, align?: 'left' | 'right' | 'center' }) => (
     <th 
       onClick={() => handleSort(sortKey)}
@@ -368,13 +467,51 @@ export default function ReportsPage() {
     </th>
   );
 
-  const SummaryWidget = ({ title, value, subtitle }: { title: string, value: string | number, subtitle?: string }) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 print:border-gray-300 print:shadow-none">
-      <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">{title}</p>
-      <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
-      {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
-    </div>
-  );
+  // ── Enhanced Summary Widget ────────────────────────────────────────────────
+  type CardVariant = 'default' | 'green' | 'red' | 'blue' | 'purple' | 'amber';
+  
+  const SummaryWidget = ({ title, value, subtitle, variant = 'default', icon, trend }: { 
+    title: string, value: string | number, subtitle?: string, variant?: CardVariant, icon?: string,
+    trend?: { current: number, previous: number }
+  }) => {
+    const variantStyles: Record<CardVariant, string> = {
+      default: 'bg-white border-gray-200',
+      green: 'bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200',
+      red: 'bg-gradient-to-br from-red-50 to-rose-50 border-red-200',
+      blue: 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200',
+      purple: 'bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200',
+      amber: 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200',
+    };
+    const titleColors: Record<CardVariant, string> = {
+      default: 'text-gray-500',
+      green: 'text-emerald-700',
+      red: 'text-red-600',
+      blue: 'text-blue-700',
+      purple: 'text-purple-700',
+      amber: 'text-amber-700',
+    };
+    const valueColors: Record<CardVariant, string> = {
+      default: 'text-gray-900',
+      green: 'text-emerald-900',
+      red: 'text-red-700',
+      blue: 'text-blue-900',
+      purple: 'text-purple-900',
+      amber: 'text-amber-900',
+    };
+    return (
+      <div className={`p-5 rounded-xl shadow-sm border transition-all hover:shadow-md print:border-gray-300 print:shadow-none ${variantStyles[variant]}`}>
+        <div className="flex items-start justify-between">
+          <p className={`text-xs font-bold uppercase tracking-wider ${titleColors[variant]}`}>{title}</p>
+          {icon && <span className="text-lg">{icon}</span>}
+        </div>
+        <p className={`text-2xl font-extrabold mt-2 ${valueColors[variant]}`}>{value}</p>
+        <div className="flex items-center justify-between mt-1.5">
+          {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+          {trend && <TrendBadge current={trend.current} previous={trend.previous} fmt={fmt} />}
+        </div>
+      </div>
+    );
+  };
 
   const PaginationControls = ({ totalItems }: { totalItems: number }) => {
     const totalPages = Math.ceil(totalItems / pageSize);
@@ -405,6 +542,32 @@ export default function ReportsPage() {
     );
   };
 
+  // ── Top/Bottom Callout Component ───────────────────────────────────────────
+  const InsightCallout = ({ icon, label, value, color }: { icon: string, label: string, value: string, color: 'green' | 'amber' | 'red' | 'blue' }) => {
+    const bgColors = { green: 'bg-emerald-50 border-emerald-200 text-emerald-800', amber: 'bg-amber-50 border-amber-200 text-amber-800', red: 'bg-red-50 border-red-200 text-red-800', blue: 'bg-blue-50 border-blue-200 text-blue-800' };
+    return (
+      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium ${bgColors[color]}`}>
+        <span>{icon}</span>
+        <span>{label}: <strong>{value}</strong></span>
+      </div>
+    );
+  };
+
+  // ── Stock Turnover Donut Data ──────────────────────────────────────────────
+  const turnoverDonutData = useMemo(() => {
+    const products = turnoverData?.products ?? [];
+    const fast = products.filter((p: any) => p.status === 'FAST_MOVING').length;
+    const moderate = products.filter((p: any) => p.status === 'MODERATE').length;
+    const slow = products.filter((p: any) => p.status === 'SLOW_MOVING').length;
+    const stagnant = products.filter((p: any) => p.status === 'STAGNANT').length;
+    return [
+      { name: 'Fast Moving', value: fast, fill: '#10B981' },
+      { name: 'Moderate', value: moderate, fill: '#3B82F6' },
+      { name: 'Slow Moving', value: slow, fill: '#F59E0B' },
+      { name: 'Stagnant', value: stagnant, fill: '#EF4444' },
+    ].filter(d => d.value > 0);
+  }, [turnoverData]);
+
   return (
     <div className="min-h-screen bg-gray-50 pb-12 print:bg-white print:pb-0">
       {/* Top Navigation & Header */}
@@ -417,25 +580,35 @@ export default function ReportsPage() {
             </div>
 
             <div className="flex flex-col xl:flex-row items-center gap-3">
-              {/* Presets */}
+              {/* Presets - now with active state */}
               <div className="hidden lg:flex bg-gray-100 rounded-lg p-1 border border-gray-200">
-                <button onClick={() => handleDatePreset(0)} className="px-3 py-1.5 text-xs font-medium rounded-md hover:bg-white hover:shadow-sm text-gray-700 transition-all">Today</button>
-                <button onClick={() => handleDatePreset(7)} className="px-3 py-1.5 text-xs font-medium rounded-md hover:bg-white hover:shadow-sm text-gray-700 transition-all">7 Days</button>
-                <button onClick={() => handleDatePreset(30)} className="px-3 py-1.5 text-xs font-medium rounded-md hover:bg-white hover:shadow-sm text-gray-700 transition-all">30 Days</button>
+                {[{ label: 'Today', days: 0 }, { label: '7 Days', days: 7 }, { label: '30 Days', days: 30 }].map(preset => (
+                  <button 
+                    key={preset.days}
+                    onClick={() => handleDatePreset(preset.days)} 
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                      activePreset === preset.days 
+                        ? 'bg-blue-600 text-white shadow-sm' 
+                        : 'hover:bg-white hover:shadow-sm text-gray-700'
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
               </div>
 
               <div className="flex items-center bg-gray-100 rounded-lg p-1 border border-gray-200">
                 <input
                   type="date"
                   value={dateRange.start}
-                  onChange={(e) => setDateRange(r => ({ ...r, start: e.target.value }))}
+                  onChange={(e) => { setDateRange(r => ({ ...r, start: e.target.value })); setActivePreset(null); }}
                   className="bg-transparent border-none text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer"
                 />
                 <span className="text-gray-400 font-bold px-2">→</span>
                 <input
                   type="date"
                   value={dateRange.end}
-                  onChange={(e) => setDateRange(r => ({ ...r, end: e.target.value }))}
+                  onChange={(e) => { setDateRange(r => ({ ...r, end: e.target.value })); setActivePreset(null); }}
                   className="bg-transparent border-none text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer"
                 />
               </div>
@@ -461,45 +634,51 @@ export default function ReportsPage() {
               </div>
             </div>
           </div>
-
-          {/* Tabs */}
-          <div className="flex overflow-x-auto gap-6 border-b border-transparent">
-            {tabs.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setActiveTab(t.id)}
-                className={`py-3 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === t.id
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 print:hidden">
-        {activeTab !== "overview" && (
-          <div className="relative max-w-md">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-              </svg>
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 print:mt-0 print:p-0 print:max-w-none">
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Sidebar Navigation */}
+          <div className="w-full md:w-64 shrink-0 print:hidden">
+            <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm sticky top-6">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-3 mt-2">Report Types</h3>
+              <nav className="space-y-1">
+                {tabs.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setActiveTab(t.id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-lg transition-colors ${activeTab === t.id
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      }`}
+                  >
+                    <span className="text-lg">{t.icon}</span>
+                    {t.label}
+                  </button>
+                ))}
+              </nav>
             </div>
-            <input
-              type="text"
-              placeholder="Search in this report..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-sm transition-all"
-            />
           </div>
-        )}
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 print:mt-0 print:p-0 print:max-w-none">
+          {/* Main Content Area */}
+          <div className="flex-1 min-w-0">
+            {activeTab !== "overview" && (
+              <div className="mb-6 relative max-w-md print:hidden">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search in this report..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-sm transition-all shadow-sm"
+                />
+              </div>
+            )}
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -525,45 +704,113 @@ export default function ReportsPage() {
         ) : (
           <div className="space-y-6">
 
-            {/* 1. BUSINESS OVERVIEW */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* 1. BUSINESS OVERVIEW                                          */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
             {activeTab === "overview" && (
               <>
-                {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Gross Sales</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">{fmt(salesRange?.summary?.totalSales ?? 0)}</p>
-                    <p className="text-sm text-gray-500 mt-1">For selected period</p>
+                {/* ── Business Health Banner ─────────────────────────────── */}
+                <div className={`rounded-xl border p-5 ${
+                  businessHealth.status === 'excellent' ? 'bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200' :
+                  businessHealth.status === 'good' ? 'bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200' :
+                  businessHealth.status === 'warning' ? 'bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200' :
+                  'bg-gradient-to-r from-red-50 to-rose-50 border-red-200'
+                }`}>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-sm ${
+                        businessHealth.status === 'excellent' ? 'bg-emerald-500 text-white' :
+                        businessHealth.status === 'good' ? 'bg-blue-500 text-white' :
+                        businessHealth.status === 'warning' ? 'bg-amber-500 text-white' :
+                        'bg-red-500 text-white'
+                      }`}>
+                        {businessHealth.status === 'excellent' ? '🚀' : businessHealth.status === 'good' ? '✅' : businessHealth.status === 'warning' ? '⚡' : '🔴'}
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold text-gray-900">
+                          {businessHealth.status === 'excellent' ? 'Excellent Performance' : 
+                           businessHealth.status === 'good' ? 'Business Performing Well' :
+                           businessHealth.status === 'warning' ? 'Needs Attention' : 'Critical — Take Action'}
+                        </h2>
+                        <p className="text-sm text-gray-600">
+                          Net margin: <strong>{businessHealth.netMargin.toFixed(1)}%</strong> · Gross margin: <strong>{businessHealth.grossMargin.toFixed(1)}%</strong> · {businessHealth.totalTransactions} transactions
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-right">
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase font-semibold">Net Profit</p>
+                        <p className={`text-2xl font-extrabold ${businessHealth.netProfit >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>{fmt(businessHealth.netProfit)}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Transactions</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">{salesRange?.summary?.totalTransactions ?? 0}</p>
-                    <p className="text-sm text-gray-500 mt-1">Receipts generated</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Avg Order Value</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">
-                      {fmt(salesRange?.summary?.totalTransactions ? ((salesRange?.summary?.totalSales ?? 0) / salesRange.summary.totalTransactions) : 0)}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">Per transaction</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Tax</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">{fmt(salesRange?.summary?.totalTax ?? 0)}</p>
-                    <p className="text-sm text-gray-500 mt-1">Collected tax</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Discounts</p>
-                    <p className="text-3xl font-bold text-red-500 mt-2">-{fmt(profitData?.summary?.totalDiscounts ?? 0)}</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Refunds / Returns</p>
-                    <p className="text-3xl font-bold text-red-500 mt-2">-{fmt(profitData?.summary?.totalRefunds ?? 0)}</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Operating Exp.</p>
-                    <p className="text-3xl font-bold text-red-500 mt-2">-{fmt(profitData?.summary?.operatingExpenses ?? 0)}</p>
-                  </div>
+                  {/* AI Insights */}
+                  {businessHealth.insights.length > 0 && (
+                    <div className="mt-4 pt-3 border-t border-gray-200/60 flex flex-wrap gap-2">
+                      {businessHealth.insights.map((insight, i) => (
+                        <span key={i} className="inline-flex items-center gap-1.5 text-xs bg-white/70 px-3 py-1.5 rounded-full border border-gray-200 text-gray-700 font-medium">
+                          <span className="text-yellow-500">💡</span> {insight}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Summary Cards - Color Coded with Trends */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <SummaryWidget 
+                    title="Gross Sales" 
+                    value={fmt(salesRange?.summary?.totalSales ?? 0)} 
+                    subtitle="For selected period" 
+                    variant="green" 
+                    icon="💰"
+                    trend={{ current: salesRange?.summary?.totalSales ?? 0, previous: priorSalesRange?.summary?.totalSales ?? 0 }}
+                  />
+                  <SummaryWidget 
+                    title="Transactions" 
+                    value={salesRange?.summary?.totalTransactions ?? 0} 
+                    subtitle="Receipts generated" 
+                    variant="blue" 
+                    icon="🧾"
+                    trend={{ current: salesRange?.summary?.totalTransactions ?? 0, previous: priorSalesRange?.summary?.totalTransactions ?? 0 }}
+                  />
+                  <SummaryWidget 
+                    title="Avg Order Value" 
+                    value={fmt(salesRange?.summary?.totalTransactions ? ((salesRange?.summary?.totalSales ?? 0) / salesRange.summary.totalTransactions) : 0)}
+                    subtitle="Per transaction" 
+                    variant="blue" 
+                    icon="📊"
+                    trend={{
+                      current: salesRange?.summary?.totalTransactions ? (salesRange.summary.totalSales / salesRange.summary.totalTransactions) : 0,
+                      previous: priorSalesRange?.summary?.totalTransactions ? (priorSalesRange.summary.totalSales / priorSalesRange.summary.totalTransactions) : 0,
+                    }}
+                  />
+                  <SummaryWidget 
+                    title="Total Tax" 
+                    value={fmt(salesRange?.summary?.totalTax ?? 0)} 
+                    subtitle="Collected tax" 
+                    variant="default" 
+                    icon="🏛️"
+                  />
+                  <SummaryWidget 
+                    title="Total Discounts" 
+                    value={`-${fmt(profitData?.summary?.totalDiscounts ?? 0)}`} 
+                    variant="red" 
+                    icon="🏷️"
+                    trend={{ current: profitData?.summary?.totalDiscounts ?? 0, previous: priorProfitData?.summary?.totalDiscounts ?? 0 }}
+                  />
+                  <SummaryWidget 
+                    title="Refunds / Returns" 
+                    value={`-${fmt(profitData?.summary?.totalRefunds ?? 0)}`} 
+                    variant="red" 
+                    icon="↩️"
+                  />
+                  <SummaryWidget 
+                    title="Operating Exp." 
+                    value={`-${fmt(profitData?.summary?.operatingExpenses ?? 0)}`} 
+                    variant="red" 
+                    icon="📋"
+                  />
                 </div>
 
                 {/* Sales Trend Chart */}
@@ -643,13 +890,15 @@ export default function ReportsPage() {
               </>
             )}
 
-            {/* 2. SALES HISTORY */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* 2. SALES HISTORY                                              */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
             {activeTab === "sales" && (
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <SummaryWidget title="Total Transactions" value={filteredSales.length} subtitle="Based on current filter" />
-                  <SummaryWidget title="Total Revenue" value={fmt(filteredSales.reduce((sum: number, sale: any) => sum + (sale.finalAmount || 0), 0))} subtitle="From filtered sales" />
-                  <SummaryWidget title="Average Sale" value={fmt(filteredSales.length > 0 ? (filteredSales.reduce((sum: number, sale: any) => sum + (sale.finalAmount || 0), 0) / filteredSales.length) : 0)} subtitle="Per transaction" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <SummaryWidget title="Total Transactions" value={filteredSales.length} subtitle="Based on current filter" variant="blue" icon="🧾" />
+                  <SummaryWidget title="Total Revenue" value={fmt(filteredSales.reduce((sum: number, sale: any) => sum + (sale.finalAmount || 0), 0))} subtitle="From filtered sales" variant="green" icon="💰" />
+                  <SummaryWidget title="Average Sale" value={fmt(filteredSales.length > 0 ? (filteredSales.reduce((sum: number, sale: any) => sum + (sale.finalAmount || 0), 0) / filteredSales.length) : 0)} subtitle="Per transaction" variant="default" icon="📊" />
                 </div>
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gray-50/50">
@@ -673,10 +922,8 @@ export default function ReportsPage() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{sale.receiptId}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(sale.createdAt).toLocaleString()}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{sale.customer?.name || 'Walk-in Customer'}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                              {sale.paymentMethod || 'Unknown'}
-                            </span>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <PaymentBadge method={sale.paymentMethod} />
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right">{fmt(sale.finalAmount)}</td>
                         </tr>
@@ -696,14 +943,52 @@ export default function ReportsPage() {
               </div>
             )}
 
-            {/* 3. PRODUCT PERFORMANCE */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* 3. PRODUCT PERFORMANCE                                        */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
             {activeTab === "products" && (
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <SummaryWidget title="Unique Products" value={filteredProducts.length} subtitle="In current filter" />
-                  <SummaryWidget title="Total Items Sold" value={filteredProducts.reduce((sum: number, p: any) => sum + (p.totalQuantitySold || 0), 0)} subtitle="Units moved" />
-                  <SummaryWidget title="Top Product" value={[...filteredProducts].sort((a,b) => (b.totalQuantitySold || 0) - (a.totalQuantitySold || 0))[0]?.product?.name || 'N/A'} subtitle="By quantity sold" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <SummaryWidget title="Unique Products" value={filteredProducts.length} subtitle="In current filter" variant="blue" icon="📦" />
+                  <SummaryWidget title="Total Items Sold" value={filteredProducts.reduce((sum: number, p: any) => sum + (p.totalQuantitySold || 0), 0)} subtitle="Units moved" variant="green" icon="📈" />
+                  <SummaryWidget title="Top Product" value={[...filteredProducts].sort((a,b) => (b.totalQuantitySold || 0) - (a.totalQuantitySold || 0))[0]?.product?.name || 'N/A'} subtitle="By quantity sold" variant="amber" icon="🏆" />
                 </div>
+
+                {/* ── Product Revenue Chart ──────────────────────────────── */}
+                {productData.length > 0 && (
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">Revenue by Product</h3>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {(() => {
+                        const sorted = [...filteredProducts].sort((a, b) => (b.totalRevenue || 0) - (a.totalRevenue || 0));
+                        const top = sorted[0];
+                        const bottom = sorted[sorted.length - 1];
+                        return (
+                          <>
+                            {top && <InsightCallout icon="🏆" label="Top earner" value={`${top.product?.name} — ${fmt(top.totalRevenue)}`} color="green" />}
+                            {bottom && sorted.length > 1 && <InsightCallout icon="📉" label="Lowest" value={`${bottom.product?.name} — ${fmt(bottom.totalRevenue)}`} color="amber" />}
+                          </>
+                        );
+                      })()}
+                    </div>
+                    <div className="h-72">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={productData} margin={{ left: -20, right: 10 }} layout="horizontal">
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#6B7280' }} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} tickFormatter={(val) => `$${val}`} />
+                          <Tooltip
+                            cursor={{ fill: '#F3F4F6' }}
+                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                            formatter={(value: number, name: string) => [fmt(value), name === 'revenue' ? 'Revenue' : 'Qty']}
+                          />
+                          <Bar dataKey="revenue" fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={36} name="Revenue" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="px-6 py-5 border-b border-gray-200 bg-gray-50/50">
                     <h3 className="text-lg font-bold text-gray-900">Product Sales Report</h3>
@@ -744,14 +1029,41 @@ export default function ReportsPage() {
               </div>
             )}
 
-            {/* 4. STAFF PERFORMANCE */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* 4. STAFF PERFORMANCE                                          */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
             {activeTab === "staff" && (
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <SummaryWidget title="Active Staff" value={filteredStaff.length} subtitle="With sales in period" />
-                  <SummaryWidget title="Top Performer" value={[...filteredStaff].sort((a,b) => (b.totalSales || 0) - (a.totalSales || 0))[0]?.employee?.name || 'N/A'} subtitle="By total sales" />
-                  <SummaryWidget title="Total Staff Sales" value={fmt(filteredStaff.reduce((sum: number, s: any) => sum + (s.totalSales || 0), 0))} subtitle="Combined revenue" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <SummaryWidget title="Active Staff" value={filteredStaff.length} subtitle="With sales in period" variant="blue" icon="👥" />
+                  <SummaryWidget title="Top Performer" value={[...filteredStaff].sort((a,b) => (b.totalSales || 0) - (a.totalSales || 0))[0]?.employee?.name || 'N/A'} subtitle="By total sales" variant="amber" icon="🏆" />
+                  <SummaryWidget title="Total Staff Sales" value={fmt(filteredStaff.reduce((sum: number, s: any) => sum + (s.totalSales || 0), 0))} subtitle="Combined revenue" variant="green" icon="💰" />
                 </div>
+
+                {/* ── Staff Performance Chart ────────────────────────────── */}
+                {staffData.length > 0 && (
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">Staff Sales Comparison</h3>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={staffData} margin={{ left: -20, right: 10 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} tickFormatter={(val) => `$${val}`} />
+                          <Tooltip
+                            cursor={{ fill: '#F3F4F6' }}
+                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                            formatter={(value: number, name: string) => [name === 'sales' ? fmt(value) : value, name === 'sales' ? 'Total Sales' : 'Transactions']}
+                          />
+                          <Legend iconType="circle" />
+                          <Bar dataKey="sales" fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={32} name="Total Sales" />
+                          <Bar dataKey="transactions" fill="#10B981" radius={[4, 4, 0, 0]} barSize={32} name="Transactions" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="px-6 py-5 border-b border-gray-200 bg-gray-50/50">
                     <h3 className="text-lg font-bold text-gray-900">Employee Sales Performance</h3>
@@ -797,14 +1109,66 @@ export default function ReportsPage() {
               </div>
             )}
 
-            {/* 5. INVENTORY STATUS */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* 5. INVENTORY STATUS                                           */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
             {activeTab === "inventory" && (
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <SummaryWidget title="Total Products" value={filteredInventory.length} subtitle="In catalog" />
-                  <SummaryWidget title="Low Stock" value={filteredInventory.filter((p: any) => { const qty = p.stock ?? p.stockQuantity ?? 0; return qty > 0 && qty <= (p.lowStockThreshold ?? 5); }).length} subtitle="Needs reordering soon" />
-                  <SummaryWidget title="Out of Stock" value={filteredInventory.filter((p: any) => (p.stock ?? p.stockQuantity ?? 0) <= 0).length} subtitle="Currently unavailable" />
+                {/* ── Cost Price Warning Banner ─────────────────────────── */}
+                {missingCostCount > 0 && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                    <span className="text-xl mt-0.5">⚠️</span>
+                    <div>
+                      <p className="text-sm font-bold text-amber-800">
+                        {missingCostCount} product{missingCostCount > 1 ? 's have' : ' has'} no cost price set
+                      </p>
+                      <p className="text-xs text-amber-700 mt-0.5">
+                        Inventory valuation and profit calculations will be inaccurate. Update cost prices in the Products page for accurate reporting.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <SummaryWidget title="Total Products" value={filteredInventory.length} subtitle="In catalog" variant="blue" icon="📦" />
+                  <SummaryWidget title="Low Stock" value={filteredInventory.filter((p: any) => { const qty = p.stock ?? p.stockQuantity ?? 0; return qty > 0 && qty <= (p.lowStockThreshold ?? 5); }).length} subtitle="Needs reordering soon" variant="amber" icon="⚡" />
+                  <SummaryWidget title="Out of Stock" value={filteredInventory.filter((p: any) => (p.stock ?? p.stockQuantity ?? 0) <= 0).length} subtitle="Currently unavailable" variant="red" icon="🚫" />
                 </div>
+
+                {/* ── Inventory Distribution Chart ───────────────────────── */}
+                {filteredInventory.length > 0 && (
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">Stock Status Distribution</h3>
+                    <div className="h-16 flex rounded-lg overflow-hidden border border-gray-200">
+                      {(() => {
+                        const total = filteredInventory.length;
+                        const outOfStock = filteredInventory.filter((p: any) => (p.stock ?? p.stockQuantity ?? 0) <= 0).length;
+                        const lowStock = filteredInventory.filter((p: any) => { const qty = p.stock ?? p.stockQuantity ?? 0; return qty > 0 && qty <= (p.lowStockThreshold ?? 5); }).length;
+                        const inStock = total - outOfStock - lowStock;
+                        return (
+                          <>
+                            {inStock > 0 && (
+                              <div className="bg-emerald-500 flex items-center justify-center text-white text-xs font-bold" style={{ width: `${(inStock / total) * 100}%` }}>
+                                {inStock} In Stock
+                              </div>
+                            )}
+                            {lowStock > 0 && (
+                              <div className="bg-amber-400 flex items-center justify-center text-amber-900 text-xs font-bold" style={{ width: `${Math.max((lowStock / total) * 100, 8)}%` }}>
+                                {lowStock} Low
+                              </div>
+                            )}
+                            {outOfStock > 0 && (
+                              <div className="bg-red-500 flex items-center justify-center text-white text-xs font-bold" style={{ width: `${Math.max((outOfStock / total) * 100, 8)}%` }}>
+                                {outOfStock} Out
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="px-6 py-5 border-b border-gray-200 bg-gray-50/50 flex justify-between items-center">
                     <h3 className="text-lg font-bold text-gray-900">Current Inventory Valuation</h3>
@@ -819,7 +1183,7 @@ export default function ReportsPage() {
                       <tr className="group">
                         <SortableHeader label="Product Name" sortKey="name" />
                         <SortableHeader label="SKU / Barcode" sortKey="sku" />
-                        <SortableHeader label="Unit Cost" sortKey="costPrice" align="right" />
+                        <SortableHeader label="Unit Cost" sortKey="purchasePrice" align="right" />
                         <SortableHeader label="In Stock" sortKey="stock" align="right" />
                         <SortableHeader label="Stock Value" sortKey="stockValue" align="right" />
                         <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
@@ -830,13 +1194,16 @@ export default function ReportsPage() {
                         const qty = p.stock ?? p.stockQuantity ?? 0;
                         const isOut = qty <= 0;
                         const isLow = !isOut && qty <= (p.lowStockThreshold ?? 5);
+                        const hasCost = p.purchasePrice && p.purchasePrice > 0;
                         return (
-                          <tr key={i} className="hover:bg-gray-50 transition-colors">
+                          <tr key={i} className={`hover:bg-gray-50 transition-colors ${isOut ? 'bg-red-50/30' : isLow ? 'bg-amber-50/30' : ''}`}>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.name}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">{p.sku || p.barcode || '—'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-right">{fmt(p.costPrice || 0)}</td>
+                            <td className={`px-6 py-4 whitespace-nowrap text-sm text-right ${hasCost ? 'text-gray-600' : 'text-red-400 italic'}`}>
+                              {hasCost ? fmt(p.purchasePrice) : 'Not set'}
+                            </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right">{qty}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">{fmt(qty * (p.costPrice || 0))}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">{hasCost ? fmt(qty * p.purchasePrice) : '—'}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-center">
                               {isOut ? (
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Out of Stock</span>
@@ -857,7 +1224,9 @@ export default function ReportsPage() {
               </div>
             )}
 
-            {/* 6. PROFIT ANALYSIS */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* 6. PROFIT & LOSS (with margin %)                              */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
             {activeTab === "profit" && profitData && (
               <div className="space-y-6">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -866,53 +1235,96 @@ export default function ReportsPage() {
                     <p className="text-sm text-gray-500">For the period {profitData.period.startDate} to {profitData.period.endDate}</p>
                   </div>
                   <div className="p-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-500 uppercase">Gross Revenue</p>
+                    {/* ── Waterfall-style P&L Flow ─────────────────────── */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="p-4 rounded-lg bg-gray-50">
+                        <p className="text-xs font-bold text-gray-500 uppercase">Gross Revenue</p>
                         <p className="text-xl font-bold text-gray-900 mt-1">{fmt(profitData.summary.grossRevenue)}</p>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-500 uppercase">Discounts</p>
+                      <div className="p-4 rounded-lg bg-red-50">
+                        <p className="text-xs font-bold text-red-600 uppercase">Discounts</p>
                         <p className="text-xl font-bold text-red-500 mt-1">-{fmt(profitData.summary.totalDiscounts)}</p>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-500 uppercase">Refunds / Returns</p>
+                      <div className="p-4 rounded-lg bg-red-50">
+                        <p className="text-xs font-bold text-red-600 uppercase">Refunds / Returns</p>
                         <p className="text-xl font-bold text-red-500 mt-1">-{fmt(profitData.summary.totalRefunds)}</p>
                       </div>
-                      <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex flex-col justify-center">
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                         <p className="text-xs font-bold text-blue-800 uppercase">Net Revenue</p>
                         <p className="text-xl font-bold text-blue-900 mt-1">{fmt(profitData.summary.netRevenue)}</p>
                       </div>
                       
-                      <div>
-                        <p className="text-sm font-semibold text-gray-500 uppercase">Cost of Goods (COGS)</p>
+                      <div className="p-4 rounded-lg bg-red-50">
+                        <p className="text-xs font-bold text-red-600 uppercase">Cost of Goods (COGS)</p>
                         <p className="text-xl font-bold text-red-500 mt-1">-{fmt(profitData.summary.cogs)}</p>
                       </div>
-                      <div className="bg-green-50 p-3 rounded-lg border border-green-100 flex flex-col justify-center">
-                        <p className="text-xs font-bold text-green-800 uppercase">Gross Profit</p>
-                        <p className="text-xl font-bold text-green-900 mt-1">{fmt(profitData.summary.grossProfit)}</p>
+                      <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+                        <p className="text-xs font-bold text-emerald-800 uppercase">Gross Profit</p>
+                        <p className="text-xl font-bold text-emerald-900 mt-1">{fmt(profitData.summary.grossProfit)}</p>
+                        <p className="text-xs font-semibold text-emerald-600 mt-0.5">
+                          {profitData.summary.grossRevenue > 0 ? `${((profitData.summary.grossProfit / profitData.summary.grossRevenue) * 100).toFixed(1)}% margin` : '—'}
+                        </p>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-500 uppercase">Operating Expenses</p>
+                      <div className="p-4 rounded-lg bg-red-50">
+                        <p className="text-xs font-bold text-red-600 uppercase">Operating Expenses</p>
                         <p className="text-xl font-bold text-red-500 mt-1">-{fmt(profitData.summary.operatingExpenses)}</p>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-500 uppercase">Est. Payment Fees</p>
+                      <div className="p-4 rounded-lg bg-red-50">
+                        <p className="text-xs font-bold text-red-600 uppercase">Est. Payment Fees</p>
                         <p className="text-xl font-bold text-red-500 mt-1">-{fmt(profitData.summary.paymentFees)}</p>
                       </div>
                     </div>
                     
-                    <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center bg-gray-50 p-5 rounded-lg shadow-inner">
-                      <span className="text-lg font-bold text-gray-700">Net Profit (Estimated)</span>
-                      <span className="text-3xl font-black text-green-600 mt-2 sm:mt-0">{fmt(profitData.summary.netProfit)}</span>
+                    {/* ── Net Profit Summary Bar ──────────────────────── */}
+                    <div className={`mt-6 pt-6 border-t flex flex-col sm:flex-row justify-between items-center p-5 rounded-xl shadow-inner ${
+                      profitData.summary.netProfit >= 0 
+                        ? 'bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-100' 
+                        : 'bg-gradient-to-r from-red-50 to-rose-50 border-red-100'
+                    }`}>
+                      <div>
+                        <span className="text-lg font-bold text-gray-700">Net Profit (Estimated)</span>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {profitData.summary.grossRevenue > 0 
+                            ? `Net margin: ${((profitData.summary.netProfit / profitData.summary.grossRevenue) * 100).toFixed(1)}%`
+                            : ''
+                          }
+                        </p>
+                      </div>
+                      <div className="text-right mt-2 sm:mt-0">
+                        <span className={`text-3xl font-black ${profitData.summary.netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                          {fmt(profitData.summary.netProfit)}
+                        </span>
+                        {priorProfitData?.summary && (
+                          <div className="mt-1">
+                            <TrendBadge current={profitData.summary.netProfit} previous={priorProfitData.summary.netProfit} fmt={fmt} />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
 
+                {/* Product Profit Breakdown Table */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="px-6 py-5 border-b border-gray-200 bg-gray-50/50">
                     <h3 className="text-lg font-bold text-gray-900">Product-Wise Profit Breakdown</h3>
                   </div>
+                  {/* Top/Bottom callouts */}
+                  {filteredProfit.length > 0 && (
+                    <div className="px-6 py-3 border-b border-gray-100 flex flex-wrap gap-2 bg-gray-50/30">
+                      {(() => {
+                        const sorted = [...filteredProfit].sort((a: any, b: any) => (b.grossProfit || 0) - (a.grossProfit || 0));
+                        const top = sorted[0];
+                        const bottom = sorted[sorted.length - 1];
+                        return (
+                          <>
+                            {top && <InsightCallout icon="🏆" label="Highest profit" value={`${top.name} — ${fmt(top.grossProfit)}`} color="green" />}
+                            {bottom && sorted.length > 1 && <InsightCallout icon="⚠️" label="Lowest profit" value={`${bottom.name} — ${fmt(bottom.grossProfit)}`} color="amber" />}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
@@ -922,18 +1334,33 @@ export default function ReportsPage() {
                           <SortableHeader label="Revenue" sortKey="revenue" align="right" />
                           <SortableHeader label="COGS" sortKey="cogs" align="right" />
                           <SortableHeader label="Gross Profit" sortKey="grossProfit" align="right" />
+                          <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Margin %</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {paginateData(sortData(filteredProfit)).map((p: any, i: number) => (
-                          <tr key={i} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.name}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-right">{p.unitsSold}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">{fmt(p.revenue)}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-red-500 text-right">{fmt(p.cogs)}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 text-right">{fmt(p.grossProfit)}</td>
-                          </tr>
-                        ))}
+                        {paginateData(sortData(filteredProfit)).map((p: any, i: number) => {
+                          const margin = p.revenue > 0 ? (p.grossProfit / p.revenue) * 100 : 0;
+                          const isHighMargin = margin >= 50;
+                          const isLowMargin = margin < 20 && margin >= 0;
+                          return (
+                            <tr key={i} className={`hover:bg-gray-50 transition-colors ${isLowMargin ? 'bg-amber-50/30' : ''}`}>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.name}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-right">{p.unitsSold}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">{fmt(p.revenue)}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-red-500 text-right">{fmt(p.cogs)}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 text-right">{fmt(p.grossProfit)}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
+                                  isHighMargin ? 'bg-emerald-100 text-emerald-800' : 
+                                  isLowMargin ? 'bg-amber-100 text-amber-800' : 
+                                  'bg-gray-100 text-gray-700'
+                                }`}>
+                                  {margin.toFixed(1)}%
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                     <PaginationControls totalItems={filteredProfit.length} />
@@ -942,14 +1369,51 @@ export default function ReportsPage() {
               </div>
             )}
 
-            {/* 7. STOCK TURNOVER */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* 7. STOCK TURNOVER                                             */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
             {activeTab === "turnover" && turnoverData && (
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <SummaryWidget title="Fast Moving" value={filteredTurnover.filter((p: any) => p.status === 'FAST_MOVING').length} subtitle="High turnover rate" />
-                  <SummaryWidget title="Stagnant" value={filteredTurnover.filter((p: any) => p.status === 'STAGNANT').length} subtitle="Zero or very low sales" />
-                  <SummaryWidget title="Analysis Period" value={`${turnoverData.period.days} Days`} subtitle="Date range" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <SummaryWidget title="Fast Moving" value={filteredTurnover.filter((p: any) => p.status === 'FAST_MOVING').length} subtitle="High turnover rate" variant="green" icon="🚀" />
+                  <SummaryWidget title="Stagnant" value={filteredTurnover.filter((p: any) => p.status === 'STAGNANT').length} subtitle="Zero or very low sales" variant="red" icon="🛑" />
+                  <SummaryWidget title="Analysis Period" value={`${turnoverData.period.days} Days`} subtitle="Date range" variant="default" icon="📅" />
                 </div>
+
+                {/* ── Turnover Distribution Chart ────────────────────────── */}
+                {turnoverDonutData.length > 0 && (
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">Turnover Distribution</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                      <div className="h-56">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie data={turnoverDonutData} cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={3} dataKey="value">
+                              {turnoverDonutData.map((entry, index) => <Cell key={index} fill={entry.fill} />)}
+                            </Pie>
+                            <Tooltip formatter={(value: number) => [`${value} products`, '']} />
+                            <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        {turnoverDonutData.map(d => (
+                          <div key={d.name} className="p-3 rounded-lg border bg-gray-50">
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.fill }} />
+                              <span className="text-xs font-semibold text-gray-600">{d.name}</span>
+                            </div>
+                            <p className="text-xl font-bold text-gray-900">{d.value}</p>
+                            <p className="text-xs text-gray-500">
+                              {filteredTurnover.length > 0 ? `${((d.value / filteredTurnover.length) * 100).toFixed(0)}%` : '0%'} of total
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="px-6 py-5 border-b border-gray-200 bg-gray-50/50 flex justify-between items-center">
                     <h3 className="text-lg font-bold text-gray-900">Stock Turnover Analysis</h3>
@@ -975,7 +1439,7 @@ export default function ReportsPage() {
                         else if (p.status === "STAGNANT") statusColor = "bg-red-100 text-red-800";
 
                         return (
-                          <tr key={i} className="hover:bg-gray-50 transition-colors">
+                          <tr key={i} className={`hover:bg-gray-50 transition-colors ${p.status === 'STAGNANT' ? 'bg-red-50/30' : ''}`}>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.name}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.category || '—'}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right">{p.currentStock}</td>
@@ -997,14 +1461,53 @@ export default function ReportsPage() {
               </div>
             )}
 
-            {/* 8. CUSTOMER ANALYTICS */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* 8. CUSTOMER ANALYTICS                                         */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
             {activeTab === "customers" && customerData && (
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <SummaryWidget title="Active Customers" value={filteredCustomers.length} subtitle="In current filter" />
-                  <SummaryWidget title="Avg Customer Spend" value={fmt(filteredCustomers.reduce((sum: number, c: any) => sum + (c.totalSpent || 0), 0) / (filteredCustomers.length || 1))} subtitle="Average total spent" />
-                  <SummaryWidget title="Avg Order Value" value={fmt(filteredCustomers.length > 0 ? filteredCustomers.reduce((sum: number, c: any) => sum + (c.averageOrderValue || 0), 0) / filteredCustomers.length : 0)} subtitle="Across these customers" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <SummaryWidget title="Active Customers" value={filteredCustomers.length} subtitle="In current filter" variant="blue" icon="👤" />
+                  <SummaryWidget title="Avg Customer Spend" value={fmt(filteredCustomers.reduce((sum: number, c: any) => sum + (c.totalSpent || 0), 0) / (filteredCustomers.length || 1))} subtitle="Average total spent" variant="green" icon="💳" />
+                  <SummaryWidget title="Avg Order Value" value={fmt(filteredCustomers.length > 0 ? filteredCustomers.reduce((sum: number, c: any) => sum + (c.averageOrderValue || 0), 0) / filteredCustomers.length : 0)} subtitle="Across these customers" variant="default" icon="📊" />
                 </div>
+
+                {/* ── Customer Value Chart ───────────────────────────────── */}
+                {filteredCustomers.length > 0 && (
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">Top Customers by Spend</h3>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {(() => {
+                        const sorted = [...filteredCustomers].sort((a: any, b: any) => (b.totalSpent || 0) - (a.totalSpent || 0));
+                        const top = sorted[0];
+                        return top ? <InsightCallout icon="👑" label="Top customer" value={`${top.name} — ${fmt(top.totalSpent)} (${top.purchaseCount} purchases)`} color="blue" /> : null;
+                      })()}
+                    </div>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart 
+                          data={[...filteredCustomers].sort((a: any, b: any) => (b.totalSpent || 0) - (a.totalSpent || 0)).slice(0, 10).map((c: any) => ({
+                            name: c.name?.split(' ')[0] || 'Unknown',
+                            totalSpent: c.totalSpent || 0,
+                            purchases: c.purchaseCount || 0,
+                          }))} 
+                          margin={{ left: -20, right: 10 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} tickFormatter={(val) => `$${val}`} />
+                          <Tooltip
+                            cursor={{ fill: '#F3F4F6' }}
+                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                            formatter={(value: number, name: string) => [name === 'totalSpent' ? fmt(value) : value, name === 'totalSpent' ? 'Total Spent' : 'Purchases']}
+                          />
+                          <Bar dataKey="totalSpent" fill="#8B5CF6" radius={[4, 4, 0, 0]} barSize={32} name="Total Spent" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="px-6 py-5 border-b border-gray-200 bg-gray-50/50 flex justify-between items-center">
                     <h3 className="text-lg font-bold text-gray-900">Top Customers</h3>
@@ -1030,7 +1533,12 @@ export default function ReportsPage() {
                             {c.name}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              c.loyaltyTier === 'Gold' ? 'bg-amber-100 text-amber-800' :
+                              c.loyaltyTier === 'Silver' ? 'bg-gray-200 text-gray-700' :
+                              c.loyaltyTier === 'Platinum' ? 'bg-indigo-100 text-indigo-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
                               {c.loyaltyTier || 'Standard'}
                             </span>
                           </td>
@@ -1054,13 +1562,15 @@ export default function ReportsPage() {
               </div>
             )}
 
-            {/* 9. SHIFT / Z-REPORT */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* 9. SHIFT / Z-REPORT                                           */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
             {activeTab === "shift" && (
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <SummaryWidget title="Total Shifts Recorded" value={filteredShifts.length} subtitle="Based on current filter" />
-                  <SummaryWidget title="Open Shifts" value={filteredShifts.filter((s: any) => s.status === 'OPEN').length} subtitle="Currently active" />
-                  <SummaryWidget title="Closed Shifts" value={filteredShifts.filter((s: any) => s.status === 'CLOSED').length} subtitle="Completed registers" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <SummaryWidget title="Total Shifts Recorded" value={filteredShifts.length} subtitle="Based on current filter" variant="blue" icon="📋" />
+                  <SummaryWidget title="Open Shifts" value={filteredShifts.filter((s: any) => s.status === 'OPEN').length} subtitle="Currently active" variant="green" icon="🟢" />
+                  <SummaryWidget title="Closed Shifts" value={filteredShifts.filter((s: any) => s.status === 'CLOSED').length} subtitle="Completed registers" variant="default" icon="✅" />
                 </div>
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="px-6 py-5 border-b border-gray-200 bg-gray-50/50 flex justify-between items-center">
@@ -1120,6 +1630,8 @@ export default function ReportsPage() {
 
           </div>
         )}
+          </div>
+        </div>
       </div>
 
       {/* Z-Report Modal */}

@@ -73,14 +73,6 @@ const quickActions = [
     description: "System configuration",
     gradient: "from-gray-500 to-gray-600",
   },
-  {
-    name: "Analytics",
-    href: "/analytics",
-    icon: "📈",
-    color: "teal",
-    description: "Advanced insights",
-    gradient: "from-teal-500 to-cyan-600",
-  },
 ];
 
 const AdminDashboard: React.FC = () => {
@@ -130,6 +122,23 @@ const AdminDashboard: React.FC = () => {
     );
   }
 
+  // Calculate real trends
+  const getChange = (current: number, previous: number) => {
+    if (previous === 0) return undefined;
+    const change = ((current - previous) / previous) * 100;
+    return { value: Number(Math.abs(change).toFixed(1)), isPositive: change >= 0 };
+  };
+
+  const salesChange = getChange(dashboardData.todaySales, dashboardData.yesterdaySales);
+  const expensesChange = getChange(dashboardData.todayExpenses || 0, dashboardData.yesterdayExpenses || 0);
+  const todayNet = (dashboardData.todaySales || 0) - (dashboardData.todayExpenses || 0);
+  const yesterdayNet = (dashboardData.yesterdaySales || 0) - (dashboardData.yesterdayExpenses || 0);
+  const netProfitChange = getChange(todayNet, yesterdayNet);
+
+  // Business Health Status
+  const healthStatus = todayNet > 0 ? 'good' : 'warning';
+  const marginPct = dashboardData.todaySales ? ((todayNet / dashboardData.todaySales) * 100).toFixed(1) : '0.0';
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/20 to-slate-50">
       <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -171,36 +180,62 @@ const AdminDashboard: React.FC = () => {
           <AdminDashboardSkeleton />
         ) : (
           <div className="space-y-8">
+            {/* Business Health Banner */}
+            <div className={`rounded-xl border p-5 ${healthStatus === 'good' ? 'bg-emerald-50/50 border-emerald-100' : 'bg-amber-50/50 border-amber-100'}`}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${healthStatus === 'good' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+                    {healthStatus === 'good' ? '🚀' : '⚠️'}
+                  </div>
+                  <div>
+                    <h3 className={`font-bold ${healthStatus === 'good' ? 'text-emerald-800' : 'text-amber-800'}`}>
+                      {healthStatus === 'good' ? 'Excellent Performance' : 'Needs Attention'}
+                    </h3>
+                    <p className="text-sm text-slate-600 mt-0.5">
+                      Net margin today is <span className="font-semibold text-slate-900">{marginPct}%</span>. 
+                      {healthStatus === 'good' ? ' Your store is highly profitable today.' : ' Watch your expenses closely today.'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="bg-white/60 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600">
+                    💡 {dashboardData.topSellingProducts[0]?.name || 'Top Product'} drives most sales
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Key Metrics */}
             <div>
               <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
                 <span>📊</span>
-                <span>Key Metrics</span>
+                <span>Key Metrics (Today)</span>
               </h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <DashboardStatCard
                   title="Today's Sales"
                   value={formatCurrency(dashboardData.todaySales, settings)}
-                  change={{ value: 12.5, isPositive: true }}
+                  change={salesChange}
                   icon="💰"
                   color="green"
                 />
                 <DashboardStatCard
                   title="Today's Expenses"
                   value={formatCurrency(dashboardData.todayExpenses || 0, settings)}
+                  change={expensesChange}
                   icon="💸"
                   color="red"
                 />
                 <DashboardStatCard
                   title="Net Profit"
-                  value={formatCurrency((dashboardData.todaySales || 0) - (dashboardData.todayExpenses || 0), settings)}
+                  value={formatCurrency(todayNet, settings)}
+                  change={netProfitChange}
                   icon="📈"
                   color="blue"
                 />
                 <DashboardStatCard
                   title="Today's Orders"
                   value={dashboardData.todayTransactions}
-                  change={{ value: 8.2, isPositive: true }}
                   icon="🛒"
                   color="purple"
                 />
@@ -234,14 +269,12 @@ const AdminDashboard: React.FC = () => {
                 <DashboardStatCard
                   title="This Week"
                   value={formatCurrency(dashboardData.weekSales, settings)}
-                  change={{ value: 15.3, isPositive: true }}
                   icon="📊"
                   color="blue"
                 />
                 <DashboardStatCard
                   title="This Month"
                   value={formatCurrency(dashboardData.monthSales, settings)}
-                  change={{ value: 23.1, isPositive: true }}
                   icon="📈"
                   color="green"
                 />
@@ -251,7 +284,6 @@ const AdminDashboard: React.FC = () => {
                     dashboardData.averageOrderValue,
                     settings,
                   )}
-                  change={{ value: 5.7, isPositive: true }}
                   icon="💸"
                   color="purple"
                 />
@@ -268,14 +300,12 @@ const AdminDashboard: React.FC = () => {
                 <DashboardStatCard
                   title="Total Customers"
                   value={dashboardData.totalCustomers}
-                  change={{ value: 4.2, isPositive: true }}
                   icon="👥"
                   color="indigo"
                 />
                 <DashboardStatCard
                   title="New This Week"
                   value={dashboardData.newCustomersThisWeek}
-                  change={{ value: 12.8, isPositive: true }}
                   icon="👋"
                   color="pink"
                 />

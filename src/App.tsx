@@ -15,7 +15,6 @@ import RegisterPage from "./pages/RegisterPage";
 
 // Lazy load admin/manager pages
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage"));
 const AuditLogsPage = lazy(() => import("./pages/AuditLogsPage"));
 const CashDrawerPage = lazy(() => import("./pages/CashDrawerPage"));
 const CategoriesPage = lazy(() => import("./pages/CategoriesPage"));
@@ -62,7 +61,6 @@ const adminPaths = [
   "/customers",
   "/sales",
   "/reports",
-  "/analytics",
   "/inventory",
   "/employees",
   "/salary-sheets",
@@ -199,7 +197,6 @@ const App: React.FC = () => {
                       <Route path="/customers" element={<CustomersPage />} />
                       <Route path="/sales" element={<SalesPage />} />
                       <Route path="/reports" element={<ReportsPage />} />
-                      <Route path="/analytics" element={<AnalyticsPage />} />
                       <Route path="/inventory" element={<InventoryPage />} />
                       <Route path="/audit-logs" element={<AuditLogsPage />} />
                       <Route
