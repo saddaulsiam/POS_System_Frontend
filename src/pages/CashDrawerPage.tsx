@@ -255,15 +255,18 @@ const CashDrawerPage: React.FC = () => {
                   </h3>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Total Sales:</span>
+                      <span className="text-gray-600">Card Sales:</span>
                       <span className="font-medium">
-                        {reconciliation.sales}
+                        {formatCurrency(
+                          reconciliation.paymentBreakdown.card,
+                          settings,
+                        )}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Total Amount:</span>
+                      <span className="text-gray-600">Total Sales:</span>
                       <span className="font-medium">
-                        {formatCurrency(reconciliation.totalSales, settings)}
+                        {reconciliation.sales}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -276,14 +279,12 @@ const CashDrawerPage: React.FC = () => {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Card Sales:</span>
+                      <span className="text-gray-600">Total Amount:</span>
                       <span className="font-medium">
-                        {formatCurrency(
-                          reconciliation.paymentBreakdown.card,
-                          settings,
-                        )}
+                        {formatCurrency(reconciliation.totalSales, settings)}
                       </span>
                     </div>
+
                     <div className="flex justify-between">
                       <span className="text-gray-600">Mobile Sales:</span>
                       <span className="font-medium">
