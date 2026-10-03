@@ -155,7 +155,7 @@ const App: React.FC = () => {
         )}
 
         <main
-          className={`flex-1 ${isAdminPath ? "pt-16" : ""} min-h-screen bg-gray-50`}
+          className={`flex-1 ${isAdminPath ? "pt-16" : ""} min-h-screen bg-gray-50 print:pt-0 print:bg-white`}
         >
           <SubscriptionGuard>
             <Suspense fallback={<LoadingSpinner size="lg" />}>

@@ -257,7 +257,7 @@ const Sidebar: React.FC = () => {
   return (
     <>
       <aside
-        className={`fixed left-0 top-16 z-30 flex h-[calc(100vh-4rem)] flex-col border-r border-gray-100 bg-white shadow-sm transition-all duration-300 ${isCollapsed ? "w-[60px]" : "w-64"
+        className={`fixed left-0 top-16 z-30 flex h-[calc(100vh-4rem)] flex-col border-r border-gray-100 bg-white shadow-sm transition-all duration-300 print:hidden ${isCollapsed ? "w-[60px]" : "w-64"
           }`}
       >
         {/* Toggle Button */}
@@ -432,7 +432,7 @@ const Sidebar: React.FC = () => {
       </aside>
 
       {/* Spacer for content layout */}
-      <div className={`${isCollapsed ? "w-[60px]" : "w-56"} flex-shrink-0 transition-all duration-300`} />
+      <div className={`${isCollapsed ? "w-[60px]" : "w-56"} flex-shrink-0 transition-all duration-300 print:hidden`} />
     </>
   );
 };
