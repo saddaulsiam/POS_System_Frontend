@@ -98,7 +98,7 @@ const PointsHistoryTable: React.FC<PointsHistoryTableProps> = ({
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `loyalty_points_history_${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `loyalty_points_history_${new Date().toLocaleDateString("en-CA")}.csv`;
     a.click();
   };
 

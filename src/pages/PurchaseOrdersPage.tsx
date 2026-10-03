@@ -99,7 +99,7 @@ const PurchaseOrdersPage: React.FC = () => {
   // Create PO form
   const [formData, setFormData] = useState({
     supplierId: "",
-    orderDate: new Date().toISOString().split("T")[0],
+    orderDate: new Date().toLocaleDateString("en-CA"),
     expectedDate: "",
     notes: "",
   });
@@ -303,7 +303,7 @@ const PurchaseOrdersPage: React.FC = () => {
   const resetForm = () => {
     setFormData({
       supplierId: "",
-      orderDate: new Date().toISOString().split("T")[0],
+      orderDate: new Date().toLocaleDateString("en-CA"),
       expectedDate: "",
       notes: "",
     });

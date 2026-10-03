@@ -740,10 +740,10 @@ const OfferModal: React.FC<{
     requiredTier: offer?.requiredTier || "BRONZE",
     startDate: offer?.startDate
       ? offer.startDate.split("T")[0]
-      : new Date().toISOString().split("T")[0],
+      : new Date().toLocaleDateString("en-CA"),
     endDate: offer?.endDate
       ? offer.endDate.split("T")[0]
-      : new Date().toISOString().split("T")[0],
+      : new Date().toLocaleDateString("en-CA"),
     isActive: offer?.isActive ?? true,
   });
 

@@ -40,7 +40,7 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({
       let dateOfBirth = "";
       if (editingCustomer.dateOfBirth) {
         const date = new Date(editingCustomer.dateOfBirth);
-        dateOfBirth = date.toISOString().split("T")[0]; // Extract YYYY-MM-DD
+        dateOfBirth = date.toLocaleDateString("en-CA"); // Extract YYYY-MM-DD
       }
 
       setFormData({

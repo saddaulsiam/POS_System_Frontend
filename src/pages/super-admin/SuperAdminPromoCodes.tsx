@@ -62,7 +62,7 @@ const SuperAdminPromoCodes: React.FC = () => {
     setMaxUses(promo.maxUses ? promo.maxUses.toString() : "");
     setExpiresAt(
       promo.expiresAt
-        ? new Date(promo.expiresAt).toISOString().split("T")[0]
+        ? new Date(promo.expiresAt).toLocaleDateString("en-CA")
         : "",
     );
     setEditingPromoId(promo.id);
