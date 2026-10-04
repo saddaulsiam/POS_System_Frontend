@@ -73,10 +73,10 @@ export const PaymentMethodsInteractive: React.FC = () => {
   };
 
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col h-full justify-between">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-full flex flex-col justify-between">
       <div>
-        <h3 className="text-lg font-bold text-slate-800">Payment Breakdown</h3>
-        <p className="text-sm text-slate-400">Transaction split by payment type (Last 7 days)</p>
+        <h3 className="text-lg font-bold text-gray-900">Payment Breakdown</h3>
+        <p className="mt-1 text-sm text-gray-500 font-medium">Transaction split by payment type (Last 7 days)</p>
       </div>
 
       <div className="my-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">

@@ -1,7 +1,7 @@
 import React from "react";
 import { useAuth } from "../context/AuthContext";
 import { BackButton, RefreshButton } from "../components/common";
-import { DashboardStatCard } from "../components/dashboard/DashboardStatCard";
+import { SummaryWidget } from "../components/common";
 import { RecentTransactionsList } from "../components/dashboard/RecentTransactionsList";
 import { QuickActionsGrid } from "../components/dashboard/QuickActionsGrid";
 import { AlertsSection } from "../components/dashboard/AlertsSection";
@@ -122,18 +122,8 @@ const AdminDashboard: React.FC = () => {
     );
   }
 
-  // Calculate real trends
-  const getChange = (current: number, previous: number) => {
-    if (previous === 0) return undefined;
-    const change = ((current - previous) / previous) * 100;
-    return { value: Number(Math.abs(change).toFixed(1)), isPositive: change >= 0 };
-  };
-
-  const salesChange = getChange(dashboardData.todaySales, dashboardData.yesterdaySales);
-  const expensesChange = getChange(dashboardData.todayExpenses || 0, dashboardData.yesterdayExpenses || 0);
   const todayNet = (dashboardData.todaySales || 0) - (dashboardData.todayExpenses || 0);
   const yesterdayNet = (dashboardData.yesterdaySales || 0) - (dashboardData.yesterdayExpenses || 0);
-  const netProfitChange = getChange(todayNet, yesterdayNet);
 
   // Business Health Status
   const healthStatus = todayNet > 0 ? 'good' : 'warning';
@@ -181,27 +171,33 @@ const AdminDashboard: React.FC = () => {
         ) : (
           <div className="space-y-8">
             {/* Business Health Banner */}
-            <div className={`rounded-xl border p-5 ${healthStatus === 'good' ? 'bg-emerald-50/50 border-emerald-100' : 'bg-amber-50/50 border-amber-100'}`}>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className={`rounded-xl border p-5 ${healthStatus === 'good' ? 'bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200' : 'bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200'}`}>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${healthStatus === 'good' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-sm ${healthStatus === 'good' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}`}>
                     {healthStatus === 'good' ? '🚀' : '⚠️'}
                   </div>
                   <div>
-                    <h3 className={`font-bold ${healthStatus === 'good' ? 'text-emerald-800' : 'text-amber-800'}`}>
+                    <h2 className="text-lg font-bold text-gray-900">
                       {healthStatus === 'good' ? 'Excellent Performance' : 'Needs Attention'}
-                    </h3>
-                    <p className="text-sm text-slate-600 mt-0.5">
-                      Net margin today is <span className="font-semibold text-slate-900">{marginPct}%</span>. 
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      Net margin today is <strong>{marginPct}%</strong>.
                       {healthStatus === 'good' ? ' Your store is highly profitable today.' : ' Watch your expenses closely today.'}
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <div className="bg-white/60 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600">
-                    💡 {dashboardData.topSellingProducts[0]?.name || 'Top Product'} drives most sales
+                <div className="flex items-center gap-4 text-right">
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase font-semibold">Net Profit</p>
+                    <p className={`text-2xl font-extrabold ${todayNet >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>{formatCurrency(todayNet, settings)}</p>
                   </div>
                 </div>
+              </div>
+              <div className="mt-4 pt-3 border-t border-gray-200/60 flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1.5 text-xs bg-white/70 px-3 py-1.5 rounded-full border border-gray-200 text-gray-700 font-medium">
+                  <span className="text-yellow-500">💡</span> {dashboardData.topSellingProducts[0]?.name || 'Top Product'} drives most sales
+                </span>
               </div>
             </div>
 
@@ -212,32 +208,32 @@ const AdminDashboard: React.FC = () => {
                 <span>Key Metrics (Today)</span>
               </h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <DashboardStatCard
+                <SummaryWidget
                   title="Today's Sales"
                   value={formatCurrency(dashboardData.todaySales, settings)}
-                  change={salesChange}
+                  trend={{ current: dashboardData.todaySales, previous: dashboardData.yesterdaySales }}
                   icon="💰"
-                  color="green"
+                  variant="green"
                 />
-                <DashboardStatCard
+                <SummaryWidget
                   title="Today's Expenses"
                   value={formatCurrency(dashboardData.todayExpenses || 0, settings)}
-                  change={expensesChange}
+                  trend={{ current: dashboardData.todayExpenses || 0, previous: dashboardData.yesterdayExpenses || 0 }}
                   icon="💸"
-                  color="red"
+                  variant="red"
                 />
-                <DashboardStatCard
+                <SummaryWidget
                   title="Net Profit"
                   value={formatCurrency(todayNet, settings)}
-                  change={netProfitChange}
+                  trend={{ current: todayNet, previous: yesterdayNet }}
                   icon="📈"
-                  color="blue"
+                  variant="blue"
                 />
-                <DashboardStatCard
+                <SummaryWidget
                   title="Today's Orders"
                   value={dashboardData.todayTransactions}
                   icon="🛒"
-                  color="purple"
+                  variant="purple"
                 />
               </div>
             </div>
@@ -260,32 +256,32 @@ const AdminDashboard: React.FC = () => {
                 <span>Sales Overview Comparisons</span>
               </h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <DashboardStatCard
+                <SummaryWidget
                   title="Yesterday"
                   value={formatCurrency(dashboardData.yesterdaySales, settings)}
                   icon="📅"
-                  color="gray"
+                  variant="default"
                 />
-                <DashboardStatCard
+                <SummaryWidget
                   title="This Week"
                   value={formatCurrency(dashboardData.weekSales, settings)}
                   icon="📊"
-                  color="blue"
+                  variant="blue"
                 />
-                <DashboardStatCard
+                <SummaryWidget
                   title="This Month"
                   value={formatCurrency(dashboardData.monthSales, settings)}
                   icon="📈"
-                  color="green"
+                  variant="green"
                 />
-                <DashboardStatCard
+                <SummaryWidget
                   title="Avg Order Value"
                   value={formatCurrency(
                     dashboardData.averageOrderValue,
                     settings,
                   )}
                   icon="💸"
-                  color="purple"
+                  variant="purple"
                 />
               </div>
             </div>
@@ -297,23 +293,23 @@ const AdminDashboard: React.FC = () => {
                 <span>Store Engagement</span>
               </h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                <DashboardStatCard
+                <SummaryWidget
                   title="Total Customers"
                   value={dashboardData.totalCustomers}
                   icon="👥"
-                  color="indigo"
+                  variant="blue"
                 />
-                <DashboardStatCard
+                <SummaryWidget
                   title="New This Week"
                   value={dashboardData.newCustomersThisWeek}
                   icon="👋"
-                  color="pink"
+                  variant="purple"
                 />
-                <DashboardStatCard
+                <SummaryWidget
                   title="Active Products"
                   value={`${dashboardData.activeProducts}/${dashboardData.totalProducts}`}
                   icon="✅"
-                  color="green"
+                  variant="green"
                 />
               </div>
             </div>

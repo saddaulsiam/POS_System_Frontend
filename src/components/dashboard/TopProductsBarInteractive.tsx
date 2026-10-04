@@ -58,12 +58,12 @@ export const TopProductsBarInteractive: React.FC<TopProductsBarInteractiveProps>
   };
 
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col h-full justify-between">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-full flex flex-col justify-between">
       {/* Header and Toggle */}
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h3 className="text-lg font-bold text-slate-800">Top Selling Products</h3>
-          <p className="text-sm text-slate-400">Your highest performing inventory items</p>
+          <h3 className="text-lg font-bold text-gray-900">Top Selling Products</h3>
+          <p className="mt-1 text-sm text-gray-500 font-medium">Your highest performing inventory items</p>
         </div>
         <div className="flex bg-slate-100 p-1 rounded-xl self-start sm:self-center">
           <button

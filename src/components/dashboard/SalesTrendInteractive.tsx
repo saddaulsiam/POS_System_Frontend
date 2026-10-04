@@ -69,12 +69,12 @@ export const SalesTrendInteractive: React.FC = () => {
   };
 
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-full flex flex-col">
       {/* Header and Filter */}
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h3 className="text-lg font-bold text-slate-800">Sales Trend Overview</h3>
-          <p className="text-sm text-slate-400">Track and analyze incoming revenue trends</p>
+          <h3 className="text-lg font-bold text-gray-900">Sales Trend Overview</h3>
+          <p className="mt-1 text-sm text-gray-500 font-medium">Track and analyze incoming revenue trends</p>
         </div>
         <div className="flex bg-slate-100 p-1 rounded-xl self-start sm:self-center">
           <button
