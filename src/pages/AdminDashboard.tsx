@@ -170,7 +170,8 @@ const AdminDashboard: React.FC = () => {
           <AdminDashboardSkeleton />
         ) : (
           <div className="space-y-8">
-            {/* Business Health Banner */}
+            
+            {/* 1. Business Health Banner */}
             <div className={`rounded-xl border p-5 ${healthStatus === 'good' ? 'bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200' : 'bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200'}`}>
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -194,14 +195,9 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="mt-4 pt-3 border-t border-gray-200/60 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1.5 text-xs bg-white/70 px-3 py-1.5 rounded-full border border-gray-200 text-gray-700 font-medium">
-                  <span className="text-yellow-500">💡</span> {dashboardData.topSellingProducts[0]?.name || 'Top Product'} drives most sales
-                </span>
-              </div>
             </div>
 
-            {/* Key Metrics */}
+            {/* 2. Key Metrics */}
             <div>
               <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
                 <span>📊</span>
@@ -238,7 +234,22 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Interactive Sales Trend Section (Span Full Width) */}
+            {/* 3. Actionable Items: Quick Actions & Alerts (Moved to top for UX) */}
+            <div>
+              <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
+                <span>⚡</span>
+                <span>Actions & Alerts</span>
+              </h2>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <QuickActionsGrid actions={quickActions} />
+                <AlertsSection
+                  lowStockCount={dashboardData.lowStockCount}
+                  outOfStockCount={dashboardData.outOfStockCount}
+                />
+              </div>
+            </div>
+
+            {/* 4. Interactive Sales Trend Section */}
             <div>
               <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
                 <span>📈</span>
@@ -249,7 +260,31 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Sales Overview */}
+            {/* 5. Interactive Charts and Analytics Details (3-Column Layout) */}
+            <div>
+              <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
+                <span>🔍</span>
+                <span>Deep Dive Analytics</span>
+              </h2>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <TopProductsBarInteractive data={dashboardData.topSellingProducts} />
+                <CategoryDonutInteractive data={dashboardData.salesByCategory} />
+                <PaymentMethodsInteractive />
+              </div>
+            </div>
+
+            {/* 6. Recent Activity */}
+            <div>
+              <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
+                <span>📋</span>
+                <span>Recent Transactions</span>
+              </h2>
+              <RecentTransactionsList
+                transactions={dashboardData.recentTransactions}
+              />
+            </div>
+
+            {/* 7. Sales Overview Comparisons */}
             <div>
               <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
                 <span>📅</span>
@@ -286,10 +321,10 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Performance Metrics */}
+            {/* 8. Performance Metrics (Store Engagement) */}
             <div>
               <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
-                <span>⚡</span>
+                <span>👋</span>
                 <span>Store Engagement</span>
               </h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -314,45 +349,7 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Interactive Charts and Analytics Details (3-Column Layout) */}
-            <div>
-              <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
-                <span>🔍</span>
-                <span>Deep Dive Analytics</span>
-              </h2>
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                {/* Top Products Card */}
-                <TopProductsBarInteractive data={dashboardData.topSellingProducts} />
-
-                {/* Categories Breakdown Card */}
-                <CategoryDonutInteractive data={dashboardData.salesByCategory} />
-
-                {/* Payment Methods Card */}
-                <PaymentMethodsInteractive />
-              </div>
-            </div>
-
-            {/* Recent Activity */}
-            <div>
-              <h2 className="mb-5 flex items-center gap-2 text-xl font-extrabold text-slate-800">
-                <span>⚡</span>
-                <span>Recent Activity & Actions</span>
-              </h2>
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <RecentTransactionsList
-                  transactions={dashboardData.recentTransactions}
-                />
-                <QuickActionsGrid actions={quickActions} />
-              </div>
-            </div>
-
-            {/* Alerts and Notifications */}
-            <AlertsSection
-              lowStockCount={dashboardData.lowStockCount}
-              outOfStockCount={dashboardData.outOfStockCount}
-            />
-
-            {/* Dashboard Footer - Quick Summary */}
+            {/* 9. Dashboard Footer - Quick Summary */}
             <div className="rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 p-8 text-white shadow-lg relative overflow-hidden">
               {/* Decorative glows */}
               <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
@@ -389,6 +386,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
+
           </div>
         )}
       </div>
